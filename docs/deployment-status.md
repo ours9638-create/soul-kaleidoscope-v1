@@ -34,9 +34,26 @@
 - PWA 第一次開啟會自動帶入 URL
 - 若重新部署 Apps Script，要同步更新 `web/deployment-config.js`
 
+## GitHub Pages
+
+- 狀態：已部署並驗證公開頁可用
+- GitHub repo：`https://github.com/ours9638-create/soul-kaleidoscope-v1`
+- 公開 PWA：`https://ours9638-create.github.io/soul-kaleidoscope-v1/web/`
+- 驗證結果：
+  - 公開頁 HTTP 200
+  - PWA 可本機計算
+  - `Apps Script API URL` 自動帶入
+  - 按「檢查後台」成功回傳 `後台正常｜v0.1.0`
+
+## Cloudflare Pages
+
+- 狀態：待登入 Cloudflare 後上傳
+- 可上傳檔案：`dist/static-site.zip`
+- 上傳前檢查：`npm run verify:static`
+
 ## 下一步
 
-1. 部署 `dist/static-site` 到 GitHub Pages 或 Cloudflare Pages。
-2. 用手機開 PWA，新增一筆真實測試個案。
+1. 登入 Cloudflare Pages，上傳 `dist/static-site.zip`。
+2. 用手機開 GitHub Pages 或 Cloudflare Pages PWA，新增一筆真實測試個案。
 3. 檢查 Google Sheets 的 `個案資料表` 與 `輸出紀錄` 是否符合實際工作習慣。
 4. 若要做正式交付，先人工校對 SVG 與報告，不要直接交給客人。
