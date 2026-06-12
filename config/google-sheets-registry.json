@@ -1,0 +1,38 @@
+{
+  "readPolicy": [
+    "metadata-first",
+    "targeted-ranges-only",
+    "read-live-content-only-when-local-spreadsheet-snapshot-changes"
+  ],
+  "sheets": [
+    {
+      "id": "12Ddaw4FoMJ4eOFcQ8N-xi2LSiOC0mi4ab877E6sknKQ",
+      "title": "靈魂數字_可驗算公式表",
+      "role": "formula-source",
+      "criticalTabs": [
+        "靈魂數字",
+        "底層驗算",
+        "使用說明"
+      ],
+      "risk": "公式更新可能影響 src/core/numerology.js 與所有報告結果。"
+    },
+    {
+      "id": "1nsUEuPIfeIClQe4RBcWGkRjh9ExT7pT0CMkX6Hp7cEg",
+      "title": "靈魂數字整合系統_分類資料庫_光頻幾何圖輸出更新",
+      "role": "content-database",
+      "criticalTabs": [
+        "02_公式定稿",
+        "09_欄位字典",
+        "16_日月綻放數",
+        "25_精油數字對應0-9",
+        "26_精油配方規則",
+        "34_精油安全禁忌",
+        "59_數字生成幾何圖規則",
+        "65_圖像輸出檢查清單",
+        "87_靈魂萬花圖欄位映射",
+        "88_少字精準版生圖流程"
+      ],
+      "risk": "內容、精油或圖像規則更新時，要先判斷模組，不要直接改核心公式。"
+    }
+  ]
+}

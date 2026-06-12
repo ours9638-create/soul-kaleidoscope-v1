@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+node_modules/
+.env
+.env.*
+*.log
+
+# Local workflow state can contain machine-specific snapshots.
+.workflow/
+
+# Generated deployment artifacts. The GitHub Pages workflow rebuilds them from source.
+dist/

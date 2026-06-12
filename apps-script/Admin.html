@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: #f8fafc; color: #172033; }
+      main { max-width: 920px; margin: 0 auto; padding: 24px; }
+      h1 { margin: 0 0 16px; font-size: 28px; }
+      form, section { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; padding: 18px; margin: 16px 0; }
+      label { display: grid; gap: 6px; margin: 12px 0; font-size: 14px; font-weight: 650; }
+      input, select { min-height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 16px; }
+      button { min-height: 40px; border: 0; border-radius: 6px; background: #334155; color: #fff; padding: 0 14px; font-weight: 700; cursor: pointer; }
+      pre { white-space: pre-wrap; background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; overflow: auto; }
+      .note { margin: 8px 0 0; color: #64748b; font-size: 13px; line-height: 1.6; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>靈魂萬花筒 v1 後台</h1>
+      <section>
+        <h2>部署檢查</h2>
+        <p class="note">第一次部署後先按一次，確認 Google Sheets 分頁、欄位與 Drive 輸出資料夾都能建立。</p>
+        <button type="button" id="setupButton">初始化/檢查資料表</button>
+      </section>
+      <form id="caseForm">
+        <label>服務類型
+          <select name="serviceId">
+            <option value="soul-number-reading" selected>靈魂萬花筒數字盤</option>
+            <option value="essential-oil-product">精油產品/配方</option>
+            <option value="soul-number-with-oil">數字盤 + 精油搭配</option>
+          </select>
+        </label>
+        <label>姓名/代稱 <input name="displayName" value="小狐狸" required></label>
+
+        <div id="numberFields">
+          <label>國曆生日 <input name="solarDate" type="date" value="1989-05-28" required></label>
+          <label>農曆生日 <input name="lunarDate" type="date" value="1989-04-24" required></label>
+          <label>出生時間 <input name="birthTime" type="time" value="15:17" required></label>
+          <label>查詢日期 <input name="queryDate" type="date" required></label>
+        </div>
+
+        <div id="oilFields" hidden>
+          <label>使用情境 <input name="usageScenario" value="睡前放鬆"></label>
+          <label>產品型態 <input name="productType" value="滾珠"></label>
+          <label>建議精油 <input name="selectedOils" value="乳香、岩蘭草、甜橙"></label>
+          <p class="note">精油可單獨成為產品，也可作為數字盤支持層；不寫治療、治癒、保證改善。</p>
+        </div>
+
+        <button type="submit">計算並寫入個案資料表</button>
+      </form>
+      <section>
+        <h2>結果</h2>
+        <pre id="output">尚未計算</pre>
+      </section>
+    </main>
+    <script>
+      document.querySelector('[name="queryDate"]').value = new Date().toISOString().slice(0, 10);
+      const form = document.querySelector('#caseForm');
+      const setupButton = document.querySelector('#setupButton');
+      const serviceSelect = document.querySelector('[name="serviceId"]');
+      const numberFields = document.querySelector('#numberFields');
+      const oilFields = document.querySelector('#oilFields');
+
+      function updateServiceFields() {
+        const serviceId = serviceSelect.value;
+        const numberSelected = serviceId !== 'essential-oil-product';
+        const oilSelected = serviceId === 'essential-oil-product' || serviceId === 'soul-number-with-oil';
+        numberFields.hidden = !numberSelected;
+        oilFields.hidden = !oilSelected;
+        numberFields.querySelectorAll('input').forEach(function(input) {
+          input.required = numberSelected;
+        });
+      }
+
+      serviceSelect.addEventListener('change', updateServiceFields);
+      updateServiceFields();
+
+      setupButton.addEventListener('click', function() {
+        document.querySelector('#output').textContent = '檢查中...';
+        google.script.run
+          .withSuccessHandler(function(result) {
+            document.querySelector('#output').textContent = JSON.stringify(result, null, 2);
+          })
+          .withFailureHandler(function(error) {
+            document.querySelector('#output').textContent = error.message || String(error);
+          })
+          .setupWorkbook();
+      });
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(event.target).entries());
+        google.script.run
+          .withSuccessHandler(function(result) {
+            document.querySelector('#output').textContent = JSON.stringify(result, null, 2);
+          })
+          .withFailureHandler(function(error) {
+            document.querySelector('#output').textContent = error.message || String(error);
+          })
+          .calculateAndSaveCase(payload);
+      });
+    </script>
+  </body>
+</html>

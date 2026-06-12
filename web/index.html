@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#172033">
+    <title>靈魂萬花筒 v1</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="label">後台工作台</p>
+        <h1>靈魂萬花筒</h1>
+      </div>
+      <button id="installButton" hidden>安裝</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>新增個案</h2>
+        <form id="caseForm">
+          <label>服務類型
+            <select name="serviceId">
+              <option value="soul-number-reading" selected>靈魂萬花筒數字盤</option>
+              <option value="essential-oil-product">精油產品/配方</option>
+              <option value="soul-number-with-oil">數字盤 + 精油搭配</option>
+            </select>
+          </label>
+          <label>姓名/代稱 <input name="displayName" value="小狐狸" required></label>
+          <div id="numberFields">
+            <label>國曆生日 <input name="solarDate" type="date" value="1989-05-28"></label>
+            <label>農曆生日 <input name="lunarDate" type="date" value="1989-04-24"></label>
+            <label>出生時間 <input name="birthTime" type="time" value="15:17"></label>
+            <label>查詢日期 <input name="queryDate" type="date"></label>
+          </div>
+          <div id="oilFields" hidden>
+            <label>使用情境 <input name="usageScenario" value="年度支持"></label>
+            <label>產品型態 <input name="productType" value="滾珠"></label>
+            <label>建議精油 <input name="selectedOils" value="乳香、岩蘭草、甜橙"></label>
+            <p class="form-note">精油可單獨成為產品，也可作為數字盤支持層；不寫治療、治癒、保證改善。</p>
+          </div>
+          <label>Apps Script API URL <input name="apiUrl" placeholder="部署後貼上 Web App URL，可先留空"></label>
+          <div class="actions">
+            <button type="button" id="saveApiUrlButton">儲存 URL</button>
+            <button type="button" id="checkBackendButton">檢查後台</button>
+          </div>
+          <div class="actions">
+            <button type="submit">計算</button>
+            <button type="button" id="sendButton">送到後台</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel result-panel">
+        <div class="section-title">
+          <h2>計算結果</h2>
+          <span id="status">待輸入</span>
+        </div>
+        <div id="summary" class="summary-grid"></div>
+      </section>
+
+      <section class="panel wide">
+        <div class="section-title">
+          <h2>校對版圖像</h2>
+          <button id="downloadSvgButton" type="button">下載 SVG</button>
+        </div>
+        <div id="svgPreview" class="svg-preview"></div>
+      </section>
+
+      <section class="panel wide">
+        <div class="section-title">
+          <h2>報告草稿</h2>
+          <button id="downloadReportButton" type="button">下載 Markdown</button>
+        </div>
+        <pre id="reportPreview">尚未產生</pre>
+      </section>
+
+      <section class="panel wide">
+        <h2>免費資源架構與下一步</h2>
+        <div id="resourcePlan"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

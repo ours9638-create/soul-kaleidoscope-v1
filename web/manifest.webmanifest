@@ -1,0 +1,16 @@
+{
+  "name": "靈魂萬花筒 v1",
+  "short_name": "靈魂萬花筒",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eef2f7",
+  "theme_color": "#172033",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
