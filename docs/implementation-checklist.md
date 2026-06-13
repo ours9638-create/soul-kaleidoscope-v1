@@ -38,11 +38,11 @@
 - [x] GitHub Pages 公開 PWA 按「檢查後台」成功
 - [x] Cloudflare Pages 公開 PWA 可載入
 - [x] Cloudflare Pages 公開 PWA 按「檢查後台」成功
-- [ ] 按「送到後台」送出真實測試個案
+- [x] 按「送到後台」送出真實測試個案
 - [ ] 回 Google Sheets 檢查 `個案資料表`
 - [ ] 檢查 `輸出紀錄`
-- [ ] 確認畫面回傳 `reportUrl`
-- [ ] 若服務包含數字盤，確認畫面回傳 `svgUrl`
+- [x] 確認回傳 `reportUrl`
+- [x] 若服務包含數字盤，確認回傳 `svgUrl`
 
 ## C2. 三種服務部署驗證
 
