@@ -47,13 +47,18 @@
 
 ## Cloudflare Pages
 
-- 狀態：待登入 Cloudflare 後上傳
+- 狀態：已上傳並驗證公開頁可用
+- 公開 PWA：`https://soul-kaleidoscope-v1.ours9638.workers.dev/`
 - 可上傳檔案：`dist/static-site.zip`
 - 上傳前檢查：`npm run verify:static`
+- 驗證結果：
+  - PWA 可本機計算
+  - `Apps Script API URL` 自動帶入
+  - 按「檢查後台」成功回傳 `後台正常｜v0.1.0`
 
 ## 下一步
 
-1. 登入 Cloudflare Pages，上傳 `dist/static-site.zip`。
-2. 用手機開 GitHub Pages 或 Cloudflare Pages PWA，新增一筆真實測試個案。
+1. 用手機開 GitHub Pages 或 Cloudflare Pages PWA，新增一筆真實測試個案。
+2. 按「送到後台」，確認回傳 `reportUrl`；數字盤服務也要確認 `svgUrl`。
 3. 檢查 Google Sheets 的 `個案資料表` 與 `輸出紀錄` 是否符合實際工作習慣。
 4. 若要做正式交付，先人工校對 SVG 與報告，不要直接交給客人。

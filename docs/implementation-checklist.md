@@ -36,6 +36,8 @@
 - [x] 按「計算」
 - [x] GitHub Pages 公開 PWA 可載入
 - [x] GitHub Pages 公開 PWA 按「檢查後台」成功
+- [x] Cloudflare Pages 公開 PWA 可載入
+- [x] Cloudflare Pages 公開 PWA 按「檢查後台」成功
 - [ ] 按「送到後台」送出真實測試個案
 - [ ] 回 Google Sheets 檢查 `個案資料表`
 - [ ] 檢查 `輸出紀錄`
