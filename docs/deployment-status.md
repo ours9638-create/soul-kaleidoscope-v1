@@ -56,9 +56,17 @@
   - `Apps Script API URL` 自動帶入
   - 按「檢查後台」成功回傳 `後台正常｜v0.1.0`
 
+## 真實測試個案
+
+- 狀態：已送出數字盤測試個案
+- 測試名稱：`Cloudflare真實測試-2026-06-14`
+- caseId：`Cloudflare真實測試-2026-06-14-1989-05-28-1989-04-24-15-17`
+- reportUrl：`https://drive.google.com/file/d/1T6zxknoEhuVR2vqjMy51gH3fYAwXPEbX/view?usp=drivesdk`
+- svgUrl：`https://drive.google.com/file/d/1E4NL1FQKe_RKDJ-Xn4ePmqUxOFhBonjn/view?usp=drivesdk`
+- 備註：瀏覽器分頁連線逾時，改用 Cloudflare PWA 相同的 Apps Script `save-and-generate-report` 請求格式送出。
+
 ## 下一步
 
-1. 用手機開 GitHub Pages 或 Cloudflare Pages PWA，新增一筆真實測試個案。
-2. 按「送到後台」，確認回傳 `reportUrl`；數字盤服務也要確認 `svgUrl`。
-3. 檢查 Google Sheets 的 `個案資料表` 與 `輸出紀錄` 是否符合實際工作習慣。
-4. 若要做正式交付，先人工校對 SVG 與報告，不要直接交給客人。
+1. 人工打開 `reportUrl` 與 `svgUrl`，確認內容可讀、圖像位置正確。
+2. 檢查 Google Sheets 的 `個案資料表` 與 `輸出紀錄` 是否符合實際工作習慣。
+3. 若要做正式交付，先人工校對 SVG 與報告，不要直接交給客人。
