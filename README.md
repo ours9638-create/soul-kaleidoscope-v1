@@ -31,6 +31,7 @@
 8. [每日操作手冊](docs/operator-runbook.md)
 9. [目前部署狀態](docs/deployment-status.md)
 10. [PWA 免費靜態網站部署](docs/static-hosting.md)
+11. [外部內容研究：美數社數字內容](docs/research/meishushe-number-content-analysis.md)
 
 ## 本機檢查
 
