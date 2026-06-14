@@ -146,10 +146,10 @@ function getCaseById_(id) {
     id: record.caseId,
     serviceId: record.serviceId || 'soul-number-reading',
     displayName: record.displayName,
-    solarDate: record.solarDate,
-    lunarDate: record.lunarDate,
-    birthTime: record.birthTime,
-    queryDate: record.queryDate,
+    solarDate: normalizeSheetDate_(record.solarDate),
+    lunarDate: normalizeSheetDate_(record.lunarDate),
+    birthTime: normalizeSheetTime_(record.birthTime),
+    queryDate: normalizeSheetDate_(record.queryDate),
     usageScenario: record.usageScenario,
     productType: record.productType,
     selectedOils: record.selectedOils
@@ -393,6 +393,22 @@ function parseTime_(value) {
   const parts = String(value).match(/^(\d{2}):(\d{2})$/);
   if (!parts) throw new Error('time must use HH:mm');
   return { raw: parts[0], hour: parts[1], minute: parts[2] };
+}
+
+function normalizeSheetDate_(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, 'Asia/Taipei', 'yyyy-MM-dd');
+  }
+  return String(value || '').trim();
+}
+
+function normalizeSheetTime_(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, 'Asia/Taipei', 'HH:mm');
+  }
+  const text = String(value || '').trim();
+  const parts = text.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  return parts ? parts[1].padStart(2, '0') + ':' + parts[2] : text;
 }
 
 function reduceNumber_(value) {

@@ -32,6 +32,17 @@ test('Apps Script can save a case and generate delivery files in one request', (
   assert.match(code, /const serviceCase = buildServiceCase_\(payload \|\| {}\)/);
 });
 
+test('Apps Script normalizes Sheet date and time values when reading a case', () => {
+  assert.match(code, /function normalizeSheetDate_/);
+  assert.match(code, /function normalizeSheetTime_/);
+  assert.match(code, /solarDate: normalizeSheetDate_\(record\.solarDate\)/);
+  assert.match(code, /lunarDate: normalizeSheetDate_\(record\.lunarDate\)/);
+  assert.match(code, /birthTime: normalizeSheetTime_\(record\.birthTime\)/);
+  assert.match(code, /queryDate: normalizeSheetDate_\(record\.queryDate\)/);
+  assert.match(code, /Utilities\.formatDate\(value, 'Asia\/Taipei', 'yyyy-MM-dd'\)/);
+  assert.match(code, /Utilities\.formatDate\(value, 'Asia\/Taipei', 'HH:mm'\)/);
+});
+
 test('Apps Script body parser supports text/plain JSON and form parameters', () => {
   assert.match(code, /function parseBody_/);
   assert.match(code, /e\.parameter && Object\.keys\(e\.parameter\)\.length/);
