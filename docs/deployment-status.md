@@ -7,7 +7,7 @@
 - 狀態：已部署並完成完整驗證
 - Web App URL：`https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec`
 - 版本：`v0.1.0`
-- Apps Script 部署版本：`4 版 (2026年6月14日晚上8:25)`
+- Apps Script 部署版本：`6 版 (2026年6月14日晚上8:41)`
 - 權限：
   - Execute as：部署者本人
   - Who has access：所有人
@@ -33,6 +33,7 @@
 - 2026-06-14 追加驗證：Drive 預覽確認 `reportUrl` 是 `_report.md`，`svgUrl` 是 `_checklist.svg`
 - 2026-06-14 追加驗證：Google Sheets `個案資料表` 與 `輸出紀錄` 都有 Cloudflare 真實測試個案紀錄
 - 2026-06-14 追加驗證：重送同一 `caseId + serviceId` 會回傳 `duplicateCaseWarning`，不再安靜新增重複個案列
+- 2026-06-14 追加驗證：`輸出紀錄` 已新增 `deliveryStatus` 欄位，表頭順序為 `status` 後接 `deliveryStatus`
 
 ## PWA 串接
 
@@ -81,8 +82,14 @@
 - 已處理：Apps Script 第 4 版已新增重複個案列提醒；同一 `caseId + serviceId` 已存在時，會略過 `個案資料表` 寫入並回傳 `duplicateCaseWarning`。
 - 尚未處理：重新產出報告仍會新增 `輸出紀錄`，之後若需要版本管理，再新增「重新產出版本」欄位。
 
+## 交付狀態
+
+- `輸出紀錄.deliveryStatus` 預設為 `draft`。
+- 人工核對通過後，才可改成 `reviewed` 或 `delivered`。
+- 這個欄位目前是人工流程欄位，不會自動判定報告是否可交付。
+
 ## 下一步
 
-1. 人工校對 SVG 圖像位置是否符合正式交付標準。
-2. 檢查 Google Sheets 的欄位順序是否符合實際工作習慣。
-3. 若要做正式交付，先人工校對 SVG 與報告，不要直接交給客人。
+1. 下一份正式個案先用 `docs/delivery-checklist.md` 跑完整人工核對。
+2. 核對通過後，把 `deliveryStatus` 從 `draft` 改成 `reviewed` 或 `delivered`。
+3. 若要自動化狀態更新，再新增 Apps Script 後台按鈕，不要直接讓客人端修改。
