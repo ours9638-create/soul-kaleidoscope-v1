@@ -30,6 +30,8 @@
 - 數字盤 + 精油搭配可產生 `reportUrl` 與 `svgUrl`
 - 2026-06-14 追加驗證：`GET action=case` 可讀回真實測試個案，出生時間正確保留為 `15:17`
 - 2026-06-14 追加驗證：`GET action=report` 可讀到測試姓名、報告文字檔連結與 SVG 校對圖連結
+- 2026-06-14 追加驗證：Drive 預覽確認 `reportUrl` 是 `_report.md`，`svgUrl` 是 `_checklist.svg`
+- 2026-06-14 追加驗證：Google Sheets `個案資料表` 與 `輸出紀錄` 都有 Cloudflare 真實測試個案紀錄
 
 ## PWA 串接
 
@@ -68,9 +70,17 @@
 - svgUrl：`[REDACTED_DRIVE_URL]`
 - 備註：瀏覽器分頁連線逾時，改用 Cloudflare PWA 相同的 Apps Script `save-and-generate-report` 請求格式送出。
 - 讀回驗證：`GET action=case` 已確認 `birthTime = 15:17`，避免 Google Sheets 時間欄位轉成 `07:17`。
+- Drive 檔案驗證：`reportUrl` 預覽為 Markdown 報告，`svgUrl` 預覽為 SVG 校對圖。
+- Sheets 驗證：`個案資料表` 有一列測試個案，`輸出紀錄` 有對應 token、reportUrl、svgUrl。
+
+## 已知資料問題
+
+- `個案資料表` 內 `[REDACTED_CASE_ID]` 曾出現重複組合服務紀錄。
+- 風險：同一個案重複送出會產生多份報告與多筆輸出紀錄，後續人工查找容易混淆。
+- 建議：下一輪新增「重複 caseId 提醒」或「重新產出版本」欄位，不要讓同一 caseId 安靜地重複寫入。
 
 ## 下一步
 
-1. 人工打開 `reportUrl` 與 `svgUrl`，確認內容可讀、圖像位置正確。
-2. 檢查 Google Sheets 的 `個案資料表` 與 `輸出紀錄` 是否符合實際工作習慣。
+1. 人工校對 SVG 圖像位置是否符合正式交付標準。
+2. 檢查 Google Sheets 的欄位順序是否符合實際工作習慣。
 3. 若要做正式交付，先人工校對 SVG 與報告，不要直接交給客人。
