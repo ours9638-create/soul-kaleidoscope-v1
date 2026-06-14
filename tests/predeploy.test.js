@@ -18,6 +18,7 @@ const readme = fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8')
 const runbook = fs.readFileSync(new URL('../docs/operator-runbook.md', import.meta.url), 'utf8');
 const checklist = fs.readFileSync(new URL('../docs/implementation-checklist.md', import.meta.url), 'utf8');
 const deliveryChecklist = fs.readFileSync(new URL('../docs/delivery-checklist.md', import.meta.url), 'utf8');
+const sheetsSchema = fs.readFileSync(new URL('../docs/sheets-schema.md', import.meta.url), 'utf8');
 
 test('package exposes a predeploy readiness check', () => {
   assert.equal(packageJson.scripts.predeploy, 'node scripts/predeploy-check.js');
@@ -133,8 +134,13 @@ test('delivery checklist is linked into operator flow and blocks unsafe handoff'
   assert.match(deliveryChecklist, /中心右是陽曆主命數/);
   assert.match(deliveryChecklist, /精油只作為支持層，不反推數字公式/);
   assert.match(deliveryChecklist, /duplicateCaseWarning/);
+  assert.match(deliveryChecklist, /deliveryStatus/);
   assert.match(deliveryChecklist, /先不要交付/);
   assert.match(deliveryChecklist, /不要直接改核心公式/);
+  assert.match(checklist, /輸出紀錄\.deliveryStatus/);
+  assert.match(runbook, /輸出紀錄\.deliveryStatus/);
+  assert.match(sheetsSchema, /deliveryStatus/);
+  assert.match(sheetsSchema, /draft/);
 });
 
 test('implementation checklist uses packaged Apps Script files instead of raw source files', () => {

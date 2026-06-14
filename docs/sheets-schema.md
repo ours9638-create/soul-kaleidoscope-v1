@@ -75,6 +75,7 @@ displayName
 reportUrl
 svgUrl
 reportType
+deliveryStatus
 status
 ```
 
@@ -84,3 +85,4 @@ status
 - 個案紀錄與輸出紀錄分開。
 - 暫定公式不可寫成正式報告定稿。
 - 報告文字不得出現治療、治癒、保證改善等語句。
+- `deliveryStatus` 預設 `draft`，人工核對後才可改成 `reviewed` 或 `delivered`。

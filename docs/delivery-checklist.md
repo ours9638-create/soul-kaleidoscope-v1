@@ -91,6 +91,7 @@
 - `輸出紀錄` 有 token。
 - `輸出紀錄` 有 reportUrl。
 - 若服務包含數字盤，`輸出紀錄` 有 svgUrl。
+- `輸出紀錄.deliveryStatus` 先保持 `draft`，核對完成後才改成 `reviewed` 或 `delivered`。
 - `reportUrl` 預覽是 `_report.md` 報告。
 - `svgUrl` 預覽是 `_checklist.svg` 校對圖。
 - `個案資料表` 沒有安靜新增同一個 `caseId + serviceId` 重複列。
@@ -103,6 +104,7 @@
 - 數字、位置、報告文字、Drive 連結都已核對。
 - 精油內容沒有醫療宣稱。
 - 組合服務沒有讓精油反推公式。
+- `deliveryStatus` 已從 `draft` 改成 `reviewed` 或 `delivered`。
 
 先不要交付：
 

@@ -66,6 +66,7 @@
 - [ ] 打開 `docs/delivery-checklist.md`
 - [ ] 依交付核對表檢查資料、數字、SVG、報告、Drive 與 Sheets
 - [ ] 若有 `duplicateCaseWarning`，確認是重產報告還是誤送
+- [ ] 將 `輸出紀錄.deliveryStatus` 從 `draft` 改成 `reviewed` 或 `delivered`
 - [ ] 人工校對通過後再交付
 
 ## E. 每次新增出圖組合

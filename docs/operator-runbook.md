@@ -91,6 +91,7 @@ npm run readiness
 - 精油段落只能作為支持建議，不能反推數字公式。
 - `輸出紀錄` 必須有報告連結。
 - 有數字盤服務時，`輸出紀錄` 才需要 SVG 連結。
+- `輸出紀錄.deliveryStatus` 預設是 `draft`；核對完成後才改成 `reviewed` 或 `delivered`。
 - 若回傳 `duplicateCaseWarning`，先判斷是重產報告還是誤送，不要直接交付。
 
 ## 7. 每次收工

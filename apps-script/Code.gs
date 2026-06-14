@@ -15,7 +15,7 @@ const CASE_HEADERS = [
 ];
 
 const OUTPUT_HEADERS = [
-  'token', 'createdAt', 'caseId', 'serviceId', 'displayName', 'reportUrl', 'svgUrl', 'reportType', 'status'
+  'token', 'createdAt', 'caseId', 'serviceId', 'displayName', 'reportUrl', 'svgUrl', 'reportType', 'deliveryStatus', 'status'
 ];
 
 function doGet(e) {
@@ -128,6 +128,7 @@ function createDeliveryFiles_(serviceCase) {
     reportUrl: reportFile.getUrl(),
     svgUrl: svgFile ? svgFile.getUrl() : '',
     reportType: serviceCase.serviceId,
+    deliveryStatus: 'draft',
     status: 'created'
   });
 
@@ -137,7 +138,8 @@ function createDeliveryFiles_(serviceCase) {
     serviceId: serviceCase.serviceId,
     token,
     reportUrl: reportFile.getUrl(),
-    svgUrl: svgFile ? svgFile.getUrl() : ''
+    svgUrl: svgFile ? svgFile.getUrl() : '',
+    deliveryStatus: 'draft'
   };
 }
 
