@@ -17,6 +17,7 @@ const verificationDoc = fs.readFileSync(new URL('../docs/deployment-verification
 const readme = fs.readFileSync(new URL('../README.md', import.meta.url), 'utf8');
 const runbook = fs.readFileSync(new URL('../docs/operator-runbook.md', import.meta.url), 'utf8');
 const checklist = fs.readFileSync(new URL('../docs/implementation-checklist.md', import.meta.url), 'utf8');
+const deliveryChecklist = fs.readFileSync(new URL('../docs/delivery-checklist.md', import.meta.url), 'utf8');
 
 test('package exposes a predeploy readiness check', () => {
   assert.equal(packageJson.scripts.predeploy, 'node scripts/predeploy-check.js');
@@ -122,6 +123,18 @@ test('operator runbook ties start, spreadsheet review, deployment, and shutdown 
   assert.match(runbook, /npm run work:shutdown/);
   assert.match(runbook, /凌晨 12:00/);
   assert.match(runbook, /精油段落只能作為支持建議，不能反推數字公式/);
+});
+
+test('delivery checklist is linked into operator flow and blocks unsafe handoff', () => {
+  assert.match(readme, /docs\/delivery-checklist\.md/);
+  assert.match(checklist, /docs\/delivery-checklist\.md/);
+  assert.match(runbook, /docs\/delivery-checklist\.md/);
+  assert.match(deliveryChecklist, /中心左是陰曆主命數/);
+  assert.match(deliveryChecklist, /中心右是陽曆主命數/);
+  assert.match(deliveryChecklist, /精油只作為支持層，不反推數字公式/);
+  assert.match(deliveryChecklist, /duplicateCaseWarning/);
+  assert.match(deliveryChecklist, /先不要交付/);
+  assert.match(deliveryChecklist, /不要直接改核心公式/);
 });
 
 test('implementation checklist uses packaged Apps Script files instead of raw source files', () => {

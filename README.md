@@ -19,7 +19,7 @@
 - `web/`：PWA 靜態網頁。
 - `docs/`：流程、資料表、部署說明。
 
-## 先看這八份
+## 先看這些文件
 
 1. [免費優先路線圖](docs/free-first-roadmap.md)
 2. [執行檢查清單](docs/implementation-checklist.md)
@@ -30,8 +30,9 @@
 7. [Google Sheets 開工讀取範圍](docs/google-sheets-live-check.md)
 8. [每日操作手冊](docs/operator-runbook.md)
 9. [目前部署狀態](docs/deployment-status.md)
-10. [PWA 免費靜態網站部署](docs/static-hosting.md)
-11. [外部內容研究：美數社數字內容](docs/research/meishushe-number-content-analysis.md)
+10. [正式個案交付核對表](docs/delivery-checklist.md)
+11. [PWA 免費靜態網站部署](docs/static-hosting.md)
+12. [外部內容研究：美數社數字內容](docs/research/meishushe-number-content-analysis.md)
 
 ## 本機檢查
 
