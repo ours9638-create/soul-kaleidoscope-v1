@@ -148,7 +148,7 @@ function getCaseById_(id) {
     displayName: record.displayName,
     solarDate: normalizeSheetDate_(record.solarDate),
     lunarDate: normalizeSheetDate_(record.lunarDate),
-    birthTime: normalizeSheetTime_(record.birthTime),
+    birthTime: normalizeSheetTime_(record.birthTime, record.caseId),
     queryDate: normalizeSheetDate_(record.queryDate),
     usageScenario: record.usageScenario,
     productType: record.productType,
@@ -402,7 +402,9 @@ function normalizeSheetDate_(value) {
   return String(value || '').trim();
 }
 
-function normalizeSheetTime_(value) {
+function normalizeSheetTime_(value, caseId) {
+  const caseTime = String(caseId || '').match(/-(\d{2})-(\d{2})$/);
+  if (caseTime) return caseTime[1] + ':' + caseTime[2];
   if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
     return Utilities.formatDate(value, 'Asia/Taipei', 'HH:mm');
   }
