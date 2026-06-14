@@ -47,7 +47,10 @@ function calculateAndSaveCase(payload) {
   const serviceCase = buildServiceCase_(payload || {});
   ensureWorkbook_();
   const sheet = getSheet_(CONFIG.CASE_SHEET_NAME);
-  appendObjectRow_(sheet, CASE_HEADERS, buildCaseRow_(serviceCase));
+  const writeState = saveCaseRowIfNeeded_(sheet, serviceCase);
+  if (writeState.duplicateCaseWarning) {
+    serviceCase.duplicateCaseWarning = writeState.duplicateCaseWarning;
+  }
   return serviceCase;
 }
 
@@ -55,8 +58,12 @@ function saveAndGenerateReport_(payload) {
   const serviceCase = buildServiceCase_(payload || {});
   ensureWorkbook_();
   const caseSheet = getSheet_(CONFIG.CASE_SHEET_NAME);
-  appendObjectRow_(caseSheet, CASE_HEADERS, buildCaseRow_(serviceCase));
-  return createDeliveryFiles_(serviceCase);
+  const writeState = saveCaseRowIfNeeded_(caseSheet, serviceCase);
+  const delivery = createDeliveryFiles_(serviceCase);
+  if (writeState.duplicateCaseWarning) {
+    delivery.duplicateCaseWarning = writeState.duplicateCaseWarning;
+  }
+  return delivery;
 }
 
 function generateReport_(caseId, payload) {
@@ -263,6 +270,39 @@ function buildCaseRow_(serviceCase) {
     serviceOutputStatus: serviceCase.serviceId,
     status: serviceCase.status
   };
+}
+
+function saveCaseRowIfNeeded_(sheet, serviceCase) {
+  ensureSheetHeaders_(sheet, CASE_HEADERS);
+  const matches = findExistingCaseRows_(sheet, serviceCase.id, serviceCase.serviceId);
+  if (matches.length > 0) {
+    return {
+      skipped: true,
+      duplicateCaseWarning: {
+        message: 'duplicate case row skipped',
+        caseId: serviceCase.id,
+        serviceId: serviceCase.serviceId,
+        existingRows: matches
+      }
+    };
+  }
+  appendObjectRow_(sheet, CASE_HEADERS, buildCaseRow_(serviceCase));
+  return { skipped: false };
+}
+
+function findExistingCaseRows_(sheet, caseId, serviceId) {
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return [];
+  const headers = values[0];
+  const caseIdIndex = headers.indexOf('caseId');
+  const serviceIdIndex = headers.indexOf('serviceId');
+  if (caseIdIndex === -1) return [];
+  return values.slice(1).reduce(function(rows, row, index) {
+    const caseMatches = row[caseIdIndex] === caseId;
+    const serviceMatches = serviceIdIndex === -1 || row[serviceIdIndex] === serviceId;
+    if (caseMatches && serviceMatches) rows.push(index + 2);
+    return rows;
+  }, []);
 }
 
 function buildServiceReport_(serviceId, context) {

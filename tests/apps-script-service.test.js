@@ -44,6 +44,16 @@ test('Apps Script normalizes Sheet date and time values when reading a case', ()
   assert.match(code, /Utilities\.formatDate\(value, 'Asia\/Taipei', 'HH:mm'\)/);
 });
 
+test('Apps Script skips duplicate case rows but still allows report versions', () => {
+  assert.match(code, /function saveCaseRowIfNeeded_/);
+  assert.match(code, /function findExistingCaseRows_/);
+  assert.match(code, /findExistingCaseRows_\(sheet, serviceCase\.id, serviceCase\.serviceId\)/);
+  assert.match(code, /duplicateCaseWarning/);
+  assert.match(code, /message: 'duplicate case row skipped'/);
+  assert.match(code, /serviceMatches = serviceIdIndex === -1 \|\| row\[serviceIdIndex\] === serviceId/);
+  assert.match(code, /const delivery = createDeliveryFiles_\(serviceCase\)/);
+});
+
 test('Apps Script body parser supports text/plain JSON and form parameters', () => {
   assert.match(code, /function parseBody_/);
   assert.match(code, /e\.parameter && Object\.keys\(e\.parameter\)\.length/);
