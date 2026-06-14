@@ -1,12 +1,13 @@
 # 目前部署狀態
 
-更新日期：2026-06-11
+更新日期：2026-06-14
 
 ## Apps Script Web App
 
 - 狀態：已部署並完成完整驗證
 - Web App URL：`https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec`
 - 版本：`v0.1.0`
+- Apps Script 部署版本：`3 版 (2026年6月14日下午6:49)`
 - 權限：
   - Execute as：部署者本人
   - Who has access：所有人
@@ -27,6 +28,8 @@
 - 數字盤單項可產生 `reportUrl` 與 `svgUrl`
 - 精油單項可產生 `reportUrl`，不產生 `svgUrl`
 - 數字盤 + 精油搭配可產生 `reportUrl` 與 `svgUrl`
+- 2026-06-14 追加驗證：`GET action=case` 可讀回真實測試個案，出生時間正確保留為 `15:17`
+- 2026-06-14 追加驗證：`GET action=report` 可讀到測試姓名、報告文字檔連結與 SVG 校對圖連結
 
 ## PWA 串接
 
@@ -64,6 +67,7 @@
 - reportUrl：`[REDACTED_DRIVE_URL]`
 - svgUrl：`[REDACTED_DRIVE_URL]`
 - 備註：瀏覽器分頁連線逾時，改用 Cloudflare PWA 相同的 Apps Script `save-and-generate-report` 請求格式送出。
+- 讀回驗證：`GET action=case` 已確認 `birthTime = 15:17`，避免 Google Sheets 時間欄位轉成 `07:17`。
 
 ## 下一步
 

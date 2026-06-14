@@ -39,6 +39,9 @@
 - [x] Cloudflare Pages 公開 PWA 可載入
 - [x] Cloudflare Pages 公開 PWA 按「檢查後台」成功
 - [x] 按「送到後台」送出真實測試個案
+- [x] 重新部署 Apps Script 第 3 版，修正 Sheets 讀回日期/時間格式
+- [x] 用 `GET action=case` 讀回真實測試個案，確認 `birthTime = 15:17`
+- [x] 用 `GET action=report` 確認只讀報告頁可讀到報告與 SVG 連結
 - [ ] 回 Google Sheets 檢查 `個案資料表`
 - [ ] 檢查 `輸出紀錄`
 - [x] 確認回傳 `reportUrl`
