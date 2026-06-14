@@ -44,6 +44,8 @@
 - [x] 用 `GET action=report` 確認只讀報告頁可讀到報告與 SVG 連結
 - [x] 回 Google Sheets 檢查 `個案資料表`
 - [x] 檢查 `輸出紀錄`
+- [x] 重新部署 Apps Script 第 4 版，新增重複 `caseId + serviceId` 提醒
+- [x] 重送同一個案時確認回傳 `duplicateCaseWarning`
 - [x] 確認回傳 `reportUrl`
 - [x] 若服務包含數字盤，確認回傳 `svgUrl`
 

@@ -7,7 +7,7 @@
 - 狀態：已部署並完成完整驗證
 - Web App URL：`https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec`
 - 版本：`v0.1.0`
-- Apps Script 部署版本：`3 版 (2026年6月14日下午6:49)`
+- Apps Script 部署版本：`4 版 (2026年6月14日晚上8:25)`
 - 權限：
   - Execute as：部署者本人
   - Who has access：所有人
@@ -32,6 +32,7 @@
 - 2026-06-14 追加驗證：`GET action=report` 可讀到測試姓名、報告文字檔連結與 SVG 校對圖連結
 - 2026-06-14 追加驗證：Drive 預覽確認 `reportUrl` 是 `_report.md`，`svgUrl` 是 `_checklist.svg`
 - 2026-06-14 追加驗證：Google Sheets `個案資料表` 與 `輸出紀錄` 都有 Cloudflare 真實測試個案紀錄
+- 2026-06-14 追加驗證：重送同一 `caseId + serviceId` 會回傳 `duplicateCaseWarning`，不再安靜新增重複個案列
 
 ## PWA 串接
 
@@ -77,7 +78,8 @@
 
 - `個案資料表` 內 `[REDACTED_CASE_ID]` 曾出現重複組合服務紀錄。
 - 風險：同一個案重複送出會產生多份報告與多筆輸出紀錄，後續人工查找容易混淆。
-- 建議：下一輪新增「重複 caseId 提醒」或「重新產出版本」欄位，不要讓同一 caseId 安靜地重複寫入。
+- 已處理：Apps Script 第 4 版已新增重複個案列提醒；同一 `caseId + serviceId` 已存在時，會略過 `個案資料表` 寫入並回傳 `duplicateCaseWarning`。
+- 尚未處理：重新產出報告仍會新增 `輸出紀錄`，之後若需要版本管理，再新增「重新產出版本」欄位。
 
 ## 下一步
 
