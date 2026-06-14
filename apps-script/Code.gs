@@ -15,7 +15,7 @@ const CASE_HEADERS = [
 ];
 
 const OUTPUT_HEADERS = [
-  'token', 'createdAt', 'caseId', 'serviceId', 'displayName', 'reportUrl', 'svgUrl', 'reportType', 'deliveryStatus', 'status'
+  'token', 'createdAt', 'caseId', 'serviceId', 'displayName', 'reportUrl', 'svgUrl', 'reportType', 'status', 'deliveryStatus'
 ];
 
 function doGet(e) {

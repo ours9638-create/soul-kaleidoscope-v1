@@ -35,7 +35,7 @@ test('Apps Script can save a case and generate delivery files in one request', (
 test('Apps Script records delivery status for output rows', () => {
   assert.match(code, /deliveryStatus/);
   assert.match(code, /deliveryStatus: 'draft'/);
-  assert.match(code, /'reportType', 'deliveryStatus', 'status'/);
+  assert.match(code, /'reportType', 'status', 'deliveryStatus'/);
 });
 
 test('Apps Script normalizes Sheet date and time values when reading a case', () => {

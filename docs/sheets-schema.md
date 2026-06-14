@@ -75,8 +75,8 @@ displayName
 reportUrl
 svgUrl
 reportType
-deliveryStatus
 status
+deliveryStatus
 ```
 
 ## 維護規則
