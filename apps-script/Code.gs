@@ -25,6 +25,7 @@ function doGet(e) {
   if (action === 'setup') return jsonResponse(setupWorkbook_());
   if (action === 'case') return jsonResponse(getCaseById_(parameter.id));
   if (action === 'report') return htmlReportResponse_(parameter.token);
+  if (action === 'startup-cloud-scan') return jsonResponse(startupCloudScan_(parameter));
   return HtmlService.createTemplateFromFile('Admin').evaluate()
     .setTitle('靈魂萬花筒 v1 後台')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -37,6 +38,7 @@ function doPost(e) {
   if (body.action === 'save-and-generate-report') return jsonResponse(saveAndGenerateReport_(body.payload || body));
   if (body.action === 'generate-report') return jsonResponse(generateReport_(body.caseId, body.payload));
   if (body.action === 'update-delivery-status') return jsonResponse(updateDeliveryStatus_(body.payload || body));
+  if (body.action === 'startup-cloud-scan') return jsonResponse(startupCloudScan_(body.payload || body));
   return jsonResponse({ ok: false, error: 'unknown action' }, 400);
 }
 
@@ -139,6 +141,182 @@ function setupWorkbook_() {
     reportFolderName: CONFIG.REPORT_FOLDER_NAME,
     reportFolderUrl: folder.getUrl()
   };
+}
+
+function startupCloudScan_(payload) {
+  assertStartupSyncToken_(payload.token);
+  const options = normalizeStartupCloudOptions_(payload || {});
+  const folder = getSingleFolderByName_(options.folderName);
+  const fileEntries = [];
+  collectDriveFiles_(folder, '', fileEntries);
+  const files = fileEntries.map(function(entry) {
+    return buildDriveFileMetadata_(entry.file, entry.path);
+  });
+  const result = {
+    ok: true,
+    mode: options.mode,
+    generatedAt: new Date().toISOString(),
+    folderName: options.folderName,
+    fileCount: files.length,
+    files
+  };
+  if (options.mode === 'readAll') {
+    const reads = fileEntries.map(function(entry) {
+      return readDriveFileForStartup_(entry.file, entry.path, options);
+    });
+    result.reads = reads;
+    result.readSummary = {
+      read: reads.filter(function(item) { return item.readStatus === 'read'; }).length,
+      skipped: reads.filter(function(item) { return item.readStatus.indexOf('skipped') === 0; }).length,
+      failed: reads.filter(function(item) { return item.readStatus === 'failed'; }).length
+    };
+  }
+  return result;
+}
+
+function assertStartupSyncToken_(token) {
+  const expected = PropertiesService.getScriptProperties().getProperty('STARTUP_SYNC_TOKEN');
+  if (!expected) throw new Error('STARTUP_SYNC_TOKEN is not configured in Apps Script Properties');
+  if (String(token || '') !== expected) throw new Error('invalid STARTUP_SYNC_TOKEN');
+}
+
+function normalizeStartupCloudOptions_(payload) {
+  return {
+    folderName: String(payload.folderName || '靈魂萬花筒').trim(),
+    mode: payload.mode === 'readAll' ? 'readAll' : 'metadata',
+    maxTextCharsPerFile: Math.max(1000, Number(payload.maxTextCharsPerFile || 20000)),
+    maxPreviewRowsPerSheet: Math.max(1, Number(payload.maxPreviewRowsPerSheet || 10)),
+    maxPreviewColumnsPerSheet: Math.max(1, Number(payload.maxPreviewColumnsPerSheet || 12)),
+    maxBlobBytesPerFile: Math.max(1024, Number(payload.maxBlobBytesPerFile || 5242880))
+  };
+}
+
+function getSingleFolderByName_(folderName) {
+  const folders = DriveApp.getFoldersByName(folderName);
+  if (!folders.hasNext()) throw new Error('Drive folder not found: ' + folderName);
+  return folders.next();
+}
+
+function collectDriveFiles_(folder, prefix, files) {
+  const currentFiles = folder.getFiles();
+  while (currentFiles.hasNext()) {
+    const file = currentFiles.next();
+    files.push({
+      file,
+      path: prefix + file.getName()
+    });
+  }
+  const childFolders = folder.getFolders();
+  while (childFolders.hasNext()) {
+    const child = childFolders.next();
+    collectDriveFiles_(child, prefix + child.getName() + '/', files);
+  }
+}
+
+function buildDriveFileMetadata_(file, filePath) {
+  return {
+    id: file.getId(),
+    name: file.getName(),
+    path: filePath,
+    mimeType: file.getMimeType(),
+    size: file.getSize(),
+    updatedAt: file.getLastUpdated().toISOString(),
+    url: file.getUrl()
+  };
+}
+
+function readDriveFileForStartup_(file, filePath, options) {
+  const metadata = buildDriveFileMetadata_(file, filePath);
+  try {
+    if (metadata.mimeType === 'application/vnd.google-apps.spreadsheet') {
+      return Object.assign(metadata, readSpreadsheetForStartup_(file.getId(), options));
+    }
+    return Object.assign(metadata, readBlobForStartup_(file, options));
+  } catch (error) {
+    return Object.assign(metadata, {
+      readStatus: 'failed',
+      error: error.message
+    });
+  }
+}
+
+function readSpreadsheetForStartup_(spreadsheetId, options) {
+  const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+  const sheets = spreadsheet.getSheets().map(function(sheet) {
+    const range = sheet.getDataRange();
+    const values = range.getValues();
+    const digestSource = JSON.stringify(values);
+    const preview = values
+      .slice(0, options.maxPreviewRowsPerSheet)
+      .map(function(row) {
+        return row.slice(0, options.maxPreviewColumnsPerSheet);
+      });
+    return {
+      name: sheet.getName(),
+      rows: values.length,
+      columns: values[0] ? values[0].length : 0,
+      nonEmptyCells: countNonEmptyCells_(values),
+      sha256: sha256String_(digestSource),
+      preview
+    };
+  });
+  return {
+    readStatus: 'read',
+    reader: 'SpreadsheetApp.getDataRange',
+    sheets
+  };
+}
+
+function readBlobForStartup_(file, options) {
+  const size = file.getSize();
+  if (size > options.maxBlobBytesPerFile) {
+    return {
+      readStatus: 'skipped-too-large',
+      reader: 'DriveApp.getBlob',
+      reason: 'file size exceeds maxBlobBytesPerFile'
+    };
+  }
+  const blob = file.getBlob();
+  const bytes = blob.getBytes();
+  const result = {
+    readStatus: 'read',
+    reader: 'DriveApp.getBlob',
+    byteCount: bytes.length,
+    sha256: sha256Bytes_(bytes)
+  };
+  if (isTextLikeFile_(file)) {
+    result.textPreview = blob.getDataAsString('UTF-8').slice(0, options.maxTextCharsPerFile);
+  }
+  return result;
+}
+
+function countNonEmptyCells_(values) {
+  return values.reduce(function(total, row) {
+    return total + row.filter(function(cell) {
+      return cell !== '' && cell != null;
+    }).length;
+  }, 0);
+}
+
+function isTextLikeFile_(file) {
+  const name = file.getName().toLowerCase();
+  const mimeType = file.getMimeType();
+  return mimeType.indexOf('text/') === 0 ||
+    mimeType === 'application/json' ||
+    /\.(txt|md|json|csv|tsv|svg|html|css|js|gs)$/i.test(name);
+}
+
+function sha256String_(value) {
+  return sha256Bytes_(Utilities.newBlob(value).getBytes());
+}
+
+function sha256Bytes_(bytes) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes)
+    .map(function(byte) {
+      const value = byte < 0 ? byte + 256 : byte;
+      return ('0' + value.toString(16)).slice(-2);
+    })
+    .join('');
 }
 
 function createDeliveryFiles_(serviceCase) {

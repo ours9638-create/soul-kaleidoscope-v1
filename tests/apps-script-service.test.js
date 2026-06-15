@@ -116,6 +116,17 @@ test('Apps Script exposes setup and health checks for first deployment', () => {
   assert.match(code, /reportFolderUrl/);
 });
 
+test('Apps Script exposes guarded startup cloud scan for Drive folder sync', () => {
+  assert.match(code, /startup-cloud-scan/);
+  assert.match(code, /function startupCloudScan_/);
+  assert.match(code, /function assertStartupSyncToken_/);
+  assert.match(code, /STARTUP_SYNC_TOKEN/);
+  assert.match(code, /function collectDriveFiles_/);
+  assert.match(code, /function readDriveFileForStartup_/);
+  assert.match(code, /SpreadsheetApp\.openById/);
+  assert.match(code, /DriveApp\.getFoldersByName/);
+});
+
 test('Apps Script admin page exposes service and oil inputs', () => {
   assert.match(adminHtml, /name="serviceId"/);
   assert.match(adminHtml, /value="soul-number-reading" selected/);

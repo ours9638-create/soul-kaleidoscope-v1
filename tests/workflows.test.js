@@ -12,6 +12,9 @@ const shutdownScript = fs.existsSync(new URL('../scripts/work-shutdown.js', impo
 const workflowDoc = fs.existsSync(new URL('../docs/workflow.md', import.meta.url))
   ? fs.readFileSync(new URL('../docs/workflow.md', import.meta.url), 'utf8')
   : '';
+const cloudDriveConfig = fs.existsSync(new URL('../config/google-drive-cloud-sync.json', import.meta.url))
+  ? fs.readFileSync(new URL('../config/google-drive-cloud-sync.json', import.meta.url), 'utf8')
+  : '';
 
 test('package exposes start and shutdown workflow commands', () => {
   assert.equal(packageJson.scripts['work:start'], 'node scripts/work-start.js');
@@ -24,7 +27,13 @@ test('start workflow scans project files and compares a saved snapshot', () => {
   assert.match(startScript, /safeHashFile/);
   assert.match(startScript, /\.workflow\/file-snapshot\.json/);
   assert.match(startScript, /\.workflow\/spreadsheet-snapshot\.json/);
+  assert.match(startScript, /\.workflow\/cloud-drive-snapshot\.json/);
+  assert.match(startScript, /\.workflow\/cloud-drive-read-report\.json/);
   assert.match(startScript, /\.workflow\/active-session\.json/);
+  assert.match(startScript, /config\/google-drive-cloud-sync\.json/);
+  assert.match(startScript, /startup-cloud-scan/);
+  assert.match(startScript, /STARTUP_SYNC_TOKEN/);
+  assert.match(startScript, /readAllCloudFilesIfNeeded/);
   assert.match(startScript, /sha256/);
   assert.match(startScript, /changedFiles/);
   assert.match(startScript, /recommendations/);
@@ -35,6 +44,14 @@ test('start workflow scans project files and compares a saved snapshot', () => {
   assert.match(startScript, /verify:deployment:setup/);
   assert.match(startScript, /verify:deployment/);
   assert.doesNotMatch(startScript, /若今天要部署，先跑 npm test、npm run check、npm run predeploy/);
+});
+
+test('cloud Drive config defines guarded network-first startup scan', () => {
+  assert.match(cloudDriveConfig, /靈魂萬花筒/);
+  assert.match(cloudDriveConfig, /cloud-metadata-first/);
+  assert.match(cloudDriveConfig, /read-all-cloud-files-when-any-cloud-file-changes/);
+  assert.match(cloudDriveConfig, /web\/deployment-config\.js/);
+  assert.match(cloudDriveConfig, /maxBlobBytesPerFile/);
 });
 
 test('start workflow blocks when previous work session was not shut down', () => {
@@ -77,4 +94,7 @@ test('workflow documentation explains manual start and shutdown process', () => 
   assert.match(workflowDoc, /凌晨 12:00/);
   assert.match(workflowDoc, /試算表/);
   assert.match(workflowDoc, /Google Drive/);
+  assert.match(workflowDoc, /雲端 Drive/);
+  assert.match(workflowDoc, /STARTUP_SYNC_TOKEN/);
+  assert.match(workflowDoc, /cloud-drive-read-report/);
 });

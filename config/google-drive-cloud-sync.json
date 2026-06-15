@@ -1,0 +1,14 @@
+{
+  "folderName": "靈魂萬花筒",
+  "readPolicy": [
+    "cloud-metadata-first",
+    "compare-drive-modified-time",
+    "read-all-cloud-files-when-any-cloud-file-changes",
+    "store-network-read-summary-in-workflow"
+  ],
+  "appsScriptUrlSource": "web/deployment-config.js",
+  "maxTextCharsPerFile": 20000,
+  "maxPreviewRowsPerSheet": 10,
+  "maxPreviewColumnsPerSheet": 12,
+  "maxBlobBytesPerFile": 5242880
+}
