@@ -191,6 +191,7 @@ function buildCloudUrl(apiUrl, config, mode, token) {
   url.searchParams.set('mode', mode);
   url.searchParams.set('token', token);
   url.searchParams.set('folderName', config.folderName || '靈魂萬花筒');
+  if (config.folderId) url.searchParams.set('folderId', config.folderId);
   for (const key of ['maxTextCharsPerFile', 'maxPreviewRowsPerSheet', 'maxPreviewColumnsPerSheet', 'maxBlobBytesPerFile']) {
     if (config[key] != null) url.searchParams.set(key, String(config[key]));
   }
@@ -241,6 +242,9 @@ async function buildCloudDriveState(generatedAt, config) {
       source: 'apps-script',
       appsScriptUrl: apiUrl,
       folderName: metadata.folderName,
+      folderId: metadata.folderId,
+      folderUrl: metadata.folderUrl,
+      folderCandidateCount: metadata.folderCandidateCount,
       fileCount: metadata.fileCount,
       files: metadata.files
     };

@@ -33,6 +33,7 @@ test('start workflow scans project files and compares a saved snapshot', () => {
   assert.match(startScript, /config\/google-drive-cloud-sync\.json/);
   assert.match(startScript, /startup-cloud-scan/);
   assert.match(startScript, /STARTUP_SYNC_TOKEN/);
+  assert.match(startScript, /folderId/);
   assert.match(startScript, /readAllCloudFilesIfNeeded/);
   assert.match(startScript, /sha256/);
   assert.match(startScript, /changedFiles/);
@@ -48,6 +49,7 @@ test('start workflow scans project files and compares a saved snapshot', () => {
 
 test('cloud Drive config defines guarded network-first startup scan', () => {
   assert.match(cloudDriveConfig, /靈魂萬花筒/);
+  assert.match(cloudDriveConfig, /1IfXfpsxP2IKzJbvC3VZrwyRznog-3uQf/);
   assert.match(cloudDriveConfig, /cloud-metadata-first/);
   assert.match(cloudDriveConfig, /read-all-cloud-files-when-any-cloud-file-changes/);
   assert.match(cloudDriveConfig, /web\/deployment-config\.js/);

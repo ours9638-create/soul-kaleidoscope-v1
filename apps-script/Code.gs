@@ -146,7 +146,8 @@ function setupWorkbook_() {
 function startupCloudScan_(payload) {
   assertStartupSyncToken_(payload.token);
   const options = normalizeStartupCloudOptions_(payload || {});
-  const folder = getSingleFolderByName_(options.folderName);
+  const selected = getStartupCloudFolder_(options);
+  const folder = selected.folder;
   const fileEntries = [];
   collectDriveFiles_(folder, '', fileEntries);
   const files = fileEntries.map(function(entry) {
@@ -157,6 +158,9 @@ function startupCloudScan_(payload) {
     mode: options.mode,
     generatedAt: new Date().toISOString(),
     folderName: options.folderName,
+    folderId: folder.getId(),
+    folderUrl: folder.getUrl(),
+    folderCandidateCount: selected.candidateCount,
     fileCount: files.length,
     files
   };
@@ -183,6 +187,7 @@ function assertStartupSyncToken_(token) {
 function normalizeStartupCloudOptions_(payload) {
   return {
     folderName: String(payload.folderName || '靈魂萬花筒').trim(),
+    folderId: String(payload.folderId || '').trim(),
     mode: payload.mode === 'readAll' ? 'readAll' : 'metadata',
     maxTextCharsPerFile: Math.max(1000, Number(payload.maxTextCharsPerFile || 20000)),
     maxPreviewRowsPerSheet: Math.max(1, Number(payload.maxPreviewRowsPerSheet || 10)),
@@ -191,10 +196,41 @@ function normalizeStartupCloudOptions_(payload) {
   };
 }
 
-function getSingleFolderByName_(folderName) {
+function getStartupCloudFolder_(options) {
+  if (options.folderId) {
+    return {
+      folder: DriveApp.getFolderById(options.folderId),
+      candidateCount: 1
+    };
+  }
+  return getBestFolderByName_(options.folderName);
+}
+
+function getBestFolderByName_(folderName) {
   const folders = DriveApp.getFoldersByName(folderName);
   if (!folders.hasNext()) throw new Error('Drive folder not found: ' + folderName);
-  return folders.next();
+  let first = null;
+  let firstWithFiles = null;
+  let candidateCount = 0;
+  while (folders.hasNext()) {
+    const folder = folders.next();
+    candidateCount += 1;
+    if (!first) first = folder;
+    if (!firstWithFiles && folderHasAnyFile_(folder)) firstWithFiles = folder;
+  }
+  return {
+    folder: firstWithFiles || first,
+    candidateCount
+  };
+}
+
+function folderHasAnyFile_(folder) {
+  if (folder.getFiles().hasNext()) return true;
+  const childFolders = folder.getFolders();
+  while (childFolders.hasNext()) {
+    if (folderHasAnyFile_(childFolders.next())) return true;
+  }
+  return false;
 }
 
 function collectDriveFiles_(folder, prefix, files) {
