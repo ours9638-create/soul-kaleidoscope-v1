@@ -26,6 +26,25 @@ test('Apps Script report generation branches by selected service', () => {
   assert.match(code, /精油只作為支持層，不反推數字公式/);
 });
 
+test('Apps Script number report includes annual fields and guarded language', () => {
+  assert.match(code, /annual\.analysisYear/);
+  assert.match(code, /annual\.yearFlow\.chain/);
+  assert.match(code, /今年位格/);
+  assert.match(code, /報告語氣邊界/);
+  assert.match(code, /不可由圖像反推公式/);
+});
+
+test('Apps Script SVG uses locked soul-kaleidoscope positions', () => {
+  assert.match(code, /centerLeft: \[340, 450\]/);
+  assert.match(code, /centerRight: \[560, 450\]/);
+  assert.match(code, /horseOne: \[235, 260\]/);
+  assert.match(code, /horseTwo: \[665, 260\]/);
+  assert.match(code, /horseThree: \[235, 640\]/);
+  assert.match(code, /horseFour: \[665, 640\]/);
+  assert.match(code, /yearFlow: \[450, 760\]/);
+  assert.match(code, /annualPosition: \[450, 80\]/);
+});
+
 test('Apps Script can save a case and generate delivery files in one request', () => {
   assert.match(code, /save-and-generate-report/);
   assert.match(code, /function saveAndGenerateReport_/);

@@ -1,13 +1,13 @@
 # 目前部署狀態
 
-更新日期：2026-06-14
+更新日期：2026-06-15
 
 ## Apps Script Web App
 
 - 狀態：已部署並完成完整驗證
 - Web App URL：`https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec`
 - 版本：`v0.1.0`
-- Apps Script 部署版本：`7 版 (2026年6月15日上午10:11)`
+- Apps Script 部署版本：`8 版 (2026年6月15日上午11:29)`
 - 權限：
   - Execute as：部署者本人
   - Who has access：所有人
@@ -36,6 +36,8 @@
 - 2026-06-14 追加驗證：`輸出紀錄` 已新增 `deliveryStatus` 欄位，表頭順序為 `status` 後接 `deliveryStatus`
 - 2026-06-15 追加驗證：Apps Script 後台/API 可用 token 更新 `deliveryStatus`，測試 token 已更新為 `reviewed`
 - 2026-06-15 人工核對：Apps Script 後台已顯示「交付狀態」表單，使用者確認畫面 OK
+- 2026-06-15 追加驗證：Apps Script 第 8 版已部署，保留原 Web App URL，`verify:deployment:url` 與 `verify:deployment:setup` 通過
+- 2026-06-15 追加驗證：第 8 版修正 Apps Script SVG 固定座標輸出，並在報告補回流年與今年位格
 
 ## PWA 串接
 
@@ -76,6 +78,18 @@
 - 讀回驗證：`GET action=case` 已確認 `birthTime = 15:17`，避免 Google Sheets 時間欄位轉成 `07:17`。
 - Drive 檔案驗證：`reportUrl` 預覽為 Markdown 報告，`svgUrl` 預覽為 SVG 校對圖。
 - Sheets 驗證：`個案資料表` 有一列測試個案，`輸出紀錄` 有對應 token、reportUrl、svgUrl。
+
+## 第一份正式個案草稿
+
+- 狀態：已重產新版草稿，等待人工核對
+- 名稱：`[REDACTED]`
+- 服務：`soul-number-with-oil`
+- caseId：`[REDACTED_CASE_ID]`
+- token：`[REDACTED_TOKEN]`
+- deliveryStatus：`draft`
+- reportUrl：`[REDACTED_DRIVE_URL]`
+- svgUrl：`[REDACTED_DRIVE_URL]`
+- 備註：同一 `caseId + serviceId` 已存在，系統回傳 `duplicateCaseWarning` 並略過新增重複個案列，只新增新的輸出紀錄。
 
 ## 已知資料問題
 

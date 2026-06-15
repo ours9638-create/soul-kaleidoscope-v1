@@ -593,18 +593,44 @@ function buildImageChecklist_(templateId, result) {
 }
 
 function renderChecklistSvg_(checklist) {
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900"><rect width="900" height="900" fill="#0B1020"/><text x="450" y="40" fill="#fff" text-anchor="middle" font-size="28">靈魂萬花圖</text>' +
-    Object.keys(checklist.positions).map(function(key, index) {
-      const item = checklist.positions[key];
-      const x = 130 + (index % 4) * 210;
-      const y = 150 + Math.floor(index / 4) * 220;
-      const text = item.chain || item.value;
-      return '<g><circle cx="' + x + '" cy="' + y + '" r="52" fill="#334155" stroke="#fff"/><text x="' + x + '" y="' + y + '" fill="#fff" text-anchor="middle" font-size="20">' + escapeHtml_(text) + '</text><text x="' + x + '" y="' + (y + 76) + '" fill="#fff" text-anchor="middle" font-size="12">' + escapeHtml_(item.label) + '</text></g>';
-    }).join('') +
+  const nodePositions = {
+    centerLeft: [340, 450],
+    centerRight: [560, 450],
+    bloom: [450, 210],
+    innerFrequency: [450, 300],
+    horseOne: [235, 260],
+    horseTwo: [665, 260],
+    horseThree: [235, 640],
+    horseFour: [665, 640],
+    lunarSupport: [130, 450],
+    solarSupport: [770, 450],
+    yearFlow: [450, 760],
+    annualPosition: [450, 80]
+  };
+  const nodes = Object.keys(checklist.positions).map(function(key) {
+    const item = checklist.positions[key];
+    const position = nodePositions[key] || [450, 450];
+    const x = position[0];
+    const y = position[1];
+    const text = item.chain || item.value;
+    return '<g><circle cx="' + x + '" cy="' + y + '" r="54" fill="' + nodeFill_(key) + '" stroke="#FFFFFF" stroke-width="1.5" opacity="0.92"/><text x="' + x + '" y="' + (y - 4) + '" fill="#FFFFFF" text-anchor="middle" font-size="21" font-weight="700">' + escapeHtml_(text) + '</text><text x="' + x + '" y="' + (y + 22) + '" fill="#E2E8F0" text-anchor="middle" font-size="11">' + escapeHtml_(item.slot) + '</text><text x="' + x + '" y="' + (y + 72) + '" fill="#F8FAFC" text-anchor="middle" font-size="12">' + escapeHtml_(item.label) + '</text></g>';
+  }).join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900"><rect width="900" height="900" fill="#0B1020"/><circle cx="450" cy="450" r="360" fill="none" stroke="#D9B56C" stroke-width="2" opacity="0.55"/><circle cx="450" cy="450" r="250" fill="none" stroke="#A78BFA" stroke-width="1.5" opacity="0.5"/><circle cx="450" cy="450" r="145" fill="none" stroke="#F9A8D4" stroke-width="1.5" opacity="0.55"/><line x1="130" y1="450" x2="770" y2="450" stroke="#475569" stroke-width="1" opacity="0.55"/><line x1="450" y1="80" x2="450" y2="760" stroke="#475569" stroke-width="1" opacity="0.55"/><text x="450" y="38" fill="#F8FAFC" text-anchor="middle" font-size="28">靈魂萬花圖</text>' +
+    nodes +
     '<text x="450" y="875" fill="#CBD5E1" text-anchor="middle" font-size="14">校對版｜只使用數字色，不使用彩油瓶色</text></svg>';
 }
 
+function nodeFill_(key) {
+  if (key.indexOf('horse') === 0) return '#B45309';
+  if (key.indexOf('Support') !== -1) return '#2563EB';
+  if (key === 'centerLeft') return '#7C3AED';
+  if (key === 'centerRight') return '#DB2777';
+  if (key === 'bloom' || key === 'innerFrequency') return '#BE185D';
+  return '#334155';
+}
+
 function buildReportDraft_(result, checklist) {
+  const annual = result.annual.afterBirthday;
   return [
     '# ' + result.displayName + '｜靈魂萬花筒 v1 報告草稿',
     '',
@@ -616,6 +642,8 @@ function buildReportDraft_(result, checklist) {
     '- 木馬：' + result.horseNumbers.map(function(item) { return item.value; }).join(' / '),
     '- 陰曆貴人：' + result.supportNumbers.lunar,
     '- 陽曆貴人：' + result.supportNumbers.solar,
+    '- ' + annual.analysisYear + ' 流年：' + annual.yearFlow.chain,
+    '- 今年位格：' + annual.position,
     '',
     '## 出圖核對',
     Object.keys(checklist.positions).map(function(key) {
@@ -623,7 +651,14 @@ function buildReportDraft_(result, checklist) {
       return '- ' + item.label + '：' + (item.chain || item.value) + '（' + item.slot + '）';
     }).join('\n'),
     '',
-    '本報告使用支持、提醒、象徵與練習語氣。靈魂萬花圖是象徵性視覺化，不代表公式本身。'
+    '## 報告語氣邊界',
+    '- 本報告使用支持、提醒、象徵與練習語氣。',
+    '- 靈魂萬花圖是象徵性視覺化，不代表公式本身，也不可由圖像反推公式。',
+    '- 精油與色彩內容只作為日常支持建議，不作為醫療用途。',
+    '',
+    '## 下一步',
+    '- 先確認核對表位置與數字。',
+    '- 再產出美術版提示詞或交付版 PDF。'
   ].join('\n');
 }
 

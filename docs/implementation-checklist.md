@@ -49,6 +49,7 @@
 - [x] 重新部署 Apps Script 第 7 版，新增 token 更新 `deliveryStatus`
 - [x] 用測試 token 確認 `deliveryStatus` 可更新為 `reviewed`
 - [x] 人工核對 Apps Script 後台「交付狀態」表單畫面 OK
+- [x] 重新部署 Apps Script 第 8 版，修正 SVG 固定座標與報告流年/位格輸出
 - [x] 確認回傳 `reportUrl`
 - [x] 若服務包含數字盤，確認回傳 `svgUrl`
 
@@ -64,11 +65,11 @@
 
 ## D. 第一份個案交付
 
-- [ ] 輸入個案資料
-- [ ] 產出 reportUrl 與必要的 svgUrl
+- [x] 輸入個案資料
+- [x] 產出 reportUrl 與必要的 svgUrl
 - [ ] 打開 `docs/delivery-checklist.md`
 - [ ] 依交付核對表檢查資料、數字、SVG、報告、Drive 與 Sheets
-- [ ] 若有 `duplicateCaseWarning`，確認是重產報告還是誤送
+- [x] 若有 `duplicateCaseWarning`，確認是重產報告還是誤送
 - [ ] 將 `輸出紀錄.deliveryStatus` 從 `draft` 改成 `reviewed` 或 `delivered`
 - [ ] 人工校對通過後再交付
 
