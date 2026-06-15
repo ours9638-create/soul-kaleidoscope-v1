@@ -7,7 +7,7 @@
 - 狀態：已部署並完成完整驗證
 - Web App URL：`https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec`
 - 版本：`v0.1.0`
-- Apps Script 部署版本：`6 版 (2026年6月14日晚上8:41)`
+- Apps Script 部署版本：`7 版 (2026年6月15日上午10:11)`
 - 權限：
   - Execute as：部署者本人
   - Who has access：所有人
@@ -34,6 +34,7 @@
 - 2026-06-14 追加驗證：Google Sheets `個案資料表` 與 `輸出紀錄` 都有 Cloudflare 真實測試個案紀錄
 - 2026-06-14 追加驗證：重送同一 `caseId + serviceId` 會回傳 `duplicateCaseWarning`，不再安靜新增重複個案列
 - 2026-06-14 追加驗證：`輸出紀錄` 已新增 `deliveryStatus` 欄位，表頭順序為 `status` 後接 `deliveryStatus`
+- 2026-06-15 追加驗證：Apps Script 後台/API 可用 token 更新 `deliveryStatus`，測試 token 已更新為 `reviewed`
 
 ## PWA 串接
 
@@ -86,7 +87,8 @@
 
 - `輸出紀錄.deliveryStatus` 預設為 `draft`。
 - 人工核對通過後，才可改成 `reviewed` 或 `delivered`。
-- 這個欄位目前是人工流程欄位，不會自動判定報告是否可交付。
+- 狀態更新由 Apps Script 後台/API 以 token 執行，不開放客人端修改。
+- 這個欄位仍是人工流程欄位，不會自動判定報告是否可交付。
 
 ## 下一步
 
