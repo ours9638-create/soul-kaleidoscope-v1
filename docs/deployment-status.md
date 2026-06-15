@@ -35,6 +35,7 @@
 - 2026-06-14 追加驗證：重送同一 `caseId + serviceId` 會回傳 `duplicateCaseWarning`，不再安靜新增重複個案列
 - 2026-06-14 追加驗證：`輸出紀錄` 已新增 `deliveryStatus` 欄位，表頭順序為 `status` 後接 `deliveryStatus`
 - 2026-06-15 追加驗證：Apps Script 後台/API 可用 token 更新 `deliveryStatus`，測試 token 已更新為 `reviewed`
+- 2026-06-15 人工核對：Apps Script 後台已顯示「交付狀態」表單，使用者確認畫面 OK
 
 ## PWA 串接
 
@@ -93,5 +94,5 @@
 ## 下一步
 
 1. 下一份正式個案先用 `docs/delivery-checklist.md` 跑完整人工核對。
-2. 核對通過後，把 `deliveryStatus` 從 `draft` 改成 `reviewed` 或 `delivered`。
-3. 若要自動化狀態更新，再新增 Apps Script 後台按鈕，不要直接讓客人端修改。
+2. 核對通過後，用後台「交付狀態」表單把 `deliveryStatus` 從 `draft` 改成 `reviewed` 或 `delivered`。
+3. 若要進入正式個案交付，需要先確認個案資料，不要沿用測試資料。

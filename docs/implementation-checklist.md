@@ -48,6 +48,7 @@
 - [x] 重送同一個案時確認回傳 `duplicateCaseWarning`
 - [x] 重新部署 Apps Script 第 7 版，新增 token 更新 `deliveryStatus`
 - [x] 用測試 token 確認 `deliveryStatus` 可更新為 `reviewed`
+- [x] 人工核對 Apps Script 後台「交付狀態」表單畫面 OK
 - [x] 確認回傳 `reportUrl`
 - [x] 若服務包含數字盤，確認回傳 `svgUrl`
 
