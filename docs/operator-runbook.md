@@ -92,6 +92,7 @@ npm run readiness
 - `輸出紀錄` 必須有報告連結。
 - 有數字盤服務時，`輸出紀錄` 才需要 SVG 連結。
 - `輸出紀錄.deliveryStatus` 預設是 `draft`；核對完成後才改成 `reviewed` 或 `delivered`。
+- 狀態更新從 Apps Script 後台操作，只用 token 更新，不開放客人端修改。
 - 若回傳 `duplicateCaseWarning`，先判斷是重產報告還是誤送，不要直接交付。
 
 ## 7. 每次收工

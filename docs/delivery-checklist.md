@@ -92,6 +92,7 @@
 - `輸出紀錄` 有 reportUrl。
 - 若服務包含數字盤，`輸出紀錄` 有 svgUrl。
 - `輸出紀錄.deliveryStatus` 先保持 `draft`，核對完成後才改成 `reviewed` 或 `delivered`。
+- 狀態更新使用 Apps Script 後台的「交付狀態」表單，以 token 更新，不直接開放客人端修改。
 - `reportUrl` 預覽是 `_report.md` 報告。
 - `svgUrl` 預覽是 `_checklist.svg` 校對圖。
 - `個案資料表` 沒有安靜新增同一個 `caseId + serviceId` 重複列。

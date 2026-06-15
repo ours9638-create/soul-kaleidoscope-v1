@@ -55,10 +55,24 @@
         <h2>結果</h2>
         <pre id="output">尚未計算</pre>
       </section>
+      <form id="deliveryStatusForm">
+        <h2>交付狀態</h2>
+        <p class="note">正式交付前先用交付核對表。核對後再用 token 更新輸出紀錄狀態。</p>
+        <label>輸出 token <input name="token" required></label>
+        <label>交付狀態
+          <select name="deliveryStatus" required>
+            <option value="draft">draft｜草稿</option>
+            <option value="reviewed">reviewed｜已核對</option>
+            <option value="delivered">delivered｜已交付</option>
+          </select>
+        </label>
+        <button type="submit">更新交付狀態</button>
+      </form>
     </main>
     <script>
       document.querySelector('[name="queryDate"]').value = new Date().toISOString().slice(0, 10);
       const form = document.querySelector('#caseForm');
+      const deliveryStatusForm = document.querySelector('#deliveryStatusForm');
       const setupButton = document.querySelector('#setupButton');
       const serviceSelect = document.querySelector('[name="serviceId"]');
       const numberFields = document.querySelector('#numberFields');
@@ -101,6 +115,19 @@
             document.querySelector('#output').textContent = error.message || String(error);
           })
           .calculateAndSaveCase(payload);
+      });
+
+      deliveryStatusForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(event.target).entries());
+        google.script.run
+          .withSuccessHandler(function(result) {
+            document.querySelector('#output').textContent = JSON.stringify(result, null, 2);
+          })
+          .withFailureHandler(function(error) {
+            document.querySelector('#output').textContent = error.message || String(error);
+          })
+          .updateDeliveryStatus(payload);
       });
     </script>
   </body>

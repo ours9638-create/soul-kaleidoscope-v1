@@ -36,6 +36,7 @@ function doPost(e) {
   if (body.action === 'calculate-case') return jsonResponse(calculateAndSaveCase(body.payload || body));
   if (body.action === 'save-and-generate-report') return jsonResponse(saveAndGenerateReport_(body.payload || body));
   if (body.action === 'generate-report') return jsonResponse(generateReport_(body.caseId, body.payload));
+  if (body.action === 'update-delivery-status') return jsonResponse(updateDeliveryStatus_(body.payload || body));
   return jsonResponse({ ok: false, error: 'unknown action' }, 400);
 }
 
@@ -71,6 +72,45 @@ function generateReport_(caseId, payload) {
   const serviceCase = found.serviceCase || found.case;
   if (!serviceCase) throw new Error('case not found');
   return createDeliveryFiles_(serviceCase);
+}
+
+function updateDeliveryStatus(payload) {
+  return updateDeliveryStatus_(payload || {});
+}
+
+function updateDeliveryStatus_(payload) {
+  const token = String(payload.token || '').trim();
+  const deliveryStatus = normalizeDeliveryStatus_(payload.deliveryStatus);
+  if (!token) throw new Error('token is required');
+  ensureWorkbook_();
+  const sheet = getSheet_(CONFIG.OUTPUT_SHEET_NAME);
+  ensureSheetHeaders_(sheet, OUTPUT_HEADERS);
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const tokenIndex = headers.indexOf('token');
+  const deliveryStatusIndex = headers.indexOf('deliveryStatus');
+  if (tokenIndex === -1 || deliveryStatusIndex === -1) throw new Error('output sheet missing required headers');
+  const rowOffset = values.slice(1).findIndex(function(row) {
+    return row[tokenIndex] === token;
+  });
+  if (rowOffset === -1) return { ok: false, error: 'token not found', token };
+  const rowNumber = rowOffset + 2;
+  sheet.getRange(rowNumber, deliveryStatusIndex + 1).setValue(deliveryStatus);
+  return {
+    ok: true,
+    token,
+    deliveryStatus,
+    rowNumber
+  };
+}
+
+function normalizeDeliveryStatus_(value) {
+  const selected = String(value || '').trim();
+  const allowed = ['draft', 'reviewed', 'delivered'];
+  if (allowed.indexOf(selected) === -1) {
+    throw new Error('deliveryStatus must be draft, reviewed, or delivered');
+  }
+  return selected;
 }
 
 function healthCheck_() {

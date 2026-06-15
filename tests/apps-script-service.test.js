@@ -38,6 +38,24 @@ test('Apps Script records delivery status for output rows', () => {
   assert.match(code, /'reportType', 'status', 'deliveryStatus'/);
 });
 
+test('Apps Script can update delivery status by token with guarded statuses', () => {
+  assert.match(code, /update-delivery-status/);
+  assert.match(code, /function updateDeliveryStatus_/);
+  assert.match(code, /function updateDeliveryStatus\(payload\)/);
+  assert.match(code, /function normalizeDeliveryStatus_/);
+  assert.match(code, /\['draft', 'reviewed', 'delivered'\]/);
+  assert.match(code, /sheet\.getRange\(rowNumber, deliveryStatusIndex \+ 1\)\.setValue\(deliveryStatus\)/);
+});
+
+test('Apps Script admin page exposes delivery status update form', () => {
+  assert.match(adminHtml, /id="deliveryStatusForm"/);
+  assert.match(adminHtml, /name="token"/);
+  assert.match(adminHtml, /name="deliveryStatus"/);
+  assert.match(adminHtml, /value="reviewed"/);
+  assert.match(adminHtml, /value="delivered"/);
+  assert.match(adminHtml, /updateDeliveryStatus\(payload\)/);
+});
+
 test('Apps Script normalizes Sheet date and time values when reading a case', () => {
   assert.match(code, /function normalizeSheetDate_/);
   assert.match(code, /function normalizeSheetTime_/);
