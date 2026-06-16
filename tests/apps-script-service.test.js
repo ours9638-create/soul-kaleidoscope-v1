@@ -122,6 +122,9 @@ test('Apps Script exposes guarded startup cloud scan for Drive folder sync', () 
   assert.match(code, /function assertStartupSyncToken_/);
   assert.match(code, /STARTUP_SYNC_TOKEN/);
   assert.match(code, /function collectDriveFiles_/);
+  assert.match(code, /function shouldSkipStartupCloudPath_/);
+  assert.match(code, /\.workflow/);
+  assert.match(code, /token/);
   assert.match(code, /function readDriveFileForStartup_/);
   assert.match(code, /SpreadsheetApp\.openById/);
   assert.match(code, /DriveApp\.getFoldersByName/);

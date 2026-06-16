@@ -149,7 +149,8 @@ function startupCloudScan_(payload) {
   const selected = getStartupCloudFolder_(options);
   const folder = selected.folder;
   const fileEntries = [];
-  collectDriveFiles_(folder, '', fileEntries);
+  const skippedPaths = [];
+  collectDriveFiles_(folder, '', fileEntries, skippedPaths);
   const files = fileEntries.map(function(entry) {
     return buildDriveFileMetadata_(entry.file, entry.path);
   });
@@ -162,6 +163,8 @@ function startupCloudScan_(payload) {
     folderUrl: folder.getUrl(),
     folderCandidateCount: selected.candidateCount,
     fileCount: files.length,
+    skippedPathCount: skippedPaths.length,
+    skippedPaths: skippedPaths.slice(0, 200),
     files
   };
   if (options.mode === 'readAll') {
@@ -233,20 +236,43 @@ function folderHasAnyFile_(folder) {
   return false;
 }
 
-function collectDriveFiles_(folder, prefix, files) {
+function collectDriveFiles_(folder, prefix, files, skippedPaths) {
   const currentFiles = folder.getFiles();
   while (currentFiles.hasNext()) {
     const file = currentFiles.next();
+    const filePath = prefix + file.getName();
+    if (shouldSkipStartupCloudPath_(filePath, false)) {
+      skippedPaths.push(filePath);
+      continue;
+    }
     files.push({
       file,
-      path: prefix + file.getName()
+      path: filePath
     });
   }
   const childFolders = folder.getFolders();
   while (childFolders.hasNext()) {
     const child = childFolders.next();
-    collectDriveFiles_(child, prefix + child.getName() + '/', files);
+    const folderPath = prefix + child.getName() + '/';
+    if (shouldSkipStartupCloudPath_(folderPath, true)) {
+      skippedPaths.push(folderPath);
+      continue;
+    }
+    collectDriveFiles_(child, folderPath, files, skippedPaths);
   }
+}
+
+function shouldSkipStartupCloudPath_(filePath, isFolder) {
+  const normalized = String(filePath || '').replace(/\\/g, '/');
+  const parts = normalized.split('/').filter(Boolean);
+  const blockedFolders = ['.git', '.workflow', 'node_modules'];
+  if (parts.some(function(part) { return blockedFolders.indexOf(part) !== -1; })) return true;
+  if (isFolder) return false;
+  const name = parts.length ? parts[parts.length - 1].toLowerCase() : normalized.toLowerCase();
+  if (name === '.env' || name.indexOf('.env.') === 0) return true;
+  if (name.indexOf('token') !== -1) return true;
+  if (/\.(pem|key|p12|pfx|crt|cer)$/i.test(name)) return true;
+  return false;
 }
 
 function buildDriveFileMetadata_(file, filePath) {
