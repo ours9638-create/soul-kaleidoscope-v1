@@ -114,6 +114,10 @@ test('verification guide starts with workbook setup before service tests', () =>
   assert.match(verificationDoc, /setup-workbook/);
   assert.match(verificationDoc, /先只檢查初始化，不寫測試個案/);
   assert.match(verificationDoc, /只檢查網址格式，不會呼叫 Apps Script/);
+  assert.match(verificationDoc, /npm run verify:delivery-guard/);
+  assert.match(verificationDoc, /儲存只更新專案檔，不會自動更新 Web App/);
+  assert.match(verificationDoc, /delivery guard did not block reviewed status/);
+  assert.match(verificationDoc, /線上 Web App 還在跑舊版本/);
   assert.match(verificationDoc, /DEPLOY-VERIFY/);
   assert.match(verificationDoc, /不要讓系統自動刪測試資料/);
   assert.match(verificationDoc, /保留一組 `DEPLOY-VERIFY` 測試資料/);

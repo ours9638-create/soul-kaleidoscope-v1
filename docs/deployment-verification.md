@@ -62,6 +62,33 @@ npm run verify:deployment:url
 
 這個指令只檢查網址格式，不會呼叫 Apps Script，也不會寫入 Google Sheets 或 Drive。
 
+## 必測 0-1：精油待確認交付防呆
+
+每次更新 Apps Script 後，不能只按儲存。必須到「部署」->「管理部署作業」-> 編輯目前 Web App 部署，版本選「新增版本」，再按部署。Apps Script 的編輯器儲存只更新專案檔，不會自動更新 Web App 對外版本。
+
+部署後先跑：
+
+```powershell
+$env:APPS_SCRIPT_URL="你的 Web App URL"
+npm run verify:delivery-guard
+```
+
+這個指令會建立一筆 `DEPLOY-VERIFY` 測試個案，故意不填建議精油，再嘗試把 `deliveryStatus` 改成 `reviewed`。
+
+通過時應看到：
+
+```text
+# delivery guard verification ok
+```
+
+如果失敗訊息是：
+
+```text
+delivery guard did not block reviewed status for pending oil recommendation
+```
+
+代表線上 Web App 還在跑舊版本。這時不要改公式，也不要改 Google Sheets；先回 Apps Script 確認是否真的建立並套用了新的部署版本。
+
 確認 setup-only 通過後，再做完整驗證：
 
 ```powershell

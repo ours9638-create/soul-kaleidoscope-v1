@@ -110,6 +110,9 @@ test('workflow documentation explains manual start and shutdown process', () => 
   assert.match(lazyPack, /npm run copy:apps-script/);
   assert.match(lazyPack, /validateDeliveryStatusTransition_/);
   assert.match(lazyPack, /建議精油：待確認/);
+  assert.match(lazyPack, /儲存不等於 Web App 已更新/);
+  assert.match(lazyPack, /管理部署作業/);
+  assert.match(lazyPack, /新增版本/);
   assert.match(lazyPack, /Google Drive 同步鎖住 dist/);
   assert.match(lazyPack, /EPERM/);
   assert.match(lazyPack, /EINVAL/);

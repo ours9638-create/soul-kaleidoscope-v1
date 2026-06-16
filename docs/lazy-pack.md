@@ -11,12 +11,14 @@
 - Apps Script 編輯器是 Monaco 編輯器，瀏覽器自動化大段貼上容易失敗。
 - 失敗時可能只剩 `}` 或少量字元，這時絕對不能按儲存。
 - Google Drive 連接器只能更新 Drive 檔案，不能直接替換 Apps Script 專案原始碼。
+- Apps Script 按儲存不等於 Web App 已更新；必須到部署管理建立新版本或編輯部署版本。
 
 ### 下次不要做
 
 - 不要再用瀏覽器自動化直接貼整份 `Code.gs`。
 - 不要在沒有確認函式名稱與檔案長度前儲存。
 - 不要把 `apps-script/Code.gs` 原始檔直接當部署檔貼上。
+- 不要只按儲存就回來跑線上驗證；Web App 仍可能是舊版本。
 
 ### 正確做法
 
@@ -39,8 +41,10 @@ npm run copy:apps-script
 validateDeliveryStatusTransition_
 ```
 
-5. 確認不是空檔、不是只剩幾個字元，再儲存與部署新版。
-6. 部署後跑線上防呆驗證：
+5. 確認不是空檔、不是只剩幾個字元，再儲存。
+6. 到「部署」->「管理部署作業」-> 編輯目前 Web App 部署，版本選「新增版本」，再按部署。
+7. 不確定是否部署成功時，先跑線上防呆驗證；如果仍允許 `reviewed`，代表 Web App 還是舊版本。
+8. 部署後跑線上防呆驗證：
 
 ```powershell
 $env:APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec"; npm run verify:delivery-guard
