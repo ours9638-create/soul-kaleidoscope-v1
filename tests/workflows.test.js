@@ -12,6 +12,9 @@ const shutdownScript = fs.existsSync(new URL('../scripts/work-shutdown.js', impo
 const workflowDoc = fs.existsSync(new URL('../docs/workflow.md', import.meta.url))
   ? fs.readFileSync(new URL('../docs/workflow.md', import.meta.url), 'utf8')
   : '';
+const lazyPack = fs.existsSync(new URL('../docs/lazy-pack.md', import.meta.url))
+  ? fs.readFileSync(new URL('../docs/lazy-pack.md', import.meta.url), 'utf8')
+  : '';
 const cloudDriveConfig = fs.existsSync(new URL('../config/google-drive-cloud-sync.json', import.meta.url))
   ? fs.readFileSync(new URL('../config/google-drive-cloud-sync.json', import.meta.url), 'utf8')
   : '';
@@ -78,6 +81,9 @@ test('shutdown workflow records daily status and reserves midnight shutdown usag
   assert.doesNotMatch(shutdownScript, /確認已跑 npm run package:static/);
   assert.match(shutdownScript, /每日用量/);
   assert.match(shutdownScript, /無開工狀態/);
+  assert.match(shutdownScript, /docs\/lazy-pack\.md/);
+  assert.match(shutdownScript, /npm run copy:apps-script/);
+  assert.match(shutdownScript, /verify:delivery-guard/);
   assert.match(shutdownScript, /fs\.rmSync\(path\.join\(ROOT, ACTIVE_SESSION_FILE\)/);
 });
 
@@ -99,4 +105,12 @@ test('workflow documentation explains manual start and shutdown process', () => 
   assert.match(workflowDoc, /雲端 Drive/);
   assert.match(workflowDoc, /STARTUP_SYNC_TOKEN/);
   assert.match(workflowDoc, /cloud-drive-read-report/);
+  assert.match(workflowDoc, /docs\/lazy-pack\.md/);
+  assert.match(lazyPack, /Apps Script 更新 Code\.gs/);
+  assert.match(lazyPack, /npm run copy:apps-script/);
+  assert.match(lazyPack, /validateDeliveryStatusTransition_/);
+  assert.match(lazyPack, /建議精油：待確認/);
+  assert.match(lazyPack, /Google Drive 同步鎖住 dist/);
+  assert.match(lazyPack, /EPERM/);
+  assert.match(lazyPack, /EINVAL/);
 });

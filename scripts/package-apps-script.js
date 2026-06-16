@@ -9,6 +9,7 @@ const FILES = [
   'apps-script/Admin.html',
   'apps-script/appsscript.json'
 ];
+const OUTPUT_FILES = [...FILES.map((source) => path.basename(source)), 'README.md'];
 
 function resolvePath(relativePath) {
   return path.join(ROOT, relativePath);
@@ -23,6 +24,13 @@ function copyFile(source) {
   fs.copyFileSync(resolvePath(source), targetPath);
 }
 
+function clearKnownOutputs() {
+  fs.mkdirSync(resolvePath(OUT_DIR), { recursive: true });
+  OUTPUT_FILES.forEach((fileName) => {
+    fs.rmSync(resolvePath(path.join(OUT_DIR, fileName)), { force: true });
+  });
+}
+
 function fileInfo(source) {
   const targetPath = resolvePath(path.join(OUT_DIR, path.basename(source)));
   const content = fs.readFileSync(targetPath);
@@ -33,7 +41,7 @@ function fileInfo(source) {
   };
 }
 
-fs.rmSync(resolvePath(OUT_DIR), { recursive: true, force: true });
+clearKnownOutputs();
 FILES.forEach(copyFile);
 const manifest = FILES.map(fileInfo);
 

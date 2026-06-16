@@ -26,8 +26,10 @@ test('package exposes a predeploy readiness check', () => {
   assert.equal(packageJson.scripts['verify:deployment:setup'], 'node scripts/verify-deployment.js --setup-only');
   assert.equal(packageJson.scripts['verify:deployment:url'], 'node scripts/verify-deployment.js --validate-url-only');
   assert.equal(packageJson.scripts['verify:delivery-guard'], 'node scripts/verify-deployment.js --delivery-guard-only');
+  assert.equal(packageJson.scripts['copy:apps-script'], 'node scripts/copy-apps-script-code.js');
   assert.equal(packageJson.scripts.readiness, 'node scripts/local-readiness.js');
   assert.match(packageJson.scripts.check, /scripts\/local-readiness\.js/);
+  assert.match(packageJson.scripts.check, /scripts\/copy-apps-script-code\.js/);
 });
 
 test('predeploy check covers free-stack deployment artifacts', () => {
@@ -59,6 +61,13 @@ test('predeploy check validates service delivery API and required docs', () => {
   assert.match(script, /package:static/);
   assert.match(script, /package:static:zip/);
   assert.match(script, /verify:static/);
+});
+
+test('Apps Script packaging avoids deleting the whole dist folder', () => {
+  const packageAppsScript = fs.readFileSync(new URL('../scripts/package-apps-script.js', import.meta.url), 'utf8');
+  assert.match(packageAppsScript, /function clearKnownOutputs/);
+  assert.match(packageAppsScript, /OUTPUT_FILES/);
+  assert.doesNotMatch(packageAppsScript, /rmSync\(resolvePath\(OUT_DIR\), \{ recursive: true/);
 });
 
 test('local readiness check runs all offline deployment gates', () => {
@@ -129,6 +138,7 @@ test('operator runbook ties start, spreadsheet review, deployment, and shutdown 
 
 test('delivery checklist is linked into operator flow and blocks unsafe handoff', () => {
   assert.match(readme, /docs\/delivery-checklist\.md/);
+  assert.match(readme, /docs\/lazy-pack\.md/);
   assert.match(checklist, /docs\/delivery-checklist\.md/);
   assert.match(runbook, /docs\/delivery-checklist\.md/);
   assert.match(deliveryChecklist, /中心左是陰曆主命數/);

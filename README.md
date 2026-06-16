@@ -32,7 +32,8 @@
 9. [目前部署狀態](docs/deployment-status.md)
 10. [正式個案交付核對表](docs/delivery-checklist.md)
 11. [PWA 免費靜態網站部署](docs/static-hosting.md)
-12. [外部內容研究：美數社數字內容](docs/research/meishushe-number-content-analysis.md)
+12. [靈魂萬花筒懶人包](docs/lazy-pack.md)
+13. [外部內容研究：美數社數字內容](docs/research/meishushe-number-content-analysis.md)
 
 ## 本機檢查
 

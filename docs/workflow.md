@@ -62,6 +62,7 @@ npm run work:shutdown
 - 追加 `.workflow/work-log.md`。
 - 完成後移除 `.workflow/active-session.json`，避免重複收工。
 - 記錄今日狀態、收工檢查與明日建議。
+- 若今天有踩坑，將可重複使用的結論補到 `docs/lazy-pack.md`，不要只留在聊天紀錄。
 - 提醒每日用量要保留給凌晨 12:00 的自動收工。
 
 ## 凌晨 12:00 自動收工
