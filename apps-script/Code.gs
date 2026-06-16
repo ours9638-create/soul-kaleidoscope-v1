@@ -97,6 +97,17 @@ function updateDeliveryStatus_(payload) {
   });
   if (rowOffset === -1) return { ok: false, error: 'token not found', token };
   const rowNumber = rowOffset + 2;
+  const record = objectFromRow_(headers, values[rowNumber - 1]);
+  const transition = validateDeliveryStatusTransition_(record, deliveryStatus);
+  if (!transition.ok) {
+    return {
+      ok: false,
+      error: 'delivery is not ready',
+      token,
+      deliveryStatus,
+      issues: transition.issues
+    };
+  }
   sheet.getRange(rowNumber, deliveryStatusIndex + 1).setValue(deliveryStatus);
   return {
     ok: true,
@@ -113,6 +124,39 @@ function normalizeDeliveryStatus_(value) {
     throw new Error('deliveryStatus must be draft, reviewed, or delivered');
   }
   return selected;
+}
+
+function validateDeliveryStatusTransition_(record, deliveryStatus) {
+  if (deliveryStatus === 'draft') return { ok: true, issues: [] };
+  const issues = [];
+  if (!record.reportUrl) issues.push('缺少 reportUrl');
+  if (record.reportUrl) {
+    const reportText = readDriveTextFileByUrl_(record.reportUrl);
+    if (/建議精油[：:]\s*(待確認|待選油)/.test(reportText)) {
+      issues.push('精油段落仍是待確認，不能標記為 reviewed 或 delivered');
+    }
+  }
+  if (record.serviceId !== 'essential-oil-product' && !record.svgUrl) {
+    issues.push('數字盤服務缺少 svgUrl');
+  }
+  return {
+    ok: issues.length === 0,
+    issues
+  };
+}
+
+function readDriveTextFileByUrl_(url) {
+  const id = parseDriveFileId_(url);
+  if (!id) throw new Error('invalid Drive file URL');
+  return DriveApp.getFileById(id).getBlob().getDataAsString('UTF-8');
+}
+
+function parseDriveFileId_(url) {
+  const text = String(url || '');
+  const fileMatch = text.match(/\/file\/d\/([^/]+)/);
+  if (fileMatch) return fileMatch[1];
+  const idMatch = text.match(/[?&]id=([^&]+)/);
+  return idMatch ? idMatch[1] : '';
 }
 
 function healthCheck_() {

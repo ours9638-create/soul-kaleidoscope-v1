@@ -5,6 +5,7 @@ import { calculateCase } from '../src/core/numerology.js';
 import { buildImageChecklist } from '../src/core/templates.js';
 import {
   buildServiceReport,
+  validateDeliveryReadiness,
   validateReportSafety
 } from '../src/core/report.js';
 
@@ -59,4 +60,30 @@ test('combined report keeps oil as support layer and not formula source', () => 
   assert.match(report, /精油產品建議/);
   assert.match(report, /精油只作為支持層，不反推數字公式/);
   assert.equal(validateReportSafety(report).ok, true);
+});
+
+test('oil delivery is not ready when selected oils are missing', () => {
+  const report = buildServiceReport('soul-number-with-oil', {
+    caseResult,
+    checklist,
+    oilProfile: {
+      displayName: '狐狸',
+      usageScenario: '身體按摩油',
+      productType: '身體按摩油',
+      selectedOils: []
+    }
+  });
+
+  const readiness = validateDeliveryReadiness('soul-number-with-oil', {
+    oilProfile: {
+      displayName: '狐狸',
+      usageScenario: '身體按摩油',
+      productType: '身體按摩油',
+      selectedOils: []
+    },
+    reportText: report
+  });
+
+  assert.equal(readiness.ok, false);
+  assert.match(readiness.issues.join('\n'), /缺少建議精油|待確認|待選油/);
 });

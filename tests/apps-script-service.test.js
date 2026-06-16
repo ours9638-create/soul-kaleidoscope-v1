@@ -66,6 +66,12 @@ test('Apps Script can update delivery status by token with guarded statuses', ()
   assert.match(code, /sheet\.getRange\(rowNumber, deliveryStatusIndex \+ 1\)\.setValue\(deliveryStatus\)/);
 });
 
+test('Apps Script blocks reviewed delivery when oil recommendation is pending', () => {
+  assert.match(code, /function validateDeliveryStatusTransition_/);
+  assert.match(code, /delivery is not ready/);
+  assert.match(code, /建議精油\[：:\]\\s\*\(待確認\|待選油\)/);
+});
+
 test('Apps Script admin page exposes delivery status update form', () => {
   assert.match(adminHtml, /id="deliveryStatusForm"/);
   assert.match(adminHtml, /name="token"/);

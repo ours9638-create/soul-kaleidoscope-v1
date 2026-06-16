@@ -62,6 +62,35 @@ export function validateReportSafety(reportText) {
   };
 }
 
+export function validateDeliveryReadiness(serviceId, context = {}) {
+  const issues = [];
+  if (serviceId === 'essential-oil-product' || serviceId === 'soul-number-with-oil') {
+    const oilProfile = context.oilProfile || {};
+    if (!Array.isArray(oilProfile.selectedOils) || oilProfile.selectedOils.length === 0) {
+      issues.push('精油服務缺少建議精油，不能標記為已核對或已交付。');
+    }
+    if (!oilProfile.usageScenario) {
+      issues.push('精油服務缺少使用情境。');
+    }
+    if (!oilProfile.productType) {
+      issues.push('精油服務缺少產品型態。');
+    }
+  }
+
+  if (context.reportText) {
+    const safety = validateReportSafety(context.reportText);
+    issues.push(...safety.hits.map((hit) => `報告含有禁止宣稱：${hit}`));
+    if (/建議精油[：:]\s*(待確認|待選油)/.test(context.reportText)) {
+      issues.push('報告精油段落仍是待確認。');
+    }
+  }
+
+  return {
+    ok: issues.length === 0,
+    issues
+  };
+}
+
 function buildOilReport(oilProfile, options = {}) {
   const selectedOils = Array.isArray(oilProfile.selectedOils) && oilProfile.selectedOils.length > 0
     ? oilProfile.selectedOils.join('、')
