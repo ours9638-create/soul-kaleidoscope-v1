@@ -25,6 +25,7 @@ test('package exposes a predeploy readiness check', () => {
   assert.equal(packageJson.scripts['verify:deployment'], 'node scripts/verify-deployment.js');
   assert.equal(packageJson.scripts['verify:deployment:setup'], 'node scripts/verify-deployment.js --setup-only');
   assert.equal(packageJson.scripts['verify:deployment:url'], 'node scripts/verify-deployment.js --validate-url-only');
+  assert.equal(packageJson.scripts['verify:delivery-guard'], 'node scripts/verify-deployment.js --delivery-guard-only');
   assert.equal(packageJson.scripts.readiness, 'node scripts/local-readiness.js');
   assert.match(packageJson.scripts.check, /scripts\/local-readiness\.js/);
 });
@@ -157,6 +158,7 @@ test('deployment verifier requires an explicit Apps Script URL and covers all v1
   assert.match(verifyDeployment, /validateApiUrl/);
   assert.match(verifyDeployment, /validateUrlOnly/);
   assert.match(verifyDeployment, /--validate-url-only/);
+  assert.match(verifyDeployment, /--delivery-guard-only/);
   assert.match(verifyDeployment, /script\.google\.com/);
   assert.match(verifyDeployment, /\/macros\/s\//);
   assert.match(verifyDeployment, /process\.env\.DEPLOY_VERIFY_SETUP_ONLY/);
@@ -172,5 +174,9 @@ test('deployment verifier requires an explicit Apps Script URL and covers all v1
   assert.match(verifyDeployment, /essential-oil-product/);
   assert.match(verifyDeployment, /soul-number-with-oil/);
   assert.match(verifyDeployment, /Content-Type': 'text\/plain;charset=utf-8/);
+  assert.match(verifyDeployment, /validateDeliveryGuardResult/);
+  assert.match(verifyDeployment, /update-delivery-status/);
+  assert.match(verifyDeployment, /delivery is not ready/);
+  assert.match(verifyDeployment, /精油段落仍是待確認/);
   assert.match(verifyDeployment, /process\.exit\(1\)/);
 });

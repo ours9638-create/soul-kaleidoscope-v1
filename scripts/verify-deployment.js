@@ -2,6 +2,7 @@ const apiUrl = process.env.APPS_SCRIPT_URL;
 const args = process.argv.slice(2);
 const setupOnly = process.env.DEPLOY_VERIFY_SETUP_ONLY === '1' || args.includes('--setup-only');
 const validateUrlOnly = args.includes('--validate-url-only');
+const deliveryGuardOnly = args.includes('--delivery-guard-only');
 const runId = process.env.DEPLOY_VERIFY_RUN_ID || `DEPLOY-VERIFY-${new Date().toISOString().replace(/[:.]/g, '-')}`;
 
 const serviceCases = [
@@ -103,6 +104,16 @@ function validateDeliveryResult(result, expected) {
   }
 }
 
+function validateDeliveryGuardResult(result) {
+  assertOk(result.ok === false, 'delivery guard did not block reviewed status for pending oil recommendation');
+  assertOk(result.error === 'delivery is not ready', 'delivery guard returned unexpected error');
+  assertOk(Array.isArray(result.issues), 'delivery guard did not return issues');
+  assertOk(
+    result.issues.some((issue) => issue.includes('精油段落仍是待確認')),
+    'delivery guard did not report pending oil recommendation'
+  );
+}
+
 function buildPayload(payload) {
   return {
     ...payload,
@@ -124,6 +135,50 @@ async function main() {
   console.log(`- runId: ${runId}`);
   console.log('- setup-workbook');
   validateSetupResult(await postToAppsScript({ action: 'setup-workbook' }));
+  if (deliveryGuardOnly) {
+    console.log('- delivery guard');
+    const pendingOilCase = buildPayload({
+      serviceId: 'soul-number-with-oil',
+      displayName: '精油待確認防呆測試',
+      solarDate: '1989-05-28',
+      lunarDate: '1989-04-24',
+      birthTime: '15:17',
+      queryDate: '2026-06-15',
+      usageScenario: '身體按摩油',
+      productType: '身體按摩油',
+      selectedOils: ''
+    });
+    const delivery = await postToAppsScript({
+      action: 'save-and-generate-report',
+      payload: pendingOilCase
+    });
+    validateDeliveryResult(delivery, {
+      label: '精油待確認防呆測試',
+      payload: pendingOilCase,
+      expectSvg: true
+    });
+    const reviewed = await postToAppsScript({
+      action: 'update-delivery-status',
+      payload: {
+        token: delivery.token,
+        deliveryStatus: 'reviewed'
+      }
+    });
+    if (reviewed.ok === true) {
+      await postToAppsScript({
+        action: 'update-delivery-status',
+        payload: {
+          token: delivery.token,
+          deliveryStatus: 'draft'
+        }
+      });
+    }
+    validateDeliveryGuardResult(reviewed);
+    console.log('# delivery guard verification ok');
+    console.log(`- 測試 token：${delivery.token}`);
+    console.log('- 精油建議待確認時，線上後台已拒絕 reviewed 狀態。');
+    return;
+  }
   if (setupOnly) {
     console.log('# deployment verification ok');
     console.log('- setup-workbook ok');

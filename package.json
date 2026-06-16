@@ -16,6 +16,7 @@
     "verify:deployment": "node scripts/verify-deployment.js",
     "verify:deployment:setup": "node scripts/verify-deployment.js --setup-only",
     "verify:deployment:url": "node scripts/verify-deployment.js --validate-url-only",
+    "verify:delivery-guard": "node scripts/verify-deployment.js --delivery-guard-only",
     "readiness": "node scripts/local-readiness.js",
     "work:start": "node scripts/work-start.js",
     "work:shutdown": "node scripts/work-shutdown.js",
