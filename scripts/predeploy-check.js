@@ -86,7 +86,7 @@ const checks = [
   {
     label: 'Operator runbook keeps start, sheet review, and shutdown together',
     file: 'docs/operator-runbook.md',
-    patterns: ['npm run work:start', 'config/google-sheets-registry.json', 'npm run work:shutdown', '凌晨 12:00']
+    patterns: ['npm run work:start', 'config/google-sheets-registry.json', 'npm run work:closeout', '凌晨自動收工已取消']
   },
   {
     label: 'Verification guide covers three service tests',
