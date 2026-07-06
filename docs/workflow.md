@@ -89,6 +89,34 @@ npm run work:shutdown
 - 如果用量不足，優先做收工紀錄，不做低優先級美化。
 - 收工流程比新增功能重要，因為它保留隔天接續工作的上下文。
 
+## GitHub / 第二大腦同步規則
+
+收工流程必須檢查 GitHub 同步狀態，但不得無條件自動 push。
+
+原因：
+
+- 根目錄 `靈魂萬花筒` 目前不是 Git repo。
+- GitHub repo 是 `soul-kaleidoscope-v1`，remote 為 GitHub。
+- 根目錄的治理文件若沒有鏡像到 `soul-kaleidoscope-v1`，就不會進 GitHub 第二大腦。
+- 專案資料夾內含個案、PDF、Google Docs / Sheets 捷徑、可能含隱私與授權資料，不能整包推上 GitHub。
+
+同步邊界：
+
+| 分層 | 內容 | 規則 |
+| --- | --- | --- |
+| 可同步 | 程式碼、測試、正式文件、流程規則、可公開設定樣板 | 可列入 commit 候選，但仍需確認是本次任務相關檔案 |
+| 需人工確認 | 治理文件、候選清單、輸出規格、Google Sheet registry | 先確認是否要同步摘要或正式副本，不能整批推送 |
+| 禁止同步 | 個案、PDF 證據、密鑰、`.workflow/startup-sync-token.txt`、Google Docs / Sheets 捷徑、未核准 Legacy 資料 | 不得推上 GitHub，不得用 `git add .` 整包提交 |
+
+若需要同步到 GitHub：
+
+1. 先提出本次可同步檔案清單。
+2. 同時提出 commit message。
+3. 人工確認清單後，才可逐檔 stage / commit / push。
+4. 根目錄治理文件若要進第二大腦，只能同步摘要或正式副本到 `soul-kaleidoscope-v1/docs/`，不能整個 Google Drive 原始資料夾推上 GitHub。
+
+這樣做的風險是多一道人工確認。建議保留，因為第二大腦要同步的是「可追蹤且可公開或可備份的工作紀錄」，不是整個 Google Drive 原始資料夾。
+
 ## 我每次開工時要做的事
 
 1. 重新讀取目前資料夾檔案狀態。

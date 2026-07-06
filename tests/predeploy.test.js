@@ -137,6 +137,13 @@ test('operator runbook ties start, spreadsheet review, deployment, and shutdown 
   assert.match(runbook, /不要自動刪/);
   assert.match(runbook, /npm run work:shutdown/);
   assert.match(runbook, /凌晨 12:00/);
+  assert.match(runbook, /同步邊界/);
+  assert.match(runbook, /可同步：程式碼、測試、正式文件、流程規則、可公開設定樣板/);
+  assert.match(runbook, /需人工確認：治理文件、候選清單、輸出規格、Google Sheet registry/);
+  assert.match(runbook, /禁止同步：個案、PDF 證據、密鑰/);
+  assert.match(runbook, /本次可同步檔案清單/);
+  assert.match(runbook, /commit message/);
+  assert.match(runbook, /不使用 `git add \.`/);
   assert.match(runbook, /精油段落只能作為支持建議，不能反推數字公式/);
 });
 

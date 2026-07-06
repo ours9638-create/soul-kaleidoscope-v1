@@ -85,6 +85,13 @@ test('shutdown workflow records daily status and reserves midnight shutdown usag
   assert.match(shutdownScript, /npm run copy:apps-script/);
   assert.match(shutdownScript, /verify:delivery-guard/);
   assert.match(shutdownScript, /fs\.rmSync\(path\.join\(ROOT, ACTIVE_SESSION_FILE\)/);
+  assert.match(shutdownScript, /GitHub 同步邊界/);
+  assert.match(shutdownScript, /可同步：程式碼、測試、正式文件、流程規則、可公開設定樣板/);
+  assert.match(shutdownScript, /需人工確認：治理文件、候選清單、輸出規格、Google Sheet registry/);
+  assert.match(shutdownScript, /禁止同步：個案、PDF 證據、密鑰/);
+  assert.match(shutdownScript, /本次可同步檔案清單/);
+  assert.match(shutdownScript, /commit message/);
+  assert.match(shutdownScript, /git add \./);
 });
 
 test('workflow documentation explains manual start and shutdown process', () => {
@@ -106,6 +113,15 @@ test('workflow documentation explains manual start and shutdown process', () => 
   assert.match(workflowDoc, /STARTUP_SYNC_TOKEN/);
   assert.match(workflowDoc, /cloud-drive-read-report/);
   assert.match(workflowDoc, /docs\/lazy-pack\.md/);
+  assert.match(workflowDoc, /GitHub \/ 第二大腦同步規則/);
+  assert.match(workflowDoc, /同步邊界/);
+  assert.match(workflowDoc, /可同步.*程式碼.*測試.*正式文件/);
+  assert.match(workflowDoc, /需人工確認.*治理文件.*候選清單.*輸出規格/);
+  assert.match(workflowDoc, /禁止同步.*個案.*PDF 證據.*密鑰/);
+  assert.match(workflowDoc, /本次可同步檔案清單/);
+  assert.match(workflowDoc, /commit message/);
+  assert.match(workflowDoc, /git add \./);
+  assert.match(workflowDoc, /不能整個 Google Drive 原始資料夾推上 GitHub/);
   assert.match(lazyPack, /Apps Script 更新 Code\.gs/);
   assert.match(lazyPack, /npm run copy:apps-script/);
   assert.match(lazyPack, /validateDeliveryStatusTransition_/);

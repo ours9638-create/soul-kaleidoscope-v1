@@ -111,6 +111,27 @@ npm run work:shutdown
 - 至少保留足夠一次 `npm run work:shutdown` 的用量。
 - 如果額度不足，先做收工，不做低優先級美化。
 
+GitHub / 第二大腦同步規則：
+
+- 收工必須檢查 GitHub 同步狀態。
+- 若 `git status --short --branch` 顯示未提交或未追蹤檔案，代表本機尚未同步到 GitHub。
+- 不得自動 commit / push 全部變更；需先人工確認哪些檔案可同步。
+- 根目錄治理文件不在 `soul-kaleidoscope-v1` repo 內，若要進第二大腦，需同步摘要或正式副本到 repo 文件區。
+- 個案資料、密鑰、Google Docs / Sheets 捷徑、PDF 證據與不應公開資料不得直接推上 GitHub。
+
+同步邊界：
+
+- 可同步：程式碼、測試、正式文件、流程規則、可公開設定樣板。
+- 需人工確認：治理文件、候選清單、輸出規格、Google Sheet registry。
+- 禁止同步：個案、PDF 證據、密鑰、`.workflow/startup-sync-token.txt`、Google Docs / Sheets 捷徑、未核准 Legacy 資料。
+
+若要 commit / push：
+
+1. 先提出本次可同步檔案清單。
+2. 同時提出 commit message。
+3. 人工確認後才可逐檔 stage / commit / push。
+4. 不使用 `git add .`。
+
 ## 8. 何時不要升級
 
 下面任一情況成立時，先不要升級成付費資料庫或原生 App：
