@@ -74,13 +74,32 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 40px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
   padding: 0 10px;
   font: inherit;
+}
+
+textarea {
+  resize: vertical;
+  padding: 10px;
+  font: inherit;
+}
+
+.observation-fields {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.observation-fields summary {
+  cursor: pointer;
+  font-weight: 700;
 }
 
 button {

@@ -37,7 +37,22 @@ test('report draft avoids medical claims and records output checks', () => {
   const report = buildReportDraft(result, buildImageChecklist('soul-kaleidoscope', result));
 
   assert.equal(validateReportSafety(report).ok, true);
-  assert.match(report, /出圖核對/);
-  assert.match(report, /象徵性視覺化/);
+  assert.match(report, /靈魂數字個案報告/);
+  assert.match(report, /內容來源 ID/);
+  assert.doesNotMatch(report, /Style A｜霧白金線版|出圖核對|快速閱讀/);
   assert.doesNotMatch(report, /治療|治癒|保證改善/);
+});
+
+test('report draft uses the active pre-birthday annual version', () => {
+  const result = calculateCase({
+    displayName: '嘟嘟',
+    solarDate: '1991-09-23',
+    lunarDate: '1991-08-16',
+    birthTime: '11:17',
+    queryDate: '2026-06-14'
+  });
+  const report = buildReportDraft(result, buildImageChecklist('soul-kaleidoscope', result));
+
+  assert.match(report, /2025 年流年 23\/5，位格 8/);
+  assert.doesNotMatch(report, /2026 年流年 24\/6/);
 });

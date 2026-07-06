@@ -18,6 +18,23 @@ test('PWA has oil fields grouped separately from number fields', () => {
   assert.match(html, /name="selectedOils"/);
 });
 
+test('PWA captures structured case observations without sending them to Canva directly', () => {
+  for (const field of [
+    'mainIssue', 'recentTransition', 'repeatingPattern', 'growthFocus',
+    'excludedTopics', 'monthlyContext', 'clientDisplayName', 'approvedClientSummary'
+  ]) {
+    assert.match(html, new RegExp(`name="${field}"`));
+  }
+  assert.match(html, /客戶可見稱呼，勿填內部代稱/);
+  assert.match(html, /客戶可見稱呼與已核准摘要會進客戶報告與 Canva 套版包/);
+  assert.match(html, /勿填內部代稱或原始諮詢筆記/);
+  assert.match(appJs, /function buildObservations/);
+  assert.match(appJs, /buildPractitionerCard/);
+  assert.match(appJs, /buildCanvaPackage/);
+  assert.match(html, /id="downloadPractitionerCardButton"/);
+  assert.match(html, /id="downloadCanvaPackageButton"/);
+});
+
 test('PWA toggles oil fields based on selected service', () => {
   assert.match(appJs, /function updateServiceFields/);
   assert.match(appJs, /essential-oil-product/);
@@ -32,6 +49,9 @@ test('PWA clears required birthday fields for oil-only service', () => {
 test('PWA sends one request that saves and generates delivery links', () => {
   assert.match(appJs, /save-and-generate-report/);
   assert.match(appJs, /data\.reportUrl/);
+  assert.match(appJs, /data\.practitionerCardUrl/);
+  assert.match(appJs, /data\.canvaPackageUrl/);
+  assert.match(appJs, /data\.reviewIssues/);
   assert.match(appJs, /data\.svgUrl/);
 });
 
@@ -60,4 +80,11 @@ test('PWA can run a backend setup check before sending cases', () => {
 test('PWA posts to Apps Script without JSON preflight headers', () => {
   assert.doesNotMatch(appJs, /Content-Type': 'application\/json/);
   assert.match(appJs, /Content-Type': 'text\/plain;charset=utf-8/);
+});
+
+test('PWA stops local numerology preview when crisis referral is triggered', () => {
+  assert.match(appJs, /detectCrisisReferral/);
+  assert.match(appJs, /crisis\.triggered[\s\S]*危機轉介模式已觸發：已停止數字解讀/);
+  assert.match(appJs, /危機轉介模式已觸發，暫停數字盤 SVG/);
+  assert.match(appJs, /needsNumber && !crisis\.triggered \? calculateCase/);
 });

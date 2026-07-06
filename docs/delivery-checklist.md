@@ -8,6 +8,7 @@
 
 - 確認服務類型正確：數字盤、精油單項、或數字盤 + 精油搭配。
 - 確認姓名/代稱沒有打錯。
+- 確認 `clientDisplayName` 是客戶可見稱呼，不是內部代稱、暱稱備註或檔案管理用名稱。
 - 數字盤服務必須確認國曆生日、農曆生日、出生時間、查詢日期。
 - 精油單項不需要生日資料；不要為了湊欄位硬填生日。
 - 組合服務必須先有數字盤結果，再接精油支持建議。
@@ -20,8 +21,8 @@
 
 - 陰曆主命數鏈條與最後主數。
 - 陽曆主命數鏈條與最後主數。
-- 日月綻放。
-- 內頻。
+- 日月綻放：國曆日月數。
+- 內頻：農曆日月數。
 - 木馬一、木馬二、木馬三、木馬四。
 - 陰曆貴人、陽曆貴人。
 - 流年。
@@ -37,10 +38,13 @@
 
 數字盤服務與組合服務都要檢查：
 
+- 主風格使用 `Style A｜霧白金線版`。
+- 背景乾淨、留白充足，使用細金線與簡約幾何線條。
+- 花草裝飾降到最低，不干擾數字與位置校對。
 - 中心左是陰曆主命數。
 - 中心右是陽曆主命數。
-- 上方是日月綻放。
-- 上方副標是內頻。
+- 上方是日月綻放，也就是國曆日月數。
+- 上方副標是內頻，也就是農曆日月數。
 - 木馬一在左上。
 - 木馬二在右上。
 - 木馬三在左下。
@@ -68,8 +72,19 @@
 
 數字盤報告要檢查：
 
+- reportUrl 指向可編輯的原生 Google Docs。
+- practitionerCardUrl 指向 A5 內部快速閱讀手卡，且手卡不在客戶報告內。
+- canvaPackageUrl 指向 A4 套版包，且不含原始諮詢筆記。
+- Canva 最終版放在「靈魂萬花筒」Canva 資料夾：`https://www.canva.com/folder/FAHNdHzaB5o`。
+- Canva 檔名包含個案稱呼、caseId、formulaVersion、contentVersion，避免不知道哪一版已交付。
+- Canva 若有改文字，必須回寫 Google Docs 或重新產出 CanvaPackage；不能只改 Canva。
+- 客戶文件內沒有「待核對」「請補寫」或內部核對文字。
+- 客戶報告與 Canva 只允許出現 `approvedClientSummary`；`mainIssue`、`recentTransition`、`repeatingPattern`、`growthFocus`、`excludedTopics`、`monthlyContext` 只能留在個案資料表與 A5 內部手卡。
+- `clientDisplayName` 與 `approvedClientSummary` 不得含「不要放」「不能寫」「內部」「原始筆記」等內部語；若出現在 `reviewIssues`，先改稱呼或摘要並重產，不要硬升級 `deliveryStatus`。
 - 有核心數字。
-- 有出圖核對。
+- 出圖核對只留在 SVG 與 A5 內部手卡，不塞進客戶報告。
+- 解讀同時包含成熟表現與失衡／陰影，不可只寫正向形容。
+- 月提醒包含觸發情境、可觀察訊號與可執行行動，且不得在流月未核對時臆測。
 - 沒有強迫輸出精油段落。
 
 精油單項報告要檢查：
@@ -90,11 +105,16 @@
 
 - `輸出紀錄` 有 token。
 - `輸出紀錄` 有 reportUrl。
+- 若服務包含數字盤，`輸出紀錄` 有 practitionerCardUrl 與 canvaPackageUrl。
 - 若服務包含數字盤，`輸出紀錄` 有 svgUrl。
+- 若服務包含數字盤，`輸出紀錄` 有 formulaVersion、contentVersion、reportVersion 與 sourceContentIds。
+- `formulaStatus=verified` 且 `contentCoverageStatus=complete`；否則依 `reviewIssues` 補核對，不得交付。
 - `輸出紀錄.deliveryStatus` 先保持 `draft`，核對完成後才改成 `reviewed` 或 `delivered`。
 - 狀態更新使用 Apps Script 後台的「交付狀態」表單，以 token 更新，不直接開放客人端修改。
-- `reportUrl` 預覽是 `_report.md` 報告。
+- `reportUrl` 開啟的是可編輯 Google Docs 報告。
 - `svgUrl` 預覽是 `_checklist.svg` 校對圖。
+- `canvaPackageUrl` 內的 `targetCanvaFolder.url` 指向 `https://www.canva.com/folder/FAHNdHzaB5o`。
+- Canva 最終版 PDF 的內容版本與 `輸出紀錄.contentVersion` 一致。
 - `個案資料表` 沒有安靜新增同一個 `caseId + serviceId` 重複列。
 - 若有 `duplicateCaseWarning`，先確認是重新產出報告，還是誤按送出。
 

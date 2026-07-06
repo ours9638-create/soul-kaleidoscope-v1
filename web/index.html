@@ -31,9 +31,21 @@
           <label>姓名/代稱 <input name="displayName" value="小狐狸" required></label>
           <div id="numberFields">
             <label>國曆生日 <input name="solarDate" type="date" value="1989-05-28"></label>
-            <label>農曆生日 <input name="lunarDate" type="date" value="1989-04-24"></label>
+            <label>農曆生日 <input name="lunarDate" type="date" value="1989-04-24" placeholder="可留空自動換算"></label>
             <label>出生時間 <input name="birthTime" type="time" value="15:17"></label>
             <label>查詢日期 <input name="queryDate" type="date"></label>
+            <details class="observation-fields">
+              <summary>個案觀察與報告人味設定</summary>
+              <label>客戶可見稱呼，勿填內部代稱 <input name="clientDisplayName"></label>
+              <label>本次主要議題 <textarea name="mainIssue" rows="2"></textarea></label>
+              <label>近期困擾或轉折 <textarea name="recentTransition" rows="2"></textarea></label>
+              <label>重複出現的模式 <textarea name="repeatingPattern" rows="2"></textarea></label>
+              <label>希望加強的方向 <textarea name="growthFocus" rows="2"></textarea></label>
+              <label>不希望出現在報告中的內容 <textarea name="excludedTopics" rows="2"></textarea></label>
+              <label>本月實際背景 <textarea name="monthlyContext" rows="2"></textarea></label>
+              <label>已核准給客戶看的摘要 <textarea name="approvedClientSummary" rows="3"></textarea></label>
+              <p class="form-note">前六項是內部觀察；客戶可見稱呼與已核准摘要會進客戶報告與 Canva 套版包，勿填內部代稱或原始諮詢筆記。</p>
+            </details>
           </div>
           <div id="oilFields" hidden>
             <label>使用情境 <input name="usageScenario" value="年度支持"></label>
@@ -72,7 +84,11 @@
       <section class="panel wide">
         <div class="section-title">
           <h2>報告草稿</h2>
-          <button id="downloadReportButton" type="button">下載 Markdown</button>
+          <div class="actions">
+            <button id="downloadReportButton" type="button">下載 Markdown</button>
+            <button id="downloadPractitionerCardButton" type="button">下載 A5 手卡</button>
+            <button id="downloadCanvaPackageButton" type="button">下載 Canva 套版包</button>
+          </div>
         </div>
         <pre id="reportPreview">尚未產生</pre>
       </section>

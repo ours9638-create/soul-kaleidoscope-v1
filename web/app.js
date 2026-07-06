@@ -1,7 +1,17 @@
 import { calculateCase } from '../src/core/numerology.js';
+import { getSupportedSolarDateRange, solarToLunarDate } from '../src/core/lunar-calendar.js';
 import { buildImageChecklist } from '../src/core/templates.js';
 import { renderChecklistSvg } from '../src/core/svg.js';
 import { buildServiceReport, validateReportSafety } from '../src/core/report.js';
+import { detectCrisisReferral } from '../src/core/crisis-referral.js';
+import { INTERPRETATION_BLOCKS } from '../src/core/interpretation-data.js';
+import {
+  buildCanvaPackage,
+  buildClientReportDraft,
+  buildPractitionerCard,
+  createInterpretationLibrary,
+  renderPractitionerCardHtml
+} from '../src/core/interpretation.js';
 import { getRecommendedStack, getStepByStepMilestones, getUsageSavingRules } from '../src/core/resource-plan.js';
 import { isOilService } from '../src/core/service-catalog.js';
 import { DEPLOYMENT_CONFIG } from './deployment-config.js';
@@ -11,8 +21,14 @@ const state = {
   checklist: null,
   svg: '',
   report: '',
+  practitionerCardHtml: '',
+  canvaPackage: null,
   installPrompt: null
 };
+
+const INTERPRETATION_LIBRARY = createInterpretationLibrary(INTERPRETATION_BLOCKS);
+const FORMULA_VERSION = 'formula-2026-06-20-draft';
+const CONTENT_VERSION = 'content-snapshot-2026-06-16';
 
 const API_URL_STORAGE_KEY = 'soulKaleidoscope.appsScriptApiUrl';
 
@@ -38,6 +54,11 @@ form.serviceId.addEventListener('change', () => {
   calculateLocal();
 });
 
+form.solarDate.addEventListener('change', () => {
+  form.lunarDate.value = '';
+  calculateLocal();
+});
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   calculateLocal();
@@ -50,8 +71,7 @@ sendButton.addEventListener('click', async () => {
     return;
   }
   saveApiUrl(apiUrl);
-  const payload = Object.fromEntries(new FormData(form).entries());
-  delete payload.apiUrl;
+  const payload = getCasePayload();
   setStatus('送出中');
   try {
     const data = await postToAppsScript(apiUrl, { action: 'save-and-generate-report', payload });
@@ -61,9 +81,14 @@ sendButton.addEventListener('click', async () => {
     }
     const links = [
       data.reportUrl ? `報告：${data.reportUrl}` : '',
+      data.practitionerCardUrl ? `A5 手卡：${data.practitionerCardUrl}` : '',
+      data.canvaPackageUrl ? `Canva 套版包：${data.canvaPackageUrl}` : '',
       data.svgUrl ? `SVG：${data.svgUrl}` : ''
     ].filter(Boolean).join('｜');
-    setStatus(links ? `已產生交付連結｜${links}` : '已送到後台');
+    const reviewNotice = Array.isArray(data.reviewIssues) && data.reviewIssues.length
+      ? `｜仍保持 draft：${data.reviewIssues.join('；')}`
+      : '';
+    setStatus(links ? `已產生交付連結｜${links}${reviewNotice}` : '已送到後台');
   } catch (error) {
     setStatus(`送出失敗：${error.message}`);
   }
@@ -111,6 +136,15 @@ document.querySelector('#downloadReportButton').addEventListener('click', () => 
   downloadText('靈魂萬花筒_報告草稿.md', state.report, 'text/markdown;charset=utf-8');
 });
 
+document.querySelector('#downloadPractitionerCardButton').addEventListener('click', () => {
+  downloadText('靈魂萬花筒_A5快速閱讀手卡.html', state.practitionerCardHtml, 'text/html;charset=utf-8');
+});
+
+document.querySelector('#downloadCanvaPackageButton').addEventListener('click', () => {
+  const content = state.canvaPackage ? JSON.stringify(state.canvaPackage, null, 2) : '';
+  downloadText('靈魂萬花筒_Canva_A4套版包.json', content, 'application/json;charset=utf-8');
+});
+
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
   state.installPrompt = event;
@@ -134,31 +168,77 @@ renderResourcePlan();
 updateServiceFields();
 
 function calculateLocal() {
-  const payload = Object.fromEntries(new FormData(form).entries());
-  delete payload.apiUrl;
+  const payload = getCasePayload();
   const serviceId = payload.serviceId || 'soul-number-reading';
   const oilProfile = buildOilProfile(payload);
+  const observations = buildObservations(payload);
+  const crisis = detectCrisisReferral({ ...payload, observations });
   const needsNumber = serviceId !== 'essential-oil-product';
-  state.result = needsNumber ? calculateCase(payload) : null;
-  state.checklist = needsNumber ? buildImageChecklist('soul-kaleidoscope', state.result) : null;
+  state.result = needsNumber && !crisis.triggered ? calculateCase(payload) : null;
+  state.checklist = needsNumber && !crisis.triggered ? buildImageChecklist('soul-kaleidoscope', state.result) : null;
   state.svg = state.checklist ? renderChecklistSvg(state.checklist) : '';
   state.report = buildServiceReport(serviceId, {
     caseResult: state.result,
     checklist: state.checklist,
-    oilProfile
+    oilProfile,
+    observations,
+    formulaVersion: FORMULA_VERSION,
+    contentVersion: CONTENT_VERSION
   });
+  if (state.result) {
+    const clientDraft = buildClientReportDraft({
+      caseResult: state.result,
+      library: INTERPRETATION_LIBRARY,
+      observations,
+      formulaVersion: FORMULA_VERSION,
+      contentVersion: CONTENT_VERSION
+    });
+    const card = buildPractitionerCard({
+      caseResult: state.result,
+      observations,
+      formulaVersion: FORMULA_VERSION
+    });
+    state.practitionerCardHtml = renderPractitionerCardHtml(card);
+    state.canvaPackage = buildCanvaPackage(clientDraft);
+  } else {
+    state.practitionerCardHtml = '';
+    state.canvaPackage = null;
+  }
   const safety = validateReportSafety(state.report);
 
   renderSummary(serviceId, state.result, oilProfile);
-  svgPreview.innerHTML = state.svg || '<p class="empty-state">精油單項服務不需要數字盤 SVG。</p>';
+  svgPreview.innerHTML = state.svg || (
+    crisis.triggered
+      ? '<p class="empty-state">危機轉介模式已觸發，暫停數字盤 SVG。</p>'
+      : '<p class="empty-state">精油單項服務不需要數字盤 SVG。</p>'
+  );
   reportPreview.textContent = state.report;
-  setStatus(safety.ok ? '已完成本機計算' : `報告語氣需檢查：${safety.hits.join(', ')}`);
+  setStatus(crisis.triggered
+    ? '危機轉介模式已觸發：已停止數字解讀'
+    : (safety.ok ? '已完成本機計算' : `報告語氣需檢查：${safety.hits.join(', ')}`));
+}
+
+function getCasePayload() {
+  const payload = Object.fromEntries(new FormData(form).entries());
+  delete payload.apiUrl;
+  const lunarDateInput = form.elements.lunarDate;
+  if (!payload.lunarDate && payload.solarDate) {
+    const converted = solarToLunarDate(payload.solarDate);
+    if (converted) {
+      payload.lunarDate = converted.raw;
+      if (lunarDateInput) lunarDateInput.value = converted.raw;
+    } else {
+      const range = getSupportedSolarDateRange();
+      setStatus(`這個國曆日期不在自動農曆換算範圍：${range.start} 至 ${range.end}，請手動填農曆生日`);
+    }
+  }
+  return payload;
 }
 
 function renderSummary(serviceId, result, oilProfile) {
   const items = [];
   if (result) {
-    const annual = result.annual.afterBirthday;
+    const annual = result.activeAnnual;
     items.push(
       ['陰曆主命數', result.lunar.mainDestiny.chain],
       ['陽曆主命數', result.solar.mainDestiny.chain],
@@ -193,7 +273,7 @@ function updateServiceFields() {
   oilFields.hidden = !oilSelected;
   numberFields.hidden = !numberSelected;
   numberFields.querySelectorAll('input').forEach((input) => {
-    input.required = numberSelected;
+    input.required = numberSelected && input.name !== 'lunarDate';
   });
 }
 
@@ -206,6 +286,19 @@ function buildOilProfile(payload) {
       .split(/[、,，/]/)
       .map((item) => item.trim())
       .filter(Boolean)
+  };
+}
+
+function buildObservations(payload) {
+  return {
+    mainIssue: payload.mainIssue || '',
+    recentTransition: payload.recentTransition || '',
+    repeatingPattern: payload.repeatingPattern || '',
+    growthFocus: payload.growthFocus || '',
+    excludedTopics: payload.excludedTopics || '',
+    monthlyContext: payload.monthlyContext || '',
+    clientDisplayName: payload.clientDisplayName || payload.displayName || '',
+    approvedClientSummary: payload.approvedClientSummary || ''
   };
 }
 

@@ -1,8 +1,23 @@
+const STYLE_PRESETS = {
+  'mist-white-gold-line': {
+    id: 'mist-white-gold-line',
+    label: 'Style A｜霧白金線版',
+    usage: 'v1 預設 PDF 與圖卡主風格',
+    visualRules: [
+      '背景乾淨、留白充足。',
+      '使用細金線、簡約線條與幾何結構建立秩序感。',
+      '花草裝飾降到最低，不讓背景干擾數字與位置校對。',
+      '文字排版保持清楚、溫和、可閱讀。'
+    ]
+  }
+};
+
 const IMAGE_TEMPLATES = {
   'soul-kaleidoscope': {
     id: 'soul-kaleidoscope',
     name: '靈魂萬花圖',
     outputKind: 'mandala-checklist',
+    defaultStylePreset: 'mist-white-gold-line',
     requiredFields: [
       'lunar.mainDestiny',
       'solar.mainDestiny',
@@ -55,6 +70,20 @@ export function listImageTemplates() {
   }));
 }
 
+export function getStylePreset(stylePresetId) {
+  const preset = STYLE_PRESETS[stylePresetId];
+  if (!preset) throw new Error(`unknown style preset: ${stylePresetId}`);
+  return structuredClone(preset);
+}
+
+export function listStylePresets() {
+  return Object.values(STYLE_PRESETS).map((preset) => ({
+    id: preset.id,
+    label: preset.label,
+    usage: preset.usage
+  }));
+}
+
 export function buildImageChecklist(templateId, caseResult) {
   const template = getImageTemplate(templateId);
   if (templateId === 'soul-kaleidoscope') {
@@ -64,11 +93,12 @@ export function buildImageChecklist(templateId, caseResult) {
 }
 
 function buildSoulKaleidoscopeChecklist(template, caseResult) {
-  const annual = caseResult.annual.afterBirthday;
+  const annual = caseResult.activeAnnual;
   const horses = Object.fromEntries(caseResult.horseNumbers.map((item) => [item.key, item]));
   return {
     templateId: template.id,
     templateName: template.name,
+    stylePreset: getStylePreset(template.defaultStylePreset),
     caseId: caseResult.id,
     displayName: caseResult.displayName,
     versionMode: caseResult.versionMode,

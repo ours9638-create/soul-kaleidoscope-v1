@@ -1,9 +1,40 @@
+import { INTERPRETATION_BLOCKS } from './interpretation-data.js';
+import {
+  buildClientReportDraft,
+  createInterpretationLibrary,
+  renderClientReportText
+} from './interpretation.js';
+import {
+  buildCrisisReferralReport,
+  detectCrisisReferral
+} from './crisis-referral.js';
+import {
+  resolveAnnualPositionReportContentFromCase
+} from './annual-position.js';
+
 const BANNED_CLAIMS = ['治療', '治癒', '保證改善', '保證有效', '醫療效果'];
+const INTERNAL_CLIENT_VISIBLE_TERMS = [
+  '不要放', '不能寫', '不要寫', '勿填', '內部', '原始筆記', '原始諮詢', '不要出現', '不得出現', '僅供內部'
+];
+const DEFAULT_LIBRARY = createInterpretationLibrary(INTERPRETATION_BLOCKS);
+const DEFAULT_FORMULA_VERSION = 'formula-2026-06-20-draft';
+const DEFAULT_CONTENT_VERSION = 'content-snapshot-2026-06-16';
 
 export function buildServiceReport(serviceId, context = {}) {
+  const crisis = detectCrisisReferral({
+    displayName: context.caseResult?.displayName || context.oilProfile?.displayName || context.observations?.clientDisplayName,
+    observations: context.observations || {}
+  });
+  if (crisis.triggered) {
+    return buildCrisisReferralReport(
+      context.observations?.clientDisplayName || context.caseResult?.displayName || context.oilProfile?.displayName || '個案',
+      crisis
+    );
+  }
+
   if (serviceId === 'soul-number-reading') {
     requireContext(context, ['caseResult', 'checklist'], serviceId);
-    return buildReportDraft(context.caseResult, context.checklist);
+    return buildReportDraft(context.caseResult, context.checklist, context);
   }
 
   if (serviceId === 'essential-oil-product') {
@@ -14,7 +45,7 @@ export function buildServiceReport(serviceId, context = {}) {
   if (serviceId === 'soul-number-with-oil') {
     requireContext(context, ['caseResult', 'checklist', 'oilProfile'], serviceId);
     return [
-      buildReportDraft(context.caseResult, context.checklist),
+      buildReportDraft(context.caseResult, context.checklist, context),
       '',
       buildOilReport(context.oilProfile, { combined: true })
     ].join('\n');
@@ -23,35 +54,16 @@ export function buildServiceReport(serviceId, context = {}) {
   throw new Error(`unknown service report: ${serviceId}`);
 }
 
-export function buildReportDraft(caseResult, checklist) {
-  const annual = caseResult.annual.afterBirthday;
-  const lines = [
-    `# ${caseResult.displayName}｜靈魂萬花筒 v1 報告草稿`,
-    '',
-    '## 核心數字',
-    `- 陰曆主命數：${caseResult.lunar.mainDestiny.chain}`,
-    `- 陽曆主命數：${caseResult.solar.mainDestiny.chain}`,
-    `- 日月綻放：${caseResult.solar.sunMoonBloom.chain}`,
-    `- 內頻：${caseResult.lunar.sunMoonBloom.chain}`,
-    `- 木馬：${caseResult.horseNumbers.map((item) => item.value).join(' / ')}`,
-    `- 陰曆貴人：${caseResult.supportNumbers.lunar}`,
-    `- 陽曆貴人：${caseResult.supportNumbers.solar}`,
-    `- ${annual.analysisYear} 流年：${annual.yearFlow.chain}`,
-    `- 今年位格：${annual.position}`,
-    '',
-    '## 出圖核對',
-    ...Object.values(checklist.positions).map((item) => `- ${item.label}：${item.chain ?? item.value}（${item.slot}）`),
-    '',
-    '## 報告語氣邊界',
-    '- 本報告使用支持、提醒、象徵與練習語氣。',
-    '- 靈魂萬花圖是象徵性視覺化，不代表公式本身，也不可由圖像反推公式。',
-    '- 精油與色彩內容只作為日常支持建議，不作為醫療用途。',
-    '',
-    '## 下一步',
-    '- 先確認核對表位置與數字。',
-    '- 再產出美術版提示詞或交付版 PDF。'
-  ];
-  return lines.join('\n');
+export function buildReportDraft(caseResult, _checklist, options = {}) {
+  const report = buildClientReportDraft({
+    caseResult,
+    library: options.library || DEFAULT_LIBRARY,
+    observations: options.observations || {},
+    formulaVersion: options.formulaVersion || DEFAULT_FORMULA_VERSION,
+    contentVersion: options.contentVersion || DEFAULT_CONTENT_VERSION,
+    annualPositionResolver: options.annualPositionResolver || resolveAnnualPositionReportContentFromCase
+  });
+  return renderClientReportText(report);
 }
 
 export function validateReportSafety(reportText) {
@@ -62,8 +74,28 @@ export function validateReportSafety(reportText) {
   };
 }
 
+export function findInternalClientSummaryTerms(summaryText) {
+  const text = String(summaryText || '');
+  return INTERNAL_CLIENT_VISIBLE_TERMS.filter((term) => text.includes(term));
+}
+
 export function validateDeliveryReadiness(serviceId, context = {}) {
   const issues = [];
+  const crisis = detectCrisisReferral({
+    displayName: context.caseResult?.displayName || context.oilProfile?.displayName || context.observations?.clientDisplayName,
+    observations: context.observations || {}
+  });
+  if (crisis.triggered) {
+    issues.push('危機轉介模式已觸發，不能標記為已核對或已交付。');
+  }
+  const internalDisplayNameTerms = findInternalClientSummaryTerms(context.observations?.clientDisplayName);
+  if (internalDisplayNameTerms.length) {
+    issues.push(`客戶可見稱呼疑似含內部語：${internalDisplayNameTerms.join('、')}。請改成客戶可見稱呼後再交付。`);
+  }
+  const internalSummaryTerms = findInternalClientSummaryTerms(context.observations?.approvedClientSummary);
+  if (internalSummaryTerms.length) {
+    issues.push(`已核准摘要疑似含內部語：${internalSummaryTerms.join('、')}。請改成客戶可見文字後再交付。`);
+  }
   if (serviceId === 'essential-oil-product' || serviceId === 'soul-number-with-oil') {
     const oilProfile = context.oilProfile || {};
     if (!Array.isArray(oilProfile.selectedOils) || oilProfile.selectedOils.length === 0) {
