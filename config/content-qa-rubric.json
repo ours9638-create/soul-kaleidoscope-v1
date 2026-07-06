@@ -1,0 +1,92 @@
+{
+  "rubricVersion": "content-qa-rubric-2026-06-29",
+  "minimumPassScore": 7,
+  "maximumScore": 9,
+  "approvalRule": "reviewStatus can be verified only when qaScore >= 7 and qaBlockingIssue is empty.",
+  "sheetColumns": [
+    {
+      "key": "qaScore",
+      "label": "QA分數",
+      "type": "number",
+      "allowedRange": "0-9",
+      "requiredForApproval": true
+    },
+    {
+      "key": "qaBlockingIssue",
+      "label": "QA阻塞原因",
+      "type": "text",
+      "requiredForApproval": false,
+      "note": "若有命定語氣、醫療宣稱、無行動建議、只講正面等問題，必須填寫。"
+    },
+    {
+      "key": "revisionPriority",
+      "label": "修改優先級",
+      "type": "enum",
+      "allowedValues": ["P0-不可使用", "P1-需先修", "P2-可後修", "P3-可用"],
+      "requiredForApproval": true
+    },
+    {
+      "key": "reviewerDecision",
+      "label": "核對決策",
+      "type": "enum",
+      "allowedValues": ["核准", "需修改", "停用"],
+      "requiredForApproval": true
+    }
+  ],
+  "dimensions": [
+    {
+      "key": "agency",
+      "label": "主體性",
+      "pass": "保留可觀察、可核對、可選擇。",
+      "fail": "替客戶下定義，或把內容寫成不可改變。"
+    },
+    {
+      "key": "nonDeterministic",
+      "label": "非命定",
+      "pass": "使用支持、提醒、可能性語氣。",
+      "fail": "出現一定、注定、使命就是、宇宙要你等語氣。"
+    },
+    {
+      "key": "clearTheme",
+      "label": "主題清楚",
+      "pass": "一段只處理一個明確主題。",
+      "fail": "堆疊形容詞，沒有核心焦點。"
+    },
+    {
+      "key": "balancedPolarity",
+      "label": "成熟與陰影",
+      "pass": "成熟表現與失衡風險都看得到。",
+      "fail": "只說好的，或只放大問題。"
+    },
+    {
+      "key": "contextual",
+      "label": "情境相關",
+      "pass": "能接到關係、工作、情緒、決策、月份或個案背景。",
+      "fail": "任何人都能套用，沒有情境辨識。"
+    },
+    {
+      "key": "actionable",
+      "label": "可行動",
+      "pass": "有具體小步驟或可觀察行動。",
+      "fail": "只有感受或抽象建議。"
+    },
+    {
+      "key": "lowAnxiety",
+      "label": "不製造焦慮",
+      "pass": "語氣穩定、可承接。",
+      "fail": "放大恐懼、羞愧或急迫感。"
+    },
+    {
+      "key": "uncertainty",
+      "label": "交代不確定性",
+      "pass": "說明這是觀察入口，不是結論。",
+      "fail": "寫成絕對答案或權威判斷。"
+    },
+    {
+      "key": "nextStep",
+      "label": "讀完知道下一步",
+      "pass": "有今天、這週或這個月可執行方向。",
+      "fail": "讀完只有被說到，但不知道怎麼做。"
+    }
+  ]
+}

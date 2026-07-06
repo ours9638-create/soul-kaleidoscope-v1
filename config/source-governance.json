@@ -1,0 +1,62 @@
+{
+  "policyVersion": "source-policy-2026-06-20",
+  "precedence": [
+    {
+      "rank": 1,
+      "role": "user-confirmed-rule",
+      "rule": "使用者在專案對話或決策紀錄中最新、明確確認的規則優先。"
+    },
+    {
+      "rank": 2,
+      "role": "formula-source",
+      "rule": "公式只以可驗算公式主檔與已確認範例為準。"
+    },
+    {
+      "rank": 3,
+      "role": "interpretation-source",
+      "rule": "客戶解讀文字只使用已核對的分類資料庫內容。"
+    },
+    {
+      "rank": 4,
+      "role": "pdf-evidence",
+      "rule": "PDF 與手寫補充只作證據，人工核對後才能升級。"
+    },
+    {
+      "rank": 5,
+      "role": "archive-only",
+      "rule": "舊版、修正版與備份不進入自動讀取流程。"
+    }
+  ],
+  "sources": [
+    {
+      "role": "formula-source",
+      "title": "靈魂數字_可驗算公式表",
+      "sheetId": "12Ddaw4FoMJ4eOFcQ8N-xi2LSiOC0mi4ab877E6sknKQ",
+      "criticalTabs": ["靈魂數字", "底層驗算", "使用說明"]
+    },
+    {
+      "role": "interpretation-source",
+      "title": "靈魂數字整合系統_分類資料庫_光頻幾何圖輸出更新",
+      "sheetId": "1nsUEuPIfeIClQe4RBcWGkRjh9ExT7pT0CMkX6Hp7cEg",
+      "criticalTabs": [
+        "12_木馬解讀0-8",
+        "15_位格解讀1-9",
+        "17_日月綻放解讀1-9",
+        "19_流年數解讀1-9",
+        "23_貴人數解讀1-9",
+        "96_靈魂等級語句庫V1"
+      ]
+    },
+    {
+      "role": "pdf-evidence",
+      "title": "數字課程.pdf",
+      "promotionRequiresHumanReview": true,
+      "ocrPolicy": "保存頁碼、頁面影像與逐字辨識；不清楚處不得猜測。"
+    },
+    {
+      "role": "archive-only",
+      "title": "舊版、公式修正版與備份",
+      "automaticRead": false
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "policyVersion": "crisis-referral-policy-2026-06-29",
+  "mode": "referral",
+  "principle": "When crisis or professional-scope risk appears, stop numerology interpretation and switch to safety support.",
+  "stopInterpretationWhen": [
+    {
+      "category": "selfHarmOrSuicide",
+      "severity": "P0",
+      "signals": ["自殺", "想死", "不想活", "活不下去", "結束生命", "傷害自己", "自殘", "了結"],
+      "action": "stop-number-reading"
+    },
+    {
+      "category": "immediateDanger",
+      "severity": "P0",
+      "signals": ["現在有危險", "被威脅", "暴力", "我要傷害", "有人要傷害我"],
+      "action": "urge-emergency-help"
+    },
+    {
+      "category": "realityDisorientation",
+      "severity": "P1",
+      "signals": ["分不清現實", "聽到聲音", "被控制", "失去現實感"],
+      "action": "recommend-professional-support"
+    },
+    {
+      "category": "clinicalOrLegalDecision",
+      "severity": "P1",
+      "signals": ["要不要停藥", "診斷", "法律怎麼辦", "投資建議", "重大財務決定"],
+      "action": "scope-limit-and-refer"
+    }
+  ],
+  "taiwanResources": [
+    {
+      "name": "緊急危險",
+      "contact": "110/119",
+      "useWhen": "人身安全、立即危險、暴力威脅或需要緊急救援。"
+    },
+    {
+      "name": "衛福部安心專線",
+      "contact": "1925",
+      "useWhen": "強烈痛苦、想傷害自己、需要立即有人陪你說話。"
+    },
+    {
+      "name": "生命線",
+      "contact": "1995",
+      "useWhen": "情緒危機、孤立、想死或不知道能找誰。"
+    },
+    {
+      "name": "張老師",
+      "contact": "1980",
+      "useWhen": "需要心理支持、情緒整理與真人陪伴。"
+    }
+  ],
+  "responseTemplate": {
+    "zhTW": [
+      "我先不做數字解讀，因為你現在提到的內容可能牽涉安全或專業協助。",
+      "如果你或身邊的人有立即危險，請先打 110 或 119。",
+      "如果你有想傷害自己、想死、或覺得撐不下去，請立刻聯絡 1925 安心專線、1995 生命線或 1980 張老師。",
+      "現在最重要的不是分析數字，而是先讓你有人可以陪、也讓安全被接住。"
+    ]
+  },
+  "blockedOutput": [
+    "numerologyInterpretation",
+    "destinyLanguage",
+    "diagnosis",
+    "medicalAdvice",
+    "legalAdvice",
+    "financialAdvice"
+  ]
+}
