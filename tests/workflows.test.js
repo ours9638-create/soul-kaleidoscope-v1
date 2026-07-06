@@ -22,6 +22,9 @@ const cloudDriveConfig = fs.existsSync(new URL('../config/google-drive-cloud-syn
 test('package exposes start and shutdown workflow commands', () => {
   assert.equal(packageJson.scripts['work:start'], 'node scripts/work-start.js');
   assert.equal(packageJson.scripts['work:shutdown'], 'node scripts/work-shutdown.js');
+  assert.equal(packageJson.scripts['work:closeout'], 'node scripts/work-shutdown.js --no-storage-clean');
+  assert.equal(packageJson.scripts['storage:check'], 'node scripts/storage-maintenance.js --dry-run');
+  assert.equal(packageJson.scripts['storage:clean'], 'node scripts/storage-maintenance.js --apply');
 });
 
 test('start workflow scans project files and compares a saved snapshot', () => {
@@ -61,15 +64,21 @@ test('cloud Drive config defines guarded network-first startup scan', () => {
 
 test('start workflow blocks when previous work session was not shut down', () => {
   assert.match(startScript, /上次開工尚未收工/);
+  assert.match(startScript, /npm run work:closeout/);
+  assert.doesNotMatch(startScript, /請先執行 npm run work:shutdown/);
   assert.match(startScript, /process\.exit\(1\)/);
 });
 
-test('shutdown workflow records daily status and reserves midnight shutdown usage', () => {
+test('shutdown workflow records daily status and keeps shutdown manual', () => {
   assert.match(shutdownScript, /\.workflow\/work-log\.md/);
   assert.match(shutdownScript, /\.workflow\/active-session\.json/);
-  assert.match(shutdownScript, /凌晨 12:00/);
+  assert.match(shutdownScript, /--no-storage-clean/);
+  assert.match(shutdownScript, /安全收工，不清理/);
+  assert.match(shutdownScript, /未執行 storage maintenance/);
+  assert.match(shutdownScript, /自動收工：已取消/);
   assert.doesNotMatch(shutdownScript, /凌晨 1:00/);
-  assert.match(shutdownScript, /npm run work:shutdown/);
+  assert.doesNotMatch(shutdownScript, /凌晨 12:00/);
+  assert.match(shutdownScript, /npm run work:closeout/);
   assert.match(shutdownScript, /npm run readiness/);
   assert.match(shutdownScript, /verify:deployment:url/);
   assert.match(shutdownScript, /verify:deployment:setup/);
@@ -79,12 +88,13 @@ test('shutdown workflow records daily status and reserves midnight shutdown usag
   assert.doesNotMatch(shutdownScript, /確認已跑 npm test/);
   assert.doesNotMatch(shutdownScript, /確認已跑 npm run check、npm run predeploy/);
   assert.doesNotMatch(shutdownScript, /確認已跑 npm run package:static/);
-  assert.match(shutdownScript, /每日用量/);
   assert.match(shutdownScript, /無開工狀態/);
   assert.match(shutdownScript, /docs\/lazy-pack\.md/);
   assert.match(shutdownScript, /npm run copy:apps-script/);
   assert.match(shutdownScript, /verify:delivery-guard/);
   assert.match(shutdownScript, /fs\.rmSync\(path\.join\(ROOT, ACTIVE_SESSION_FILE\)/);
+  assert.match(shutdownScript, /runStorageMaintenance/);
+  assert.match(shutdownScript, /storage-maintenance-report\.json/);
   assert.match(shutdownScript, /GitHub 同步邊界/);
   assert.match(shutdownScript, /可同步：程式碼、測試、正式文件、流程規則、可公開設定樣板/);
   assert.match(shutdownScript, /需人工確認：治理文件、候選清單、輸出規格、Google Sheet registry/);
@@ -106,7 +116,12 @@ test('workflow documentation explains manual start and shutdown process', () => 
   assert.doesNotMatch(workflowDoc, /npm run predeploy` 與 `npm run package:static/);
   assert.match(workflowDoc, /收工流程/);
   assert.match(workflowDoc, /npm run work:shutdown/);
-  assert.match(workflowDoc, /凌晨 12:00/);
+  assert.match(workflowDoc, /npm run work:closeout/);
+  assert.match(workflowDoc, /整理流程完成前/);
+  assert.match(workflowDoc, /跳過 storage maintenance/);
+  assert.match(workflowDoc, /完整收工加清理/);
+  assert.match(workflowDoc, /凌晨自動收工已取消/);
+  assert.doesNotMatch(workflowDoc, /automation-2/);
   assert.match(workflowDoc, /試算表/);
   assert.match(workflowDoc, /Google Drive/);
   assert.match(workflowDoc, /雲端 Drive/);

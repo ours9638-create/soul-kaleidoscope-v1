@@ -136,7 +136,9 @@ test('operator runbook ties start, spreadsheet review, deployment, and shutdown 
   assert.match(runbook, /DEPLOY-VERIFY/);
   assert.match(runbook, /不要自動刪/);
   assert.match(runbook, /npm run work:shutdown/);
-  assert.match(runbook, /凌晨 12:00/);
+  assert.match(runbook, /npm run work:closeout/);
+  assert.match(runbook, /一般收工不執行儲存維護/);
+  assert.match(runbook, /凌晨自動收工已取消/);
   assert.match(runbook, /同步邊界/);
   assert.match(runbook, /可同步：程式碼、測試、正式文件、流程規則、可公開設定樣板/);
   assert.match(runbook, /需人工確認：治理文件、候選清單、輸出規格、Google Sheet registry/);

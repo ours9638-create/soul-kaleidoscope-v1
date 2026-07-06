@@ -13,7 +13,7 @@ npm run work:start
 如果它提示「上次開工尚未收工」，先執行：
 
 ```bash
-npm run work:shutdown
+npm run work:closeout
 ```
 
 再重新執行 `npm run work:start`。
@@ -100,16 +100,27 @@ npm run readiness
 收工前執行：
 
 ```bash
+npm run work:closeout
+```
+
+凌晨自動收工已取消。收工只採人工手動執行；若下次開工提示「上次開工尚未收工」，先手動執行 `npm run work:closeout`，再重新開工。
+
+整理流程完成前，一般收工不執行儲存維護。清理需獨立人工核准：
+
+- `npm run storage:check` 只掃描，不刪除。
+- `npm run storage:clean` 套用白名單清理。
+- C 槽低於 30 GB 才擴大清理超過 7 天的 `%TEMP%`；24 小時內更新內容與 Autodesk `odis_download_dest` 受保護。
+- 雲端每 7 天完整掃描一次，只把根目錄或 `soul-kaleidoscope-v1` 專案內 `dist/`、`tmp/` 中超過 30 天的可重建檔案移到垃圾桶。
+- 詳細紀錄在 `.workflow/storage-maintenance-report.json`；正式報告、課程 PDF、資料庫與 Google 文件只列人工判斷，不自動刪除。
+- Apps Script 更新 `Code.gs` 後必須重新部署新版本，雲端掃描與移到垃圾桶端點才會生效。
+
+完整收工加清理指令保留為：
+
+```bash
 npm run work:shutdown
 ```
 
-目前已設定每日凌晨 12:00 自動跑一次 `npm run work:shutdown`。如果當天沒有開工，它只會提示「無開工狀態」，不會追加正式收工紀錄。
-
-每日用量規則：
-
-- 晚上不要把額度用到見底。
-- 至少保留足夠一次 `npm run work:shutdown` 的用量。
-- 如果額度不足，先做收工，不做低優先級美化。
+整理流程完成前不要使用它作為一般收工。
 
 GitHub / 第二大腦同步規則：
 
@@ -131,6 +142,12 @@ GitHub / 第二大腦同步規則：
 2. 同時提出 commit message。
 3. 人工確認後才可逐檔 stage / commit / push。
 4. 不使用 `git add .`。
+
+收工規則：
+
+- 收工前先確認是否需要 `npm run readiness`。
+- 收工只在人工明確指定時執行。
+- 不再保留凌晨自動收工排程。
 
 ## 8. 何時不要升級
 

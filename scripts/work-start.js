@@ -377,7 +377,7 @@ function renderReport(current, diff, spreadsheetSnapshot, spreadsheetDiff, sheet
     `- 若雲端檔案有更新，先看 ${CLOUD_DRIVE_READ_REPORT_FILE}，再判斷是否要修程式或文件。`,
     `- 若試算表有更新，先依 ${SHEETS_REGISTRY_FILE} 與雲端讀取報告判斷重點分頁，不要只相信本機同步狀態。`,
     '- 若試算表有更新，先確認公式、內容資料庫、個案欄位或出圖規則是否影響目前流程。',
-    '- 每日用量要保留到凌晨 12:00 的 npm run work:shutdown。'
+    '- 凌晨自動收工已取消；今天結束時需人工明確執行 npm run work:closeout。'
   ].join('\n');
 }
 
@@ -387,7 +387,7 @@ async function main() {
   if (fs.existsSync(path.join(ROOT, ACTIVE_SESSION_FILE))) {
     console.error('# 上次開工尚未收工');
     console.error('- 偵測到 .workflow/active-session.json。');
-    console.error('- 請先執行 npm run work:shutdown，再重新執行 npm run work:start。');
+    console.error('- 請先執行 npm run work:closeout，再重新執行 npm run work:start。');
     process.exit(1);
   }
 
@@ -448,8 +448,8 @@ async function main() {
     cloudDriveConfig: CLOUD_DRIVE_CONFIG_FILE,
     sheetsRegistry: SHEETS_REGISTRY_FILE,
     startReport: START_REPORT_FILE,
-    shutdownCommand: 'npm run work:shutdown',
-    scheduledShutdown: '凌晨 12:00'
+    shutdownCommand: 'npm run work:closeout',
+    scheduledShutdown: null
   }, null, 2)}\n`);
 
   console.log(report);

@@ -38,7 +38,7 @@ npm run work:start
 
 ## 手工開工流程
 
-1. 如果 `.workflow/active-session.json` 還存在，先跑 `npm run work:shutdown`，不要直接開新工。
+1. 如果 `.workflow/active-session.json` 還存在，先跑 `npm run work:closeout`，不要直接開新工。
 2. 跑 `npm run work:start`。
 3. 讀 `.workflow/start-report.md`。
 4. 若「雲端 Drive 檔案檢查」有更新，先讀 `.workflow/cloud-drive-read-report.json`。
@@ -50,10 +50,10 @@ npm run work:start
 
 ## 收工流程
 
-每次收工時執行：
+整理流程完成前，每次收工時執行安全收工：
 
 ```bash
-npm run work:shutdown
+npm run work:closeout
 ```
 
 這個指令會：
@@ -62,32 +62,18 @@ npm run work:shutdown
 - 追加 `.workflow/work-log.md`。
 - 完成後移除 `.workflow/active-session.json`，避免重複收工。
 - 記錄今日狀態、收工檢查與明日建議。
+- 跳過 storage maintenance，不清理本機檔案，也不移動雲端檔案到垃圾桶。
+- 檢查 GitHub 同步狀態，列出目前是否在 Git repo、是否有 GitHub remote、是否還有未提交或未追蹤變更。
 - 若今天有踩坑，將可重複使用的結論補到 `docs/lazy-pack.md`，不要只留在聊天紀錄。
-- 提醒每日用量要保留給凌晨 12:00 的自動收工。
+- 收工只採人工手動執行；不再保留凌晨自動收工規則。
 
-## 凌晨 12:00 自動收工
-
-在每次有「開工」指令後，凌晨 12:00 需要執行一次收工流程：
+完整收工加清理仍保留為人工核准後才可使用：
 
 ```bash
 npm run work:shutdown
 ```
 
-目前已建立 Codex 自動化：
-
-- 名稱：靈魂萬花筒凌晨收工流程
-- ID：`automation-2`
-- 時間：每日凌晨 12:00
-- 執行內容：`npm run work:shutdown`
-
-這樣做的風險是：它是每日凌晨 12:00 固定執行，不是精準偵測每次「開工」後才建立一次性排程。建議先接受這個折衷，因為固定收工比靠記憶穩；目前腳本已用 `.workflow/active-session.json` 控制，沒有開工狀態時只提示「無開工狀態」，不追加正式收工紀錄。
-
-每日用量規則：
-
-- 晚上不要把用量用到見底。
-- 至少保留足夠一次收工流程的額度。
-- 如果用量不足，優先做收工紀錄，不做低優先級美化。
-- 收工流程比新增功能重要，因為它保留隔天接續工作的上下文。
+這個指令會套用白名單清理與 storage maintenance。整理流程完成前不要使用它作為一般收工指令。
 
 ## GitHub / 第二大腦同步規則
 
@@ -116,6 +102,31 @@ npm run work:shutdown
 4. 根目錄治理文件若要進第二大腦，只能同步摘要或正式副本到 `soul-kaleidoscope-v1/docs/`，不能整個 Google Drive 原始資料夾推上 GitHub。
 
 這樣做的風險是多一道人工確認。建議保留，因為第二大腦要同步的是「可追蹤且可公開或可備份的工作紀錄」，不是整個 Google Drive 原始資料夾。
+
+只檢查、不刪除：
+
+```bash
+npm run storage:check
+```
+
+依白名單套用清理：
+
+```bash
+npm run storage:clean
+```
+
+強制執行本週雲端掃描可加上 `-- --force-storage-scan`。課程 PDF、內容資料庫、Google Sheets、Google Docs 報告、Downloads、Desktop 與 Documents 永遠不會自動刪除。雲端只移到垃圾桶，不做永久刪除。
+
+## 自動收工狀態
+
+凌晨自動收工已取消。
+後續收工只接受人工明確指令，例如「收工」或手動執行：
+
+```bash
+npm run work:closeout
+```
+
+這樣做的風險是：如果忘記手動收工，`.workflow/active-session.json` 會保留到下次開工。建議下次開工若看到「上次開工尚未收工」，先手動收工，再重新開工。
 
 ## 我每次開工時要做的事
 
