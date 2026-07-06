@@ -1,0 +1,80 @@
+{
+  "formulaVersion": "formula-2026-06-20-draft",
+  "lastReviewedAt": "2026-06-30",
+  "baselineFile": "data/formula-conformance-baseline.json",
+  "verificationScript": "scripts/verify-formula-conformance.js",
+  "latestReport": "outputs/formula-conformance/formula-conformance-report.json",
+  "manualSpreadsheetCheckpoint": {
+    "spreadsheetTitle": "靈魂數字_可驗算公式表",
+    "spreadsheetId": "12Ddaw4FoMJ4eOFcQ8N-xi2LSiOC0mi4ab877E6sknKQ",
+    "sheetName": "測試案例",
+    "requiredRanges": [
+      "測試案例!U11:U14",
+      "測試案例!S34:S63"
+    ],
+    "passCondition": "公式修改後，原自動比對區總檢查與靈魂生命等級邊界案例檢查欄必須全部為 OK，才可把公式視為可用。",
+    "runWith": [
+      "Google Sheets: 讀取 測試案例!A11:U14 與 測試案例!A34:S63",
+      "npm run verify:formulas",
+      "npm test"
+    ]
+  },
+  "items": [
+    {
+      "key": "soul-level",
+      "sourceRef": "使用者 2026-06-30 規則修正：birthDigits 僅取出生年月日 YYYYMMDD，主數判斷取第一段後天數與最後主數；靈魂數字_可驗算公式表#靈魂數字!A80:O89",
+      "implementation": "src/core/soul-level.js",
+      "testFile": "tests/soul-level-errors.test.js, tests/formula-conformance.test.js",
+      "status": "verified"
+    },
+    {
+      "key": "annual-position",
+      "sourceRef": "靈魂數字_可驗算公式表 Q007；流年位格對照表_分區排列",
+      "implementation": "src/core/numerology.js#buildAnnualVersion",
+      "testFile": "tests/numerology.test.js",
+      "status": "needs-live-recheck"
+    },
+    {
+      "key": "horses",
+      "sourceRef": "靈魂數字_可驗算公式表 Q008；91_木馬選用規則",
+      "implementation": "src/core/numerology.js#buildHorseNumbers",
+      "testFile": "tests/numerology.test.js",
+      "status": "needs-live-recheck"
+    },
+    {
+      "key": "sun-moon-bloom",
+      "sourceRef": "16_日月綻放數；17_日月綻放解讀1-9",
+      "implementation": "src/core/numerology.js#buildCalendarResult",
+      "testFile": "tests/numerology.test.js",
+      "status": "needs-live-recheck"
+    },
+    {
+      "key": "inner-frequency",
+      "sourceRef": "16_日月綻放數；87_靈魂萬花圖欄位映射",
+      "implementation": "src/core/numerology.js#buildCalendarResult",
+      "testFile": "tests/numerology.test.js",
+      "status": "needs-live-recheck"
+    },
+    {
+      "key": "day-seat",
+      "sourceRef": "靈魂數字_可驗算公式表：靈魂數字!P6:P11、底層驗算!A18:J24；數字課程.pdf 第32頁／印刷頁34",
+      "implementation": "src/core/numerology.js#buildSeatNumbers",
+      "testFile": "tests/numerology.test.js, tests/quick-read.test.js",
+      "status": "needs-live-recheck"
+    },
+    {
+      "key": "support-number",
+      "sourceRef": "靈魂數字_可驗算公式表 Q005；23_貴人數解讀1-9",
+      "implementation": "src/core/numerology.js#buildSupportNumber",
+      "testFile": "tests/numerology.test.js",
+      "status": "verified"
+    },
+    {
+      "key": "year-flow",
+      "sourceRef": "靈魂數字_可驗算公式表 Q006；19_流年數解讀1-9",
+      "implementation": "src/core/numerology.js#buildAnnualState",
+      "testFile": "tests/numerology.test.js",
+      "status": "needs-live-recheck"
+    }
+  ]
+}

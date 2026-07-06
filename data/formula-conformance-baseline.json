@@ -1,0 +1,324 @@
+{
+  "baselineVersion": "formula-sheet-snapshot-2026-06-30",
+  "source": {
+    "title": "靈魂數字_可驗算公式表",
+    "spreadsheetId": "12Ddaw4FoMJ4eOFcQ8N-xi2LSiOC0mi4ab877E6sknKQ",
+    "tabs": [
+      "靈魂數字",
+      "底層驗算"
+    ],
+    "ranges": [
+      "靈魂數字!A1:Z140",
+      "底層驗算!A1:Z100"
+    ],
+    "capturedAt": "2026-06-30",
+    "userRuleCorrection": "2026-06-30：靈魂生命等級 birthDigits 只取出生年月日 YYYYMMDD，不包含出生時、分；判斷主數只取第一段後天數與最後主數，不取中間縮減段。"
+  },
+  "cases": [
+    {
+      "caseId": "formula-case-a",
+      "displayName": "公式案例 A",
+      "sourceRef": "靈魂數字_可驗算公式表#靈魂數字",
+      "input": {
+        "solarDate": "1996-03-06",
+        "lunarDate": "1996-01-17",
+        "birthTime": "11:59",
+        "queryDate": "2026-06-29"
+      },
+      "expected": {
+        "birthday": {
+          "solarDate": "1996-03-06",
+          "lunarDate": "1996-01-17",
+          "birthTime": "11:59",
+          "queryDate": "2026-06-29",
+          "hasBirthdayPassed": true,
+          "activeAnnualKey": "afterBirthday"
+        },
+        "solar": {
+          "mainDestinyChain": "34/7",
+          "mainDestinyFinal": 7,
+          "sunMoonBloomChain": "9",
+          "sunMoonBloomFinal": 9,
+          "daySeat": 6,
+          "sunMoonSeat": 9
+        },
+        "lunar": {
+          "mainDestinyChain": "34/7",
+          "mainDestinyFinal": 7,
+          "sunMoonBloomChain": "18/9",
+          "sunMoonBloomFinal": 9,
+          "daySeat": 8,
+          "sunMoonSeat": 9
+        },
+        "support": {
+          "solar": 4,
+          "lunar": 6
+        },
+        "horseNumbers": [
+          3,
+          1,
+          2,
+          4
+        ],
+        "annual": {
+          "analysisYear": 2026,
+          "yearFlowChain": "19/10/1",
+          "yearFlowFinal": 1
+        },
+        "position": {
+          "ageCount": 31,
+          "chain": "31/4",
+          "final": 4
+        },
+        "soulLevels": {
+          "solar": {
+            "year": 1,
+            "month": 4,
+            "day": 2,
+            "hour": 7,
+            "minute": 2
+          },
+          "lunar": {
+            "year": 4,
+            "month": 2,
+            "day": 4,
+            "hour": 5,
+            "minute": 2
+          }
+        }
+      }
+    },
+    {
+      "caseId": "formula-case-b",
+      "displayName": "公式案例 B",
+      "sourceRef": "user-rule-correction-2026-06-30#zero-overfocus",
+      "coverageFocus": [
+        "zero-preserved",
+        "over-concentrated",
+        "middle-reduction-10"
+      ],
+      "input": {
+        "solarDate": "1980-01-01",
+        "lunarDate": "1979-11-14",
+        "birthTime": "09:09",
+        "queryDate": "2026-12-31"
+      },
+      "expected": {
+        "birthday": {
+          "solarDate": "1980-01-01",
+          "lunarDate": "1979-11-14",
+          "birthTime": "09:09",
+          "queryDate": "2026-12-31",
+          "hasBirthdayPassed": true,
+          "activeAnnualKey": "afterBirthday"
+        },
+        "solar": {
+          "mainDestinyChain": "20/2",
+          "mainDestinyFinal": 2,
+          "sunMoonBloomChain": "2",
+          "sunMoonBloomFinal": 2,
+          "daySeat": 1,
+          "sunMoonSeat": 2
+        },
+        "lunar": {
+          "mainDestinyChain": "33/6",
+          "mainDestinyFinal": 6,
+          "sunMoonBloomChain": "25/7",
+          "sunMoonBloomFinal": 7,
+          "daySeat": 5,
+          "sunMoonSeat": 7
+        },
+        "support": {
+          "solar": 3,
+          "lunar": 2
+        },
+        "horseNumbers": [
+          0,
+          8,
+          8,
+          8
+        ],
+        "annual": {
+          "analysisYear": 2026,
+          "yearFlowChain": "12/3",
+          "yearFlowFinal": 3
+        },
+        "position": {
+          "ageCount": 47,
+          "chain": "47/11/2",
+          "final": 2
+        },
+        "soulLevels": {
+          "solar": {
+            "year": 6,
+            "month": 6,
+            "day": 2,
+            "hour": 2,
+            "minute": 2
+          },
+          "lunar": {
+            "year": 1,
+            "month": 4,
+            "day": 1,
+            "hour": 2,
+            "minute": 2
+          }
+        }
+      }
+    },
+    {
+      "caseId": "formula-case-c",
+      "displayName": "公式案例 C",
+      "sourceRef": "user-rule-correction-2026-06-30#existence-not-inventory",
+      "coverageFocus": [
+        "existence-not-inventory",
+        "before-birthday"
+      ],
+      "input": {
+        "solarDate": "1982-09-23",
+        "lunarDate": "1982-08-07",
+        "birthTime": "11:17",
+        "queryDate": "2026-08-01"
+      },
+      "expected": {
+        "birthday": {
+          "solarDate": "1982-09-23",
+          "lunarDate": "1982-08-07",
+          "birthTime": "11:17",
+          "queryDate": "2026-08-01",
+          "hasBirthdayPassed": false,
+          "activeAnnualKey": "beforeBirthday"
+        },
+        "solar": {
+          "mainDestinyChain": "34/7",
+          "mainDestinyFinal": 7,
+          "sunMoonBloomChain": "32/5",
+          "sunMoonBloomFinal": 5,
+          "daySeat": 5,
+          "sunMoonSeat": 5
+        },
+        "lunar": {
+          "mainDestinyChain": "35/8",
+          "mainDestinyFinal": 8,
+          "sunMoonBloomChain": "15/6",
+          "sunMoonBloomFinal": 6,
+          "daySeat": 7,
+          "sunMoonSeat": 6
+        },
+        "support": {
+          "solar": 3,
+          "lunar": 6
+        },
+        "horseNumbers": [
+          4,
+          3,
+          1,
+          7
+        ],
+        "annual": {
+          "analysisYear": 2025,
+          "yearFlowChain": "23/5",
+          "yearFlowFinal": 5
+        },
+        "position": {
+          "ageCount": 44,
+          "chain": "44/8",
+          "final": 8
+        },
+        "soulLevels": {
+          "solar": {
+            "year": 7,
+            "month": 7,
+            "day": 2,
+            "hour": 5,
+            "minute": 4
+          },
+          "lunar": {
+            "year": 7,
+            "month": 7,
+            "day": 4,
+            "hour": 5,
+            "minute": 4
+          }
+        }
+      }
+    },
+    {
+      "caseId": "formula-case-d",
+      "displayName": "公式案例 D",
+      "sourceRef": "user-rule-correction-2026-06-30#ignore-middle-reduction",
+      "coverageFocus": [
+        "middle-reduction-10",
+        "before-birthday"
+      ],
+      "input": {
+        "solarDate": "1988-07-13",
+        "lunarDate": "1988-06-01",
+        "birthTime": "23:45",
+        "queryDate": "2026-07-01"
+      },
+      "expected": {
+        "birthday": {
+          "solarDate": "1988-07-13",
+          "lunarDate": "1988-06-01",
+          "birthTime": "23:45",
+          "queryDate": "2026-07-01",
+          "hasBirthdayPassed": false,
+          "activeAnnualKey": "beforeBirthday"
+        },
+        "solar": {
+          "mainDestinyChain": "37/10/1",
+          "mainDestinyFinal": 1,
+          "sunMoonBloomChain": "20/2",
+          "sunMoonBloomFinal": 2,
+          "daySeat": 4,
+          "sunMoonSeat": 2
+        },
+        "lunar": {
+          "mainDestinyChain": "33/6",
+          "mainDestinyFinal": 6,
+          "sunMoonBloomChain": "7",
+          "sunMoonBloomFinal": 7,
+          "daySeat": 1,
+          "sunMoonSeat": 7
+        },
+        "support": {
+          "solar": 5,
+          "lunar": 7
+        },
+        "horseNumbers": [
+          3,
+          4,
+          1,
+          1
+        ],
+        "annual": {
+          "analysisYear": 2025,
+          "yearFlowChain": "20/2",
+          "yearFlowFinal": 2
+        },
+        "position": {
+          "ageCount": 38,
+          "chain": "38/11/2",
+          "final": 2
+        },
+        "soulLevels": {
+          "solar": {
+            "year": 4,
+            "month": 3,
+            "day": 7,
+            "hour": 1,
+            "minute": 2
+          },
+          "lunar": {
+            "year": 5,
+            "month": 1,
+            "day": 4,
+            "hour": 2,
+            "minute": 1
+          }
+        }
+      }
+    }
+  ]
+}

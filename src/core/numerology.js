@@ -1,3 +1,6 @@
+import { buildSoulLevel } from './soul-level.js';
+import { getSupportedSolarDateRange, solarToLunarDate } from './lunar-calendar.js';
+
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME_RE = /^(\d{2}):(\d{2})$/;
 
@@ -8,12 +11,21 @@ export function calculateCase(input) {
   const solarBase = buildBaseNumbers(normalized.solarDate);
   const lunarBase = buildBaseNumbers(normalized.lunarDate);
   const horseNumbers = buildHorseNumbers(solarBase);
-  const supportNumbers = {
+  const seatNumbers = {
+    solar: buildSeatNumbers(solarBase, solar.sunMoonBloom, normalized.solarDate),
+    lunar: buildSeatNumbers(lunarBase, lunar.sunMoonBloom, normalized.lunarDate)
+  };
+  const nobleSupportNumbers = {
     solar: buildSupportNumber(solarBase),
     lunar: buildSupportNumber(lunarBase)
   };
+  const supportNumbers = {
+    solar: nobleSupportNumbers.solar.mainNumber,
+    lunar: nobleSupportNumbers.lunar.mainNumber
+  };
   const birthdayState = getBirthdayState(normalized.solarDate, normalized.queryDate);
   const annual = buildAnnualState(normalized, birthdayState);
+  const activeAnnualKey = birthdayState.hasBirthdayPassed ? 'afterBirthday' : 'beforeBirthday';
 
   return {
     id: normalized.id ?? createCaseId(normalized),
@@ -23,8 +35,12 @@ export function calculateCase(input) {
     solar,
     lunar,
     horseNumbers,
+    seatNumbers,
     supportNumbers,
+    nobleSupportNumbers,
     annual,
+    activeAnnualKey,
+    activeAnnual: annual[activeAnnualKey],
     sourcePolicy: {
       formulaSource: 'Google Sheets: 靈魂數字_可驗算公式表',
       contentSource: 'Google Sheets: 靈魂數字整合系統_分類資料庫_光頻幾何圖輸出更新',
@@ -67,7 +83,7 @@ export function chainFromSum(sum) {
 function normalizeInput(input) {
   if (!input || typeof input !== 'object') throw new Error('case input is required');
   const solarDate = parseDate(input.solarDate, 'solarDate');
-  const lunarDate = parseDate(input.lunarDate, 'lunarDate');
+  const lunarDate = normalizeLunarDate(input.lunarDate, solarDate, input);
   const birthTime = parseTime(input.birthTime ?? '00:00');
   const queryDate = parseDate(input.queryDate ?? new Date().toISOString().slice(0, 10), 'queryDate');
 
@@ -89,6 +105,31 @@ function parseDate(value, field) {
   return { raw: value, year, month, day };
 }
 
+function normalizeLunarDate(value, solarDate, input = {}) {
+  if (typeof value === 'string' && value.trim()) {
+    return withLunarFormulaMonth(parseDate(value, 'lunarDate'), Boolean(input.isLeapMonth), input.lunarSource || 'manual-input');
+  }
+  const converted = solarToLunarDate(solarDate.raw);
+  if (!converted) {
+    const range = getSupportedSolarDateRange();
+    throw new Error(`lunarDate is required when solarDate is outside ${range.start} to ${range.end}`);
+  }
+  return withLunarFormulaMonth(parseDate(converted.raw, 'lunarDate'), converted.isLeapMonth, converted.source);
+}
+
+function withLunarFormulaMonth(date, isLeapMonth, source) {
+  const lunarOriginalMonth = Number(date.month);
+  const lunarFormulaMonth = isLeapMonth ? lunarOriginalMonth + 1 : lunarOriginalMonth;
+  return {
+    ...date,
+    month: String(lunarFormulaMonth).padStart(2, '0'),
+    isLeapMonth,
+    lunarOriginalMonth,
+    lunarFormulaMonth,
+    source
+  };
+}
+
 function parseTime(value) {
   if (typeof value !== 'string' || !TIME_RE.test(value)) {
     throw new Error('birthTime must use HH:mm');
@@ -101,7 +142,25 @@ function buildCalendarResult(kind, date, time) {
   const mainDestiny = reduceNumber(`${date.year}${date.month}${date.day}`);
   const sunMoonSum = Number(date.month) + Number(date.day);
   const sunMoonBloom = chainFromSum(sunMoonSum);
-  const stage = buildStageNumbers(date, time);
+  const stage = buildStageNumbers(date, time).map((item) => {
+    try {
+      const soul = buildSoulLevel({ birthDate: date.raw, chain: item.chain, phase: item.phase });
+      return {
+        ...item,
+        soulLevel: soul.level,
+        soulLevelPattern: soul.pattern,
+        soulLevelStatus: 'verified-rule'
+      };
+    } catch (error) {
+      return {
+        ...item,
+        soulLevel: null,
+        soulLevelPattern: '',
+        soulLevelStatus: 'manual-review',
+        soulLevelIssue: error.message
+      };
+    }
+  });
 
   return {
     kind,
@@ -155,10 +214,26 @@ function buildHorseNumbers(base) {
   ];
 }
 
+function buildSeatNumbers(base, sunMoonBloom, date) {
+  const daySeat = chainFromSum(Number(date.day));
+  return {
+    day: base.day,
+    daySeat: {
+      chain: daySeat.chain,
+      mainNumber: daySeat.final
+    },
+    sunMoon: sunMoonBloom.final
+  };
+}
+
 function buildSupportNumber(base) {
   const first = chainFromSum(base.month + base.day).final;
   const second = chainFromSum(base.day + base.year).final;
-  return chainFromSum(first + second).final;
+  const result = chainFromSum(first + second);
+  return {
+    chain: result.chain,
+    mainNumber: result.final
+  };
 }
 
 function getBirthdayState(solarDate, queryDate) {

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "check": "node --check src/core/numerology.js && node --check src/core/templates.js && node --check src/core/report.js && node --check src/core/svg.js && node --check src/core/resource-plan.js && node --check src/core/service-catalog.js && node --check web/app.js && node --check scripts/next-steps.js && node --check scripts/predeploy-check.js && node --check scripts/package-static-site.js && node --check scripts/package-static-zip.js && node --check scripts/verify-static-package.js && node --check scripts/package-apps-script.js && node --check scripts/verify-apps-script-package.js && node --check scripts/copy-apps-script-code.js && node --check scripts/preview-static-site.js && node --check scripts/verify-deployment.js && node --check scripts/local-readiness.js && node --check scripts/work-start.js && node --check scripts/storage-maintenance-core.js && node --check scripts/storage-maintenance.js && node --check scripts/work-shutdown.js && npm run check:apps-script",
+    "check": "node --check src/core/numerology.js && node --check src/core/soul-level.js && node --check src/core/lunar-calendar.js && node --check src/core/lunar-calendar-data.js && node --check src/core/templates.js && node --check src/core/report.js && node --check src/core/svg.js && node --check src/core/resource-plan.js && node --check src/core/service-catalog.js && node --check web/app.js && node --check scripts/next-steps.js && node --check scripts/predeploy-check.js && node --check scripts/package-static-site.js && node --check scripts/package-static-zip.js && node --check scripts/verify-static-package.js && node --check scripts/package-apps-script.js && node --check scripts/verify-apps-script-package.js && node --check scripts/copy-apps-script-code.js && node --check scripts/preview-static-site.js && node --check scripts/verify-deployment.js && node --check scripts/verify-formula-conformance.js && node --check scripts/local-readiness.js && node --check scripts/work-start.js && node --check scripts/storage-maintenance-core.js && node --check scripts/storage-maintenance.js && node --check scripts/work-shutdown.js && npm run check:apps-script",
     "check:apps-script": "node -e \"const fs=require('node:fs'); ['apps-script/Code.gs','apps-script/InterpretationData.gs','apps-script/LunarCalendarData.gs'].forEach((file)=>new Function(fs.readFileSync(file,'utf8')));\"",
     "predeploy": "node scripts/predeploy-check.js",
     "package:static": "node scripts/package-static-site.js",
@@ -29,6 +29,7 @@
     "copy:apps-script:data": "node scripts/copy-apps-script-code.js --data",
     "copy:apps-script:lunar-data": "node scripts/copy-apps-script-code.js --lunar-data",
     "copy:apps-script:admin": "node scripts/copy-apps-script-code.js --admin",
-    "copy:apps-script:manifest": "node scripts/copy-apps-script-code.js --manifest"
+    "copy:apps-script:manifest": "node scripts/copy-apps-script-code.js --manifest",
+    "verify:formulas": "node scripts/verify-formula-conformance.js"
   }
 }
