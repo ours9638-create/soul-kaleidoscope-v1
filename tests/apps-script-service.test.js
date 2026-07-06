@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const code = fs.readFileSync(new URL('../apps-script/Code.gs', import.meta.url), 'utf8');
+const lunarData = fs.readFileSync(new URL('../apps-script/LunarCalendarData.gs', import.meta.url), 'utf8');
 const adminHtml = fs.readFileSync(new URL('../apps-script/Admin.html', import.meta.url), 'utf8');
 const schemaDoc = fs.readFileSync(new URL('../docs/sheets-schema.md', import.meta.url), 'utf8');
 
@@ -49,6 +50,23 @@ test('Apps Script can save a case and generate delivery files in one request', (
   assert.match(code, /save-and-generate-report/);
   assert.match(code, /function saveAndGenerateReport_/);
   assert.match(code, /const serviceCase = buildServiceCase_\(payload \|\| {}\)/);
+});
+
+test('Apps Script direct API auto-converts Gregorian date when lunarDate is omitted', () => {
+  assert.match(code, /const solarDate = parseDate_\(input\.solarDate\)/);
+  assert.match(code, /lunarDate: normalizeLunarDate_\(input\.lunarDate, solarDate, input\)/);
+  assert.match(code, /function normalizeLunarDate_/);
+  assert.match(code, /function withLunarFormulaMonth_/);
+  assert.match(code, /function solarToLunarDate_/);
+  assert.match(code, /LUNAR_CALENDAR_1940_2035_\[solarDate\]/);
+  assert.match(code, /LUNAR_CALENDAR_SUPPORTED_RANGE_/);
+  assert.match(code, /isLeapMonth/);
+  assert.match(code, /lunarOriginalMonth/);
+  assert.match(code, /lunarFormulaMonth/);
+  assert.match(code, /source: 'lunar-calendar-1940-2035'/);
+  assert.match(lunarData, /Entry count: 35064/);
+  assert.match(lunarData, /"1989-05-28": "1989-04-24"/);
+  assert.match(lunarData, /"1960-07-24": "1960-06-01L"/);
 });
 
 test('Apps Script records delivery status for output rows', () => {

@@ -6,6 +6,8 @@ const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 
 
 const requiredFiles = [
   'apps-script/Code.gs',
+  'apps-script/InterpretationData.gs',
+  'apps-script/LunarCalendarData.gs',
   'apps-script/Admin.html',
   'apps-script/appsscript.json',
   'web/index.html',
@@ -16,6 +18,7 @@ const requiredFiles = [
   'scripts/package-static-zip.js',
   'scripts/verify-static-package.js',
   'scripts/package-apps-script.js',
+  'scripts/verify-apps-script-package.js',
   'scripts/local-readiness.js',
   'scripts/verify-deployment.js',
   'src/core/numerology.js',
@@ -61,7 +64,12 @@ const checks = [
   {
     label: 'Apps Script package keeps deployment files together',
     file: 'scripts/package-apps-script.js',
-    patterns: ['dist/apps-script', 'Code.gs', 'Admin.html', 'appsscript.json']
+    patterns: ['dist/apps-script', 'Code.gs', 'InterpretationData.gs', 'LunarCalendarData.gs', 'Admin.html', 'appsscript.json']
+  },
+  {
+    label: 'Apps Script package verifier checks deployable output',
+    file: 'scripts/verify-apps-script-package.js',
+    patterns: ['dist/apps-script', 'APP_VERSION', 'SHA-256', 'setup-workbook']
   },
   {
     label: 'Deployment verifier covers setup and three services',
@@ -81,7 +89,7 @@ const checks = [
   {
     label: 'Local readiness gate runs all offline deployment checks',
     file: 'scripts/local-readiness.js',
-    patterns: ['npm', 'test', 'check', 'predeploy', 'package:apps-script', 'package:static', 'package:static:zip', 'verify:static']
+    patterns: ['npm', 'test', 'check', 'predeploy', 'package:apps-script', 'verify:apps-script', 'package:static', 'package:static:zip', 'verify:static']
   },
   {
     label: 'Operator runbook keeps start, sheet review, and shutdown together',

@@ -739,13 +739,51 @@ function calculateCase_(input) {
 }
 
 function normalizeInput_(input) {
+  const solarDate = parseDate_(input.solarDate);
   return {
     id: input.id,
     displayName: input.displayName || '未命名個案',
-    solarDate: parseDate_(input.solarDate),
-    lunarDate: parseDate_(input.lunarDate),
+    solarDate,
+    lunarDate: normalizeLunarDate_(input.lunarDate, solarDate, input),
     birthTime: parseTime_(input.birthTime || '00:00'),
     queryDate: parseDate_(input.queryDate || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd'))
+  };
+}
+
+function normalizeLunarDate_(value, solarDate, input) {
+  const text = String(value || '').trim();
+  if (text) {
+    return withLunarFormulaMonth_(parseDate_(text), Boolean(input && input.isLeapMonth), input && input.lunarSource ? input.lunarSource : 'manual-input');
+  }
+  const converted = solarToLunarDate_(solarDate.raw);
+  if (!converted) {
+    throw new Error(
+      'lunarDate is required when solarDate is outside ' +
+        LUNAR_CALENDAR_SUPPORTED_RANGE_.start + ' to ' + LUNAR_CALENDAR_SUPPORTED_RANGE_.end
+    );
+  }
+  return withLunarFormulaMonth_(parseDate_(converted.raw), converted.isLeapMonth, converted.source);
+}
+
+function withLunarFormulaMonth_(date, isLeapMonth, source) {
+  const lunarOriginalMonth = Number(date.month);
+  const lunarFormulaMonth = isLeapMonth ? lunarOriginalMonth + 1 : lunarOriginalMonth;
+  date.month = String(lunarFormulaMonth).padStart(2, '0');
+  date.isLeapMonth = isLeapMonth;
+  date.lunarOriginalMonth = lunarOriginalMonth;
+  date.lunarFormulaMonth = lunarFormulaMonth;
+  date.source = source;
+  return date;
+}
+
+function solarToLunarDate_(solarDate) {
+  const value = LUNAR_CALENDAR_1940_2035_[solarDate];
+  if (!value) return null;
+  const isLeapMonth = value.slice(-1) === 'L';
+  return {
+    raw: isLeapMonth ? value.slice(0, -1) : value,
+    isLeapMonth,
+    source: 'lunar-calendar-1940-2035'
   };
 }
 

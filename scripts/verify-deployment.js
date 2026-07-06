@@ -12,7 +12,7 @@ const serviceCases = [
       serviceId: 'soul-number-reading',
       displayName: '數字盤部署測試',
       solarDate: '1989-05-28',
-      lunarDate: '1989-04-24',
+      // Intentionally omit lunarDate so direct Apps Script API calls must use F-007 lookup.
       birthTime: '15:17',
       queryDate: '2026-06-11'
     },

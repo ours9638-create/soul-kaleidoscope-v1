@@ -15,6 +15,9 @@ const verifyStaticScript = fs.existsSync(new URL('../scripts/verify-static-packa
 const appsScriptPackage = fs.existsSync(new URL('../scripts/package-apps-script.js', import.meta.url))
   ? fs.readFileSync(new URL('../scripts/package-apps-script.js', import.meta.url), 'utf8')
   : '';
+const verifyAppsScriptPackage = fs.existsSync(new URL('../scripts/verify-apps-script-package.js', import.meta.url))
+  ? fs.readFileSync(new URL('../scripts/verify-apps-script-package.js', import.meta.url), 'utf8')
+  : '';
 const staticPreview = fs.existsSync(new URL('../scripts/preview-static-site.js', import.meta.url))
   ? fs.readFileSync(new URL('../scripts/preview-static-site.js', import.meta.url), 'utf8')
   : '';
@@ -40,6 +43,8 @@ test('package exposes a static preview command without external dependencies', (
 
 test('package exposes an Apps Script deployment packaging command', () => {
   assert.equal(packageJson.scripts['package:apps-script'], 'node scripts/package-apps-script.js');
+  assert.equal(packageJson.scripts['verify:apps-script'], 'node scripts/verify-apps-script-package.js');
+  assert.match(packageJson.scripts.check, /scripts\/verify-apps-script-package\.js/);
 });
 
 test('static package includes root entry, web assets, and shared core modules', () => {
@@ -92,6 +97,8 @@ test('Apps Script package includes the files the user must paste', () => {
   assert.match(appsScriptPackage, /dist\/apps-script/);
   assert.match(appsScriptPackage, /packageJson\.version/);
   assert.match(appsScriptPackage, /apps-script\/Code\.gs/);
+  assert.match(appsScriptPackage, /apps-script\/InterpretationData\.gs/);
+  assert.match(appsScriptPackage, /apps-script\/LunarCalendarData\.gs/);
   assert.match(appsScriptPackage, /apps-script\/Admin\.html/);
   assert.match(appsScriptPackage, /apps-script\/appsscript\.json/);
   assert.match(appsScriptPackage, /crypto/);
@@ -102,9 +109,22 @@ test('Apps Script package includes the files the user must paste', () => {
   assert.match(appsScriptPackage, /初始化\/檢查資料表/);
 });
 
+test('Apps Script package verifier checks packaged output against source', () => {
+  assert.match(verifyAppsScriptPackage, /dist\/apps-script/);
+  assert.match(verifyAppsScriptPackage, /sourceMap/);
+  assert.match(verifyAppsScriptPackage, /APP_VERSION/);
+  assert.match(verifyAppsScriptPackage, /LunarCalendarData\.gs/);
+  assert.match(verifyAppsScriptPackage, /appsscript\.json/);
+  assert.match(verifyAppsScriptPackage, /USER_DEPLOYING/);
+  assert.match(verifyAppsScriptPackage, /SHA-256/);
+  assert.match(verifyAppsScriptPackage, /setup-workbook/);
+});
+
 test('deployment guide and runbook use the Apps Script package', () => {
   assert.match(deployDoc, /npm run package:apps-script/);
   assert.match(deployDoc, /dist\/apps-script\/Code\.gs/);
+  assert.match(deployDoc, /dist\/apps-script\/InterpretationData\.gs/);
+  assert.match(deployDoc, /dist\/apps-script\/LunarCalendarData\.gs/);
   assert.match(deployDoc, /SHA-256/);
   assert.match(deployDoc, /dist\/apps-script\/Admin\.html/);
   assert.match(deployDoc, /dist\/apps-script\/appsscript\.json/);

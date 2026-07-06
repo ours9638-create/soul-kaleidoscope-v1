@@ -2,7 +2,18 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 
-const codePath = 'dist/apps-script/Code.gs';
+const fileOptions = [
+  { flag: '--data', path: 'dist/apps-script/InterpretationData.gs', label: 'InterpretationData.gs', target: 'Apps Script InterpretationData.gs' },
+  { flag: '--lunar-data', path: 'dist/apps-script/LunarCalendarData.gs', label: 'LunarCalendarData.gs', target: 'Apps Script LunarCalendarData.gs' },
+  { flag: '--admin', path: 'dist/apps-script/Admin.html', label: 'Admin.html', target: 'Apps Script Admin.html' },
+  { flag: '--manifest', path: 'dist/apps-script/appsscript.json', label: 'appsscript.json', target: 'Apps Script 專案設定 manifest' }
+];
+const selected = fileOptions.find((option) => process.argv.includes(option.flag)) || {
+  path: 'dist/apps-script/Code.gs',
+  label: 'Code.gs',
+  target: 'Apps Script 程式碼.gs'
+};
+const codePath = selected.path;
 const code = readFileSync(codePath, 'utf8');
 const sha256 = createHash('sha256').update(code).digest('hex');
 
@@ -31,8 +42,8 @@ function copyToClipboard(text) {
 
 copyToClipboard(code);
 
-console.log('# Apps Script Code.gs copied');
+console.log(`# Apps Script ${selected.label} copied`);
 console.log(`- source: ${codePath}`);
 console.log(`- chars: ${code.length}`);
 console.log(`- sha256: ${sha256}`);
-console.log('- next: paste into Apps Script 程式碼.gs, then save and deploy.');
+console.log(`- next: paste into ${selected.target}, then save and deploy.`);

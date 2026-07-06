@@ -9,7 +9,7 @@ npm run work:start
 npm run readiness
 ```
 
-`npm run readiness` 會跑測試、語法檢查、部署前檢查，並產生 `dist/apps-script` 與 `dist/static-site`。這樣做的風險是一次跑完比較久。建議部署前用它，因為它能在你打開 Apps Script 之前先抓到缺檔、API 沒接好、服務 ID 漏掉這類低級錯誤，省掉 Google 配額與手動排查時間。
+`npm run readiness` 會跑測試、語法檢查、部署前檢查，並產生與驗證 `dist/apps-script` 與 `dist/static-site`。這樣做的風險是一次跑完比較久。建議部署前用它，因為它能在你打開 Apps Script 之前先抓到缺檔、API 沒接好、服務 ID 漏掉這類低級錯誤，省掉 Google 配額與手動排查時間。
 
 若 `npm run work:start` 顯示試算表有更新，先照 `docs/operator-runbook.md` 判斷更新類型，再部署。不要在公式或欄位不確定時上線。
 
@@ -17,18 +17,21 @@ npm run readiness
 
 1. 到 Google Drive 建立 Apps Script 專案。
 2. 執行 `npm run package:apps-script`，產生 `dist/apps-script`。
-3. 打開 `dist/apps-script/README.md`，確認版本、三個檔案、大小與 SHA-256 核對表都有產生。
-4. 把 `dist/apps-script/Code.gs` 貼到 Apps Script 的 `Code.gs`。
-5. 新增 HTML 檔 `Admin`，貼上 `dist/apps-script/Admin.html`。
-6. 專案設定中貼上 `dist/apps-script/appsscript.json` 的設定。
-7. 確認 `CONFIG.CONTENT_SPREADSHEET_ID` 是你要寫入個案資料與輸出紀錄的表。
-8. 部署成 Web App。
-9. 權限建議：
+3. 執行 `npm run verify:apps-script`，確認部署包和來源檔一致。
+4. 打開 `dist/apps-script/README.md`，確認版本、五個檔案、大小與 SHA-256 核對表都有產生。
+5. 把 `dist/apps-script/Code.gs` 貼到 Apps Script 的 `Code.gs`。
+6. 新增指令碼檔 `InterpretationData`，貼上 `dist/apps-script/InterpretationData.gs`。
+7. 新增指令碼檔 `LunarCalendarData`，貼上 `dist/apps-script/LunarCalendarData.gs`；缺少此檔會讓後台直呼 API 時無法自動換算農曆。
+8. 新增 HTML 檔 `Admin`，貼上 `dist/apps-script/Admin.html`。
+9. 專案設定中貼上 `dist/apps-script/appsscript.json` 的設定。
+10. 確認 `CONFIG.CONTENT_SPREADSHEET_ID` 是你要寫入個案資料與輸出紀錄的表。
+11. 部署成 Web App。
+12. 權限建議：
    - Execute as：你自己。
    - Who has access：先用 Anyone with link 測試，正式前再收緊。
-10. 打開 Web App 後台，先按「初始化/檢查資料表」。
-11. 確認 `個案資料表`、`輸出紀錄`、Drive 輸出資料夾都建立成功。
-12. 回到 PWA 按「檢查後台」，確認顯示的後台版本和 `dist/apps-script/README.md` 一致。
+13. 打開 Web App 後台，先按「初始化/檢查資料表」。
+14. 確認 `個案資料表`、`輸出紀錄`、Drive 輸出資料夾都建立成功。
+15. 回到 PWA 按「檢查後台」，確認顯示的後台版本和 `dist/apps-script/README.md` 一致。
 
 ## 2. PWA 靜態網站
 

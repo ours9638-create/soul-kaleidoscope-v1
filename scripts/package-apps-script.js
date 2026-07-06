@@ -6,6 +6,8 @@ const ROOT = process.cwd();
 const OUT_DIR = 'dist/apps-script';
 const FILES = [
   'apps-script/Code.gs',
+  'apps-script/InterpretationData.gs',
+  'apps-script/LunarCalendarData.gs',
   'apps-script/Admin.html',
   'apps-script/appsscript.json'
 ];
@@ -56,6 +58,8 @@ const checklist = [
   '把這個資料夾內的檔案貼到 Google Apps Script：',
   '',
   '- `Code.gs` -> Apps Script 的 `Code.gs`',
+  '- `InterpretationData.gs` -> 新增指令碼檔，名稱必須是 `InterpretationData`',
+  '- `LunarCalendarData.gs` -> 新增指令碼檔，名稱必須是 `LunarCalendarData`',
   '- `Admin.html` -> 新增 HTML 檔，名稱必須是 `Admin`',
   '- `appsscript.json` -> 專案設定的 manifest',
   '',
@@ -65,7 +69,7 @@ const checklist = [
   '| --- | ---: | --- |',
   ...manifest.map((item) => `| ${item.file} | ${item.size} | ${item.sha256} |`),
   '',
-  '貼上 Apps Script 前，先確認三個檔案都在這份清單內，並確認版本號符合 `package.json`。',
+  '貼上 Apps Script 前，先確認五個檔案都在這份清單內，並確認版本號符合 `package.json`。',
   '',
   '貼上後先部署 Web App，再打開後台按「初始化/檢查資料表」。PWA 按「檢查後台」時，應顯示同一個後台版本。'
 ].join('\n');
@@ -75,6 +79,8 @@ fs.writeFileSync(resolvePath(path.join(OUT_DIR, 'README.md')), `${checklist}\n`)
 console.log('# Apps Script package ok');
 console.log(`- 輸出目錄：${OUT_DIR}`);
 console.log('- 已包含 Code.gs');
+console.log('- 已包含 InterpretationData.gs');
+console.log('- 已包含 LunarCalendarData.gs');
 console.log('- 已包含 Admin.html');
 console.log('- 已包含 appsscript.json');
 console.log('- 已包含 README.md');

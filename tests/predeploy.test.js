@@ -26,20 +26,28 @@ test('package exposes a predeploy readiness check', () => {
   assert.equal(packageJson.scripts['verify:deployment:setup'], 'node scripts/verify-deployment.js --setup-only');
   assert.equal(packageJson.scripts['verify:deployment:url'], 'node scripts/verify-deployment.js --validate-url-only');
   assert.equal(packageJson.scripts['verify:delivery-guard'], 'node scripts/verify-deployment.js --delivery-guard-only');
+  assert.equal(packageJson.scripts['verify:apps-script'], 'node scripts/verify-apps-script-package.js');
   assert.equal(packageJson.scripts['copy:apps-script'], 'node scripts/copy-apps-script-code.js');
+  assert.equal(packageJson.scripts['copy:apps-script:data'], 'node scripts/copy-apps-script-code.js --data');
+  assert.equal(packageJson.scripts['copy:apps-script:lunar-data'], 'node scripts/copy-apps-script-code.js --lunar-data');
+  assert.equal(packageJson.scripts['copy:apps-script:admin'], 'node scripts/copy-apps-script-code.js --admin');
+  assert.equal(packageJson.scripts['copy:apps-script:manifest'], 'node scripts/copy-apps-script-code.js --manifest');
   assert.equal(packageJson.scripts.readiness, 'node scripts/local-readiness.js');
   assert.match(packageJson.scripts.check, /scripts\/local-readiness\.js/);
   assert.match(packageJson.scripts.check, /scripts\/copy-apps-script-code\.js/);
+  assert.match(packageJson.scripts.check, /scripts\/verify-apps-script-package\.js/);
 });
 
 test('predeploy check covers free-stack deployment artifacts', () => {
   assert.match(script, /apps-script\/Code\.gs/);
+  assert.match(script, /apps-script\/LunarCalendarData\.gs/);
   assert.match(script, /apps-script\/Admin\.html/);
   assert.match(script, /web\/index\.html/);
   assert.match(script, /web\/app\.js/);
   assert.match(script, /src\/core\/service-catalog\.js/);
   assert.match(script, /scripts\/local-readiness\.js/);
   assert.match(script, /scripts\/verify-deployment\.js/);
+  assert.match(script, /scripts\/verify-apps-script-package\.js/);
   assert.match(script, /docs\/deployment-verification\.md/);
   assert.match(script, /docs\/operator-runbook\.md/);
 });
@@ -58,6 +66,7 @@ test('predeploy check validates service delivery API and required docs', () => {
   assert.match(script, /APPS_SCRIPT_URL/);
   assert.match(script, /Local readiness gate runs all offline deployment checks/);
   assert.match(script, /package:apps-script/);
+  assert.match(script, /verify:apps-script/);
   assert.match(script, /package:static/);
   assert.match(script, /package:static:zip/);
   assert.match(script, /verify:static/);
@@ -67,6 +76,8 @@ test('Apps Script packaging avoids deleting the whole dist folder', () => {
   const packageAppsScript = fs.readFileSync(new URL('../scripts/package-apps-script.js', import.meta.url), 'utf8');
   assert.match(packageAppsScript, /function clearKnownOutputs/);
   assert.match(packageAppsScript, /OUTPUT_FILES/);
+  assert.match(packageAppsScript, /InterpretationData\.gs/);
+  assert.match(packageAppsScript, /LunarCalendarData\.gs/);
   assert.doesNotMatch(packageAppsScript, /rmSync\(resolvePath\(OUT_DIR\), \{ recursive: true/);
 });
 
@@ -76,6 +87,7 @@ test('local readiness check runs all offline deployment gates', () => {
   assert.match(readiness, /npm run check/);
   assert.match(readiness, /npm run predeploy/);
   assert.match(readiness, /npm run package:apps-script/);
+  assert.match(readiness, /npm run verify:apps-script/);
   assert.match(readiness, /npm run package:static/);
   assert.match(readiness, /npm run package:static:zip/);
   assert.match(readiness, /npm run verify:static/);
@@ -170,6 +182,8 @@ test('delivery checklist is linked into operator flow and blocks unsafe handoff'
 test('implementation checklist uses packaged Apps Script files instead of raw source files', () => {
   assert.match(checklist, /dist\/apps-script\/README\.md/);
   assert.match(checklist, /dist\/apps-script\/Code\.gs/);
+  assert.match(checklist, /dist\/apps-script\/InterpretationData\.gs/);
+  assert.match(checklist, /dist\/apps-script\/LunarCalendarData\.gs/);
   assert.match(checklist, /dist\/apps-script\/Admin\.html/);
   assert.match(checklist, /dist\/apps-script\/appsscript\.json/);
   assert.doesNotMatch(checklist, /貼上 `apps-script\/Code\.gs`/);
@@ -202,4 +216,14 @@ test('deployment verifier requires an explicit Apps Script URL and covers all v1
   assert.match(verifyDeployment, /delivery is not ready/);
   assert.match(verifyDeployment, /精油段落仍是待確認/);
   assert.match(verifyDeployment, /process\.exit\(1\)/);
+});
+
+
+test('deployment verifier exercises direct Apps Script lunar lookup', () => {
+  const start = verifyDeployment.indexOf("label: '數字盤單項'");
+  const end = verifyDeployment.indexOf('expectSvg: true', start);
+  const numberCase = verifyDeployment.slice(start, end);
+  assert.match(numberCase, /solarDate: '1989-05-28'/);
+  assert.doesNotMatch(numberCase, /^\s*lunarDate:/m);
+  assert.match(numberCase, /F-007 lookup/);
 });

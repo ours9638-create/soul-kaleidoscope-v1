@@ -5,6 +5,7 @@ const commands = [
   ['npm run check', '檢查 JavaScript 與 Apps Script 語法'],
   ['npm run predeploy', '檢查免費部署必要檔案與版本一致'],
   ['npm run package:apps-script', '產出 Apps Script 部署包'],
+  ['npm run verify:apps-script', '檢查 Apps Script 部署包內容、版本與來源一致'],
   ['npm run package:static', '產出 PWA 靜態網站部署包'],
   ['npm run package:static:zip', '產出 Cloudflare Pages 手動上傳 ZIP'],
   ['npm run verify:static', '檢查 PWA ZIP 是否包含必要檔案與後台 URL']

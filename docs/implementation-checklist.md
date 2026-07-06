@@ -16,8 +16,11 @@
 
 - [x] 建立 Apps Script 專案
 - [x] 確認已執行 `npm run readiness`
+- [ ] 執行 `npm run verify:apps-script`
 - [x] 打開 `dist/apps-script/README.md`，確認版本與 SHA-256 核對表
 - [x] 貼上 `dist/apps-script/Code.gs`
+- [ ] 新增 `InterpretationData.gs` 並貼上 `dist/apps-script/InterpretationData.gs`
+- [ ] 新增 `LunarCalendarData.gs` 並貼上 `dist/apps-script/LunarCalendarData.gs`
 - [x] 新增 `Admin.html`
 - [x] 貼上 `dist/apps-script/Admin.html`
 - [x] 專案設定貼上 `dist/apps-script/appsscript.json`
