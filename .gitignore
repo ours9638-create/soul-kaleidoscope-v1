@@ -10,3 +10,7 @@ node_modules/
 
 # Generated deployment artifacts. The GitHub Pages workflow rebuilds them from source.
 dist/
+
+# Local tool state and generated case outputs; never sync these to GitHub.
+.superpowers/
+outputs/
