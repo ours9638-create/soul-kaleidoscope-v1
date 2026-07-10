@@ -21,9 +21,14 @@ test('Google Sheets registry marks critical tabs and low-usage read policy', () 
   assert.ok(registry.readPolicy.includes('metadata-first'));
   assert.ok(registry.readPolicy.includes('targeted-ranges-only'));
   const content = registry.sheets.find((sheet) => sheet.role === 'content-database');
+  const formula = registry.sheets.find((sheet) => sheet.role === 'formula-source');
+  assert.ok(formula.criticalTabs.includes('測試案例'));
   assert.ok(content.criticalTabs.includes('02_公式定稿'));
   assert.ok(content.criticalTabs.includes('09_欄位字典'));
   assert.ok(content.criticalTabs.includes('87_靈魂萬花圖欄位映射'));
+  assert.ok(content.criticalTabs.includes('貴人數1-9'));
+  assert.ok(content.criticalTabs.includes('流年數1-9'));
+  assert.ok(content.criticalTabs.includes('位格1-9'));
 });
 
 test('workflow references registry when spreadsheets change', () => {
