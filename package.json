@@ -13,6 +13,7 @@
     "copy:apps-script": "node scripts/copy-apps-script-code.js",
     "package:static:zip": "node scripts/package-static-zip.js",
     "verify:static": "node scripts/verify-static-package.js",
+    "verify:pwa": "node scripts/verify-public-pwa.js",
     "preview:static": "node scripts/preview-static-site.js",
     "verify:deployment": "node scripts/verify-deployment.js",
     "verify:deployment:setup": "node scripts/verify-deployment.js --setup-only",

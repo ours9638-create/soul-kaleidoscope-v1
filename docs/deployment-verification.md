@@ -130,6 +130,13 @@ npm run verify:deployment
 
 這個指令會執行 `setup-workbook`，再送出數字盤單項、精油單項、數字盤 + 精油搭配三筆測試資料。數字盤單項會刻意不送 `lunarDate`，用來確認直呼 Apps Script API 時仍會套用國曆轉農曆規則。它會真的寫入 Google Sheets 與 Drive，所以只在測試部署時使用，不要拿正式個案資料測。
 
+若要確認公開 PWA 入口也對到同一個後台，可跑：
+
+```powershell
+npm run verify:pwa
+```
+
+這個指令會檢查 GitHub Pages、Cloudflare Pages、公開 `deployment-config.js` 與 Apps Script `setup-workbook`。它不會送出三服務測試資料，但 `setup-workbook` 仍可能補齊缺漏表頭或資料夾，所以只在部署驗證時使用。
 
 測試資料的 `displayName` 會自動加上 `DEPLOY-VERIFY-...` 批次標記。驗證完成後，你可以在 `個案資料表`、`輸出紀錄` 與 Drive 輸出資料夾用這個前綴找到測試資料。
 

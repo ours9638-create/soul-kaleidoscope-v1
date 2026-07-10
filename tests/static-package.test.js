@@ -21,6 +21,9 @@ const verifyAppsScriptPackage = fs.existsSync(new URL('../scripts/verify-apps-sc
 const staticPreview = fs.existsSync(new URL('../scripts/preview-static-site.js', import.meta.url))
   ? fs.readFileSync(new URL('../scripts/preview-static-site.js', import.meta.url), 'utf8')
   : '';
+const publicPwaVerifier = fs.existsSync(new URL('../scripts/verify-public-pwa.js', import.meta.url))
+  ? fs.readFileSync(new URL('../scripts/verify-public-pwa.js', import.meta.url), 'utf8')
+  : '';
 const deployDoc = fs.readFileSync(new URL('../docs/deploy-free-stack.md', import.meta.url), 'utf8');
 const runbook = fs.readFileSync(new URL('../docs/operator-runbook.md', import.meta.url), 'utf8');
 const staticHostingDoc = fs.readFileSync(new URL('../docs/static-hosting.md', import.meta.url), 'utf8');
@@ -31,6 +34,7 @@ test('package exposes a static-site packaging command', () => {
   assert.equal(packageJson.scripts['package:static'], 'node scripts/package-static-site.js');
   assert.equal(packageJson.scripts['package:static:zip'], 'node scripts/package-static-zip.js');
   assert.equal(packageJson.scripts['verify:static'], 'node scripts/verify-static-package.js');
+  assert.equal(packageJson.scripts['verify:pwa'], 'node scripts/verify-public-pwa.js');
 });
 
 test('package exposes a static preview command without external dependencies', () => {
@@ -65,7 +69,10 @@ test('static verifier checks the Cloudflare upload artifact before publishing', 
   assert.match(verifyStaticScript, /dist\/static-site\.zip/);
   assert.match(verifyStaticScript, /requiredEntries/);
   assert.match(verifyStaticScript, /web\/deployment-config\.js/);
-  assert.match(verifyStaticScript, /script\.google\.com\/macros\/s/);
+  assert.match(verifyStaticScript, /hostname === 'script\.google\.com'/);
+  assert.match(verifyStaticScript, /validateModuleGraph/);
+  assert.match(verifyStaticScript, /manifest\.webmanifest/);
+  assert.match(verifyStaticScript, /service worker/);
 });
 
 test('deployment guide tells user to deploy the packaged static-site folder', () => {
@@ -91,6 +98,14 @@ test('GitHub Pages workflow builds the static package from source', () => {
   assert.match(pagesWorkflow, /actions\/upload-pages-artifact@v3/);
   assert.match(pagesWorkflow, /dist\/static-site/);
   assert.match(pagesWorkflow, /actions\/deploy-pages@v4/);
+});
+
+test('public PWA verifier checks hosted pages and backend setup', () => {
+  assert.match(publicPwaVerifier, /ours9638-create\.github\.io/);
+  assert.match(publicPwaVerifier, /workers\.dev/);
+  assert.match(publicPwaVerifier, /deployment-config\.js/);
+  assert.match(publicPwaVerifier, /setup-workbook/);
+  assert.match(publicPwaVerifier, /script\.google\.com/);
 });
 
 test('Apps Script package includes the files the user must paste', () => {
