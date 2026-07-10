@@ -69,14 +69,50 @@ function validateApiUrl(url) {
   }
 }
 
+function modeLabel() {
+  if (validateUrlOnly) return 'validate-url-only';
+  if (deliveryGuardOnly) return 'delivery-guard-only';
+  if (setupOnly) return 'setup-only';
+  return 'full';
+}
+
+function compactSnippet(text) {
+  const title = text.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || '';
+  const errorMessage = text.match(/class="errorMessage"[^>]*>([\s\S]*?)<\/div>/i)?.[1] || '';
+  const readable = errorMessage
+    ? `${title} ${errorMessage}`
+    : text;
+  return readable
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 1000);
+}
+
 async function postToAppsScript(body) {
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(body)
   });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+  const text = await response.text();
+  const contentType = response.headers.get('content-type') || '未回傳';
+  const action = body.action || 'unknown-action';
+  if (!response.ok) {
+    throw new Error(`${action} HTTP ${response.status}，content-type: ${contentType}，response: ${compactSnippet(text)}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`${action} did not return JSON，content-type: ${contentType}，response: ${compactSnippet(text)}`);
+  }
 }
 
 function assertOk(condition, message) {
@@ -131,7 +167,7 @@ async function main() {
   }
 
   console.log('# deployment verification');
-  console.log(`- mode: ${setupOnly ? 'setup-only' : 'full'}`);
+  console.log(`- mode: ${modeLabel()}`);
   console.log(`- runId: ${runId}`);
   console.log('- setup-workbook');
   validateSetupResult(await postToAppsScript({ action: 'setup-workbook' }));

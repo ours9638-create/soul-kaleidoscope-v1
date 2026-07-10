@@ -1,13 +1,28 @@
 # 目前部署狀態
 
-更新日期：2026-06-15
+更新日期：2026-07-01
+
+## 2026-07-01 部署驗證續查
+
+- 本機 Apps Script 部署包：已重新產生並通過 `npm run verify:apps-script`。
+- 本機 static-site 部署包：已重新產生並通過 `npm run verify:static`。
+- Apps Script URL 格式：`npm run verify:deployment:url` 通過。
+- Apps Script setup：`npm run verify:deployment:setup` 通過。
+- 曾卡住的位置：`npm run verify:delivery-guard` 在 `save-and-generate-report` 階段失敗，線上 Apps Script 回 HTML 錯誤頁，不是 JSON。
+- 直接診斷結果：線上 Web App 缺少 `DocumentApp.create` 權限，必要 scope 是 `https://www.googleapis.com/auth/documents`。
+- 已補本機修正：`apps-script/appsscript.json` 已加入 Docs、Drive、Sheets、Script Properties OAuth scopes；`dist/apps-script/appsscript.json` 已重新產生。
+- 重新部署並授權後，`npm run verify:delivery-guard` 已通過。
+- delivery guard 使用一次性測試 token；token 不納入版本控制。
+- 完整三服務驗證已通過，測試批次：`DEPLOY-VERIFY-2026-07-01T09-49-15-904Z`。
+- 驗證結果：數字盤單項與組合服務皆產生 `reportUrl`、`svgUrl`；精油單項產生 `reportUrl` 且不產生 `svgUrl`。
+- 公開 PWA 檢查：`npm run verify:pwa` 已通過。GitHub Pages、Cloudflare Pages `/web/`、Cloudflare root 皆 HTTP 200；公開 `deployment-config.js` 指向同一個 Apps Script URL；Apps Script `setup-workbook` 回 `ok=true`、版本 `0.1.0`。
 
 ## Apps Script Web App
 
 - 狀態：已部署並完成完整驗證
 - Web App URL：`https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec`
 - 版本：`v0.1.0`
-- Apps Script 部署版本：`8 版 (2026年6月15日上午11:29)`
+- Apps Script 部署版本：`14 版 (2026年6月18日晚上8:34)`
 - 權限：
   - Execute as：部署者本人
   - Who has access：所有人
@@ -38,6 +53,8 @@
 - 2026-06-15 人工核對：Apps Script 後台已顯示「交付狀態」表單，使用者確認畫面 OK
 - 2026-06-15 追加驗證：Apps Script 第 8 版已部署，保留原 Web App URL，`verify:deployment:url` 與 `verify:deployment:setup` 通過
 - 2026-06-15 追加驗證：第 8 版修正 Apps Script SVG 固定座標輸出，並在報告補回流年與今年位格
+- 2026-06-18 追加部署：第 14 版已部署，保留原 Web App URL；新增 `fileIds` 篩選，只讀取開工掃描中新增與修改的 Drive 檔案
+- 2026-06-18 追加驗證：清除 DNS 快取後，health 回傳 HTTP 200；空篩選回傳 `readTargetCount = 0`，單檔篩選回傳 `readTargetCount = 1` 且讀取成功
 
 ## PWA 串接
 
@@ -67,36 +84,11 @@
   - `Apps Script API URL` 自動帶入
   - 按「檢查後台」成功回傳 `後台正常｜v0.1.0`
 
-## 真實測試個案
+## 測試與個案資料
 
-- 狀態：已送出數字盤測試個案
-- 測試名稱：`Cloudflare真實測試-2026-06-14`
-- caseId：`[REDACTED_TEST_CASE_ID]`
-- reportUrl：`[REDACTED_DRIVE_URL]`
-- svgUrl：`[REDACTED_DRIVE_URL]`
-- 備註：瀏覽器分頁連線逾時，改用 Cloudflare PWA 相同的 Apps Script `save-and-generate-report` 請求格式送出。
-- 讀回驗證：`GET action=case` 已確認 `birthTime = 15:17`，避免 Google Sheets 時間欄位轉成 `07:17`。
-- Drive 檔案驗證：`reportUrl` 預覽為 Markdown 報告，`svgUrl` 預覽為 SVG 校對圖。
-- Sheets 驗證：`個案資料表` 有一列測試個案，`輸出紀錄` 有對應 token、reportUrl、svgUrl。
-
-## 第一份正式個案草稿
-
-- 狀態：已重產新版草稿，等待人工核對
-- 名稱：`[REDACTED]`
-- 服務：`soul-number-with-oil`
-- caseId：`[REDACTED_CASE_ID]`
-- token：`[REDACTED_TOKEN]`
-- deliveryStatus：`draft`
-- reportUrl：`[REDACTED_DRIVE_URL]`
-- svgUrl：`[REDACTED_DRIVE_URL]`
-- 備註：同一 `caseId + serviceId` 已存在，系統回傳 `duplicateCaseWarning` 並略過新增重複個案列，只新增新的輸出紀錄。
-
-## 已知資料問題
-
-- `個案資料表` 內 `[REDACTED_CASE_ID]` 曾出現重複組合服務紀錄。
-- 風險：同一個案重複送出會產生多份報告與多筆輸出紀錄，後續人工查找容易混淆。
-- 已處理：Apps Script 第 4 版已新增重複個案列提醒；同一 `caseId + serviceId` 已存在時，會略過 `個案資料表` 寫入並回傳 `duplicateCaseWarning`。
-- 尚未處理：重新產出報告仍會新增 `輸出紀錄`，之後若需要版本管理，再新增「重新產出版本」欄位。
+- 測試與正式個案的名稱、生日、caseId、token、Drive 連結及輸出連結不得寫入版本控制。
+- 歷史驗證已確認 `birthTime` 時區讀回、報告與 SVG 輸出，以及重複個案提醒流程。
+- 已知限制：重新產出報告仍可能新增輸出紀錄；需要版本治理時另行處理。
 
 ## 交付狀態
 
