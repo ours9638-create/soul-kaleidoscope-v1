@@ -67,9 +67,24 @@ test('cloud Drive config defines guarded network-first startup scan', () => {
   assert.match(cloudDriveConfig, /靈魂萬花筒/);
   assert.match(cloudDriveConfig, /1IfXfpsxP2IKzJbvC3VZrwyRznog-3uQf/);
   assert.match(cloudDriveConfig, /cloud-metadata-first/);
-  assert.match(cloudDriveConfig, /read-all-cloud-files-when-any-cloud-file-changes/);
+  assert.match(cloudDriveConfig, /read-added-and-changed-cloud-files/);
+  assert.match(cloudDriveConfig, /skip-generated-dist-and-tmp/);
+  assert.match(cloudDriveConfig, /skip-generated-outputs/);
   assert.match(cloudDriveConfig, /web\/deployment-config\.js/);
   assert.match(cloudDriveConfig, /maxBlobBytesPerFile/);
+  assert.match(cloudDriveConfig, /metadataTimeoutMs/);
+  assert.match(cloudDriveConfig, /"metadataTimeoutMs": 120000/);
+  assert.match(cloudDriveConfig, /metadataRetryAttempts/);
+  assert.match(cloudDriveConfig, /metadataRetryDelayMs/);
+  assert.match(cloudDriveConfig, /readAllTimeoutMs/);
+  assert.match(cloudDriveConfig, /"readAllTimeoutMs": 120000/);
+  assert.match(cloudDriveConfig, /maintenancePolicy/);
+  assert.match(cloudDriveConfig, /scanIntervalDays/);
+  assert.match(cloudDriveConfig, /generatedRetentionDays/);
+  assert.match(cloudDriveConfig, /autoTrashPathPrefixes/);
+  assert.match(cloudDriveConfig, /soul-kaleidoscope-v1\/tmp\//);
+  assert.match(cloudDriveConfig, /soul-kaleidoscope-v1\/dist\//);
+  assert.match(cloudDriveConfig, /trashOnly/);
 });
 
 test('start workflow blocks when previous work session was not shut down', () => {
