@@ -19,6 +19,13 @@ const sourceMap = new Map([
   ['Admin.html', 'apps-script/Admin.html'],
   ['appsscript.json', 'apps-script/appsscript.json']
 ]);
+const requiredOauthScopes = [
+  'https://www.googleapis.com/auth/documents',
+  'https://www.googleapis.com/auth/drive',
+  'https://www.googleapis.com/auth/script.storage',
+  'https://www.googleapis.com/auth/spreadsheets'
+];
+
 function resolvePath(relativePath) {
   return path.join(ROOT, relativePath);
 }
@@ -68,6 +75,10 @@ if (fs.existsSync(resolvePath('package.json')) && fs.existsSync(resolvePath(path
   } else if (versionMatch[1] !== packageJson.version) {
     failures.push(`Apps Script 版本 ${versionMatch[1]} 與 package.json 版本 ${packageJson.version} 不一致`);
   }
+  const spreadsheetMatch = code.match(/CONTENT_SPREADSHEET_ID:\s*'([^']+)'/);
+  if (!spreadsheetMatch || spreadsheetMatch[1].trim().length < 20) {
+    failures.push('dist/apps-script/Code.gs 未設定有效的 CONFIG.CONTENT_SPREADSHEET_ID');
+  }
   ['setup-workbook', 'save-and-generate-report', 'update-delivery-status'].forEach((action) => {
     if (!code.includes(action)) failures.push(`dist/apps-script/Code.gs 缺少 ${action} action`);
   });
@@ -80,6 +91,10 @@ if (fs.existsSync(resolvePath(path.join(OUT_DIR, 'appsscript.json')))) {
   if (!['ANYONE_ANONYMOUS', 'ANYONE'].includes(manifest.webapp?.access)) {
     failures.push('appsscript.json webapp.access 不是可測試 Web App 權限');
   }
+  const scopes = new Set(manifest.oauthScopes || []);
+  requiredOauthScopes.forEach((scope) => {
+    if (!scopes.has(scope)) failures.push(`appsscript.json 缺少 OAuth scope：${scope}`);
+  });
 }
 
 if (fs.existsSync(resolvePath(path.join(OUT_DIR, 'README.md')))) {
@@ -104,4 +119,4 @@ console.log('# Apps Script package verification ok');
 console.log(`- 部署包：${OUT_DIR}`);
 console.log('- 來源檔與部署包內容一致');
 console.log('- APP_VERSION 與 package.json 一致');
-console.log('- Web App manifest、README 與 SHA-256 清單已檢查');
+console.log('- Web App manifest、OAuth scopes、README 與 SHA-256 清單已檢查');

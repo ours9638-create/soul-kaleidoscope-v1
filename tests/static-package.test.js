@@ -114,8 +114,13 @@ test('Apps Script package verifier checks packaged output against source', () =>
   assert.match(verifyAppsScriptPackage, /sourceMap/);
   assert.match(verifyAppsScriptPackage, /APP_VERSION/);
   assert.match(verifyAppsScriptPackage, /LunarCalendarData\.gs/);
+  assert.match(verifyAppsScriptPackage, /CONTENT_SPREADSHEET_ID/);
   assert.match(verifyAppsScriptPackage, /appsscript\.json/);
   assert.match(verifyAppsScriptPackage, /USER_DEPLOYING/);
+  assert.match(verifyAppsScriptPackage, /auth\/documents/);
+  assert.match(verifyAppsScriptPackage, /auth\/drive/);
+  assert.match(verifyAppsScriptPackage, /auth\/script\.storage/);
+  assert.match(verifyAppsScriptPackage, /auth\/spreadsheets/);
   assert.match(verifyAppsScriptPackage, /SHA-256/);
   assert.match(verifyAppsScriptPackage, /setup-workbook/);
 });
