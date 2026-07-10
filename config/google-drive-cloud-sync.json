@@ -4,12 +4,34 @@
   "readPolicy": [
     "cloud-metadata-first",
     "compare-drive-modified-time",
-    "read-all-cloud-files-when-any-cloud-file-changes",
+    "read-added-and-changed-cloud-files",
+    "skip-generated-dist-and-tmp",
+    "skip-generated-outputs",
     "store-network-read-summary-in-workflow"
   ],
   "appsScriptUrlSource": "web/deployment-config.js",
+  "metadataTimeoutMs": 120000,
+  "metadataRetryAttempts": 1,
+  "metadataRetryDelayMs": 1000,
+  "readAllTimeoutMs": 120000,
   "maxTextCharsPerFile": 20000,
   "maxPreviewRowsPerSheet": 10,
   "maxPreviewColumnsPerSheet": 12,
-  "maxBlobBytesPerFile": 5242880
+  "maxBlobBytesPerFile": 5242880,
+  "maintenancePolicy": {
+    "scanIntervalDays": 7,
+    "generatedRetentionDays": 30,
+    "autoTrashPathPrefixes": [
+      "dist/",
+      "tmp/",
+      "soul-kaleidoscope-v1/dist/",
+      "soul-kaleidoscope-v1/tmp/"
+    ],
+    "protectedMimeTypes": [
+      "application/pdf",
+      "application/vnd.google-apps.document",
+      "application/vnd.google-apps.spreadsheet"
+    ],
+    "trashOnly": true
+  }
 }
