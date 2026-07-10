@@ -29,7 +29,7 @@ getStepByStepMilestones().forEach((step, index) => console.log(`${index + 1}. ${
 console.log('7. 每次開工先照 docs/operator-runbook.md 跑 npm run work:start 並確認試算表更新狀態。');
 console.log('8. 照 docs/deployment-verification.md 驗證數字盤、精油單項、組合服務。');
 console.log('9. 確認 PWA 按一次「送到後台」會回傳 reportUrl，含數字盤時也回傳 svgUrl。');
-console.log('10. 每次收工跑 npm run work:shutdown，並保留凌晨 12:00 自動收工用量。');
+console.log('10. 整理流程完成前，每次收工由人工明確執行 npm run work:closeout；清理需另行核准。');
 
 console.log('\n## 何時才升級');
 getUpgradeTriggers().forEach((trigger, index) => console.log(`${index + 1}. ${trigger}`));
