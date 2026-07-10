@@ -4,7 +4,7 @@
 
 這樣做的風險是文件會變成雜記。建議每次只記三件事：錯在哪、下次不要怎麼做、正確做法是什麼。
 
-## 1. Apps Script 更新 Code.gs
+## 1. Apps Script 更新 Code.gs、InterpretationData.gs 與 LunarCalendarData.gs
 
 ### 這次踩坑
 
@@ -34,17 +34,30 @@ npm run readiness
 npm run copy:apps-script
 ```
 
-3. 到 Apps Script 編輯器的 `程式碼.gs` 手動貼上。
-4. 貼完先搜尋本次新增或修改的關鍵函式，例如：
+3. 到 Apps Script 編輯器的 `程式碼.gs` 手動貼上，再複製內容資料檔：
+
+```bash
+npm run copy:apps-script:data
+```
+
+4. 新增或打開 `InterpretationData.gs`，貼上資料；漏掉這一步會發生 `INTERPRETATION_BLOCKS is not defined`。
+5. 複製農曆對照資料檔：
+
+```bash
+npm run copy:apps-script:lunar-data
+```
+
+6. 新增或打開 `LunarCalendarData.gs`，貼上資料；漏掉這一步會讓直呼 Apps Script API 時的國曆轉農曆失敗。
+7. 貼完先搜尋本次新增或修改的關鍵函式，例如：
 
 ```text
 validateDeliveryStatusTransition_
 ```
 
-5. 確認不是空檔、不是只剩幾個字元，再儲存。
-6. 到「部署」->「管理部署作業」-> 編輯目前 Web App 部署，版本選「新增版本」，再按部署。
-7. 不確定是否部署成功時，先跑線上防呆驗證；如果仍允許 `reviewed`，代表 Web App 還是舊版本。
-8. 部署後跑線上防呆驗證：
+8. 確認不是空檔、不是只剩幾個字元，再儲存。
+9. 到「部署」->「管理部署作業」-> 編輯目前 Web App 部署，版本選「新增版本」，再按部署。
+10. 不確定是否部署成功時，先跑線上防呆驗證；如果仍允許 `reviewed`，代表 Web App 還是舊版本。
+11. 部署後跑線上防呆驗證：
 
 ```powershell
 $env:APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTannRhFFYc0ShBLWaO_FART2ndulub0fLlN0eaFBwot-wlMHgXgxd/exec"; npm run verify:delivery-guard
@@ -77,7 +90,7 @@ $env:APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbyBWz4po4qAiJtTann
 
 ### 正確做法
 
-- Apps Script 打包只覆寫已知輸出檔：`Code.gs`、`Admin.html`、`appsscript.json`、`README.md`。
+- Apps Script 打包只覆寫已知輸出檔：`Code.gs`、`InterpretationData.gs`、`LunarCalendarData.gs`、`Admin.html`、`appsscript.json`、`README.md`。
 - 如果 Google Drive 還在同步，等幾秒後重跑：
 
 ```bash
@@ -94,3 +107,22 @@ npm run package:apps-script
 - 正確做法：留下可執行命令或手工步驟。
 
 如果只是單日進度，寫 `.workflow/work-log.md`；如果會影響下次操作，寫這份懶人包。
+
+## 5. Google Drive 雲端檔案讀取
+
+### 這次踩坑
+
+- Google Drive 連線工具匯出的暫時下載網址帶有效期限與簽章，重新拿去用 PowerShell 下載可能出現 `AuthenticationFailed`。
+- 本機 `.gsheet` 只是捷徑，不能證明雲端內容已完整讀取。
+
+### 下次不要做
+
+- 不要把暫時下載網址保存成固定資料來源。
+- 不要只讀本機 `.gsheet` 就判定雲端試算表內容沒有更新。
+
+### 正確做法
+
+- 開工先比對全部雲端檔案修改時間；只讀新增與修改檔案的內容與關鍵分頁，不重讀未變檔案。
+- 大型試算表先讀分頁 metadata，再讀公式主檔、版本主控、出圖規則與安全總控等關鍵範圍，避免浪費額度。
+- 開工腳本的雲端請求必須保留逾時保護；Apps Script 逾時時先完成本機開工，再人工補讀雲端內容，不要讓整個開工流程卡死。
+- `dist` 與 `tmp` 是可重建產物，不納入雲端內容讀取與更新判斷。

@@ -2,7 +2,7 @@
 
 ## A. 本機確認
 
-- [ ] 若 `.workflow/active-session.json` 存在，先執行 `npm run work:shutdown`
+- [ ] 若 `.workflow/active-session.json` 存在，先執行 `npm run work:closeout`
 - [ ] 開工後先執行 `npm run work:start`
 - [ ] 讀 `.workflow/start-report.md`
 - [ ] 若 `.workflow/start-report.md` 顯示試算表更新，用 Google Drive / Google Sheets 讀取重點表格內容
@@ -29,6 +29,7 @@
 - [x] 複製 Web App URL
 - [x] 執行 `npm run verify:deployment:url`
 - [x] 執行 `npm run verify:deployment:setup`
+- [ ] 執行 `npm run verify:delivery-guard`
 - [x] 打開 Web App 後台，按「初始化/檢查資料表」
 - [x] 確認 `個案資料表`、`輸出紀錄`、Drive 輸出資料夾都建立成功
 - [x] PWA 按「檢查後台」，確認後台版本與 `dist/apps-script/README.md` 一致
@@ -97,7 +98,7 @@
 
 ## G. 收工流程
 
-- [ ] 收工前執行 `npm run work:shutdown`
+- [ ] 收工前執行 `npm run work:closeout`
+- [ ] 整理流程完成前，不用 `npm run work:shutdown` 作一般收工
 - [ ] 確認 `.workflow/work-log.md` 有新增紀錄
-- [ ] 若當天有開工，凌晨 12:00 也要執行一次收工流程
-- [ ] 每日用量要保留足夠完成凌晨 12:00 的收工程序
+- [ ] 凌晨自動收工已取消；收工只在人工明確指定時執行

@@ -32,6 +32,8 @@ dist/static-site.zip
 npm run verify:static
 ```
 
+這個檢查不是只看 ZIP 有沒有檔案，還會確認打包後的 `web/index.html`、`manifest`、service worker 與 `web/app.js` 的 module import 路徑能解析，並確認打包後的 `web/deployment-config.js` 是有效 Apps Script Web App URL。
+
 4. 到 Cloudflare Pages 建立專案，選擇直接上傳。
 5. 上傳 `dist/static-site.zip`；如果介面要求資料夾，就改選 `dist/static-site`。
 6. 上線後打開網站，確認：

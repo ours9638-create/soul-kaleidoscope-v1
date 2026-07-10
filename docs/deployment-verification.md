@@ -2,6 +2,28 @@
 
 這份文件只做一件事：確認免費版 v1 真的能交付，不只是本機能算。
 
+## 必測 -1：離線部署包先驗證
+
+在呼叫線上 Apps Script 前，先跑離線部署包檢查：
+
+```powershell
+npm run package:apps-script
+npm run verify:apps-script
+npm run package:static
+npm run package:static:zip
+npm run verify:static
+```
+
+這幾個指令不會呼叫 Apps Script，也不會寫入 Google Sheets 或 Drive。
+
+如果卡在 `verify:apps-script`，代表 `dist/apps-script` 還不能拿去貼到 Apps Script，常見原因是部署包和來源檔不一致、`APP_VERSION` 不一致、`CONTENT_SPREADSHEET_ID` 空掉，或 `appsscript.json` Web App 權限不符合測試流程。
+
+`appsscript.json` 必須包含 Apps Script 實際會用到的 OAuth scopes：Docs、Drive、Sheets 與 Script Properties。少了 Docs scope 時，`setup-workbook` 可能通過，但 `save-and-generate-report` 會在產生 Google Docs 報告時失敗。
+
+如果卡在 `verify:static`，代表 `dist/static-site.zip` 還不能上傳，常見原因是 ZIP 缺檔、PWA 的 `manifest` / service worker / module import 路徑斷掉，或打包後的 `web/deployment-config.js` 沒有有效 Apps Script Web App URL。
+
+你有沒有想過：如果只確認 ZIP 裡「看起來有檔案」，沒有檢查瀏覽器實際會走的 import 路徑，上線後才會變成白畫面或 service worker 安裝失敗。離線先擋掉這些錯，比到 Cloudflare 或 GitHub Pages 才查省時間。
+
 ## 驗證前先確認
 
 1. Apps Script 已部署成 Web App。
@@ -32,6 +54,7 @@
 - `CONFIG.CONTENT_SPREADSHEET_ID` 填錯。
 - Apps Script 還沒授權 Sheets 或 Drive。
 - 目前帳號沒有該試算表的編輯權限。
+- 線上 Web App 還不是剛剛貼上的 `dist/apps-script` 版本。
 
 接著回到 PWA，按「檢查後台」。
 
@@ -89,6 +112,15 @@ delivery guard did not block reviewed status for pending oil recommendation
 
 代表線上 Web App 還在跑舊版本。這時不要改公式，也不要改 Google Sheets；先回 Apps Script 確認是否真的建立並套用了新的部署版本。
 
+如果失敗訊息包含：
+
+```text
+DocumentApp.create
+https://www.googleapis.com/auth/documents
+```
+
+代表線上 Apps Script 還沒有 Docs 授權，或線上專案尚未套用含 `oauthScopes` 的新版 `appsscript.json`。這時先不要跑完整三服務驗證；請更新 Apps Script manifest、部署新版本，並用部署者帳號打開後台完成授權，再重跑 `npm run verify:delivery-guard`。
+
 確認 setup-only 通過後，再做完整驗證：
 
 ```powershell
@@ -96,7 +128,8 @@ $env:APPS_SCRIPT_URL="你的 Web App URL"
 npm run verify:deployment
 ```
 
-這個指令會執行 `setup-workbook`，再送出數字盤單項、精油單項、數字盤 + 精油搭配三筆測試資料。它會真的寫入 Google Sheets 與 Drive，所以只在測試部署時使用，不要拿正式個案資料測。
+這個指令會執行 `setup-workbook`，再送出數字盤單項、精油單項、數字盤 + 精油搭配三筆測試資料。數字盤單項會刻意不送 `lunarDate`，用來確認直呼 Apps Script API 時仍會套用國曆轉農曆規則。它會真的寫入 Google Sheets 與 Drive，所以只在測試部署時使用，不要拿正式個案資料測。
+
 
 測試資料的 `displayName` 會自動加上 `DEPLOY-VERIFY-...` 批次標記。驗證完成後，你可以在 `個案資料表`、`輸出紀錄` 與 Drive 輸出資料夾用這個前綴找到測試資料。
 
