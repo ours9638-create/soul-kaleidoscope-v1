@@ -33,6 +33,13 @@ npm run work:closeout
 - 不主動讀整份線上表格。
 - 直接依目前任務繼續。
 
+如果「雲端 Drive 檔案檢查」顯示 `狀態：stale`：
+
+- 代表 Apps Script metadata 掃描已重試，但本次仍讀不到雲端最新狀態。
+- 報告會沿用上次成功快照，避免把既有雲端檔案誤判成刪除。
+- 不要把 `stale` 解讀成「雲端沒有更新」。
+- 先用 Google Drive / Google Sheets 連線工具人工補讀本日相關檔案，再決定是否改程式或部署。
+
 如果顯示試算表有更新：
 
 - 先依 `config/google-sheets-registry.json` 讀 metadata。
@@ -63,23 +70,29 @@ npm run readiness
 - `npm run check`
 - `npm run predeploy`
 - `npm run package:apps-script`
+- `npm run verify:apps-script`
 - `npm run package:static`
+- `npm run package:static:zip`
+- `npm run verify:static`
 
 這樣做的風險是一次跑完會比單跑某個指令久。建議部署前用這個總門檻；只改文件或只查資料時，可以單跑對應檢查，避免浪費用量。
 
 ## 5. 免費部署順序
 
 1. 先跑 `npm run package:apps-script`。
-2. 用 `dist/apps-script` 內的檔案部署 Apps Script。
-3. 再部署 `dist/static-site` 到 GitHub Pages，或把 `dist/static-site.zip` 上傳到 Cloudflare Pages，細節照 `docs/static-hosting.md`。
-4. 若手動上傳 Cloudflare Pages，先跑 `npm run verify:static` 確認 ZIP 內有 PWA、核心模組與後台 URL。
-5. 在 PWA 確認 Apps Script Web App URL 已由 `web/deployment-config.js` 帶入；若要改用新部署網址，再手動貼上並按「儲存 URL」。
-6. 先按「檢查後台」，確認資料表與 Drive 權限正常。
-7. 照 `docs/deployment-verification.md` 測三種服務：
+2. 跑 `npm run verify:apps-script`。這步失敗就不要貼 Apps Script，先修部署包。
+3. 用 `dist/apps-script` 內的檔案部署 Apps Script。
+4. 再部署 `dist/static-site` 到 GitHub Pages，或把 `dist/static-site.zip` 上傳到 Cloudflare Pages，細節照 `docs/static-hosting.md`。
+5. 若手動上傳 Cloudflare Pages，先跑 `npm run verify:static` 確認 ZIP 內有 PWA、核心模組、manifest、service worker、module import 與後台 URL。
+6. 在 PWA 確認 Apps Script Web App URL 已由 `web/deployment-config.js` 帶入；若要改用新部署網址，再手動貼上並按「儲存 URL」。
+7. 先按「檢查後台」，確認資料表與 Drive 權限正常。
+8. 照 `docs/deployment-verification.md` 測三種服務：
    - 靈魂萬花筒數字盤
    - 精油產品/配方
    - 數字盤 + 精油搭配
-7. 若已拿到 Web App URL，先設定 `APPS_SCRIPT_URL` 跑 `npm run verify:deployment:url`，只檢查 URL 格式、不呼叫 Apps Script。接著跑 `npm run verify:deployment:setup`，只驗證 setup，不寫測試個案。通過後再跑 `npm run verify:deployment` 做完整三種服務驗證。完整驗證資料會帶 `DEPLOY-VERIFY-...` 前綴，驗證後要和正式個案分開看；第一次成功驗證建議保留最後一組成功批次當證據，不要自動刪。
+9. 若已拿到 Web App URL，先設定 `APPS_SCRIPT_URL` 跑 `npm run verify:deployment:url`，只檢查 URL 格式、不呼叫 Apps Script。接著跑 `npm run verify:deployment:setup`，只驗證 setup，不寫測試個案。通過後再跑 `npm run verify:delivery-guard`，確認精油待確認時不能進 reviewed。最後再跑 `npm run verify:deployment` 做完整三種服務驗證。完整驗證資料會帶 `DEPLOY-VERIFY-...` 前綴，驗證後要和正式個案分開看；第一次成功驗證建議保留最後一組成功批次當證據，不要自動刪。
+
+如果 `verify:delivery-guard` 在 `save-and-generate-report` 回 HTML 錯誤頁，且提到 `DocumentApp.create` 或 `auth/documents`，不是公式問題。先重新貼上 `dist/apps-script/appsscript.json`，建立 Apps Script 新部署版本並完成授權，再重跑 delivery guard。
 
 這樣做的風險是測試期 `Anyone with link` 權限較寬。建議只在後台操作與測試期使用；正式公開前，再決定是否收緊權限或搬到 Firebase/Supabase。
 

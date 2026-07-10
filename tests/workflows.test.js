@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const packageJson = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const startScript = fs.existsSync(new URL('../scripts/work-start.js', import.meta.url))
@@ -41,6 +45,12 @@ test('start workflow scans project files and compares a saved snapshot', () => {
   assert.match(startScript, /STARTUP_SYNC_TOKEN/);
   assert.match(startScript, /folderId/);
   assert.match(startScript, /readAllCloudFilesIfNeeded/);
+  assert.match(startScript, /fileIds/);
+  assert.match(startScript, /\(dist\|tmp\|outputs\)/);
+  assert.match(startScript, /method = 'POST'/);
+  assert.match(startScript, /buildCloudPayload/);
+  assert.match(startScript, /AbortSignal\.timeout/);
+  assert.match(startScript, /cloud \$\{mode\} scan timed out/);
   assert.match(startScript, /sha256/);
   assert.match(startScript, /changedFiles/);
   assert.match(startScript, /recommendations/);
@@ -67,6 +77,157 @@ test('start workflow blocks when previous work session was not shut down', () =>
   assert.match(startScript, /npm run work:closeout/);
   assert.doesNotMatch(startScript, /請先執行 npm run work:shutdown/);
   assert.match(startScript, /process\.exit\(1\)/);
+});
+
+test('failed cloud scan does not report every previously known file as removed', () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'soul-work-start-'));
+  const workflowDir = path.join(tempRoot, '.workflow');
+  const configDir = path.join(tempRoot, 'config');
+  const webDir = path.join(tempRoot, 'web');
+  fs.mkdirSync(workflowDir, { recursive: true });
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.mkdirSync(webDir, { recursive: true });
+  fs.writeFileSync(path.join(workflowDir, 'startup-sync-token.txt'), 'test-token\n');
+  fs.writeFileSync(path.join(workflowDir, 'cloud-drive-snapshot.json'), JSON.stringify({
+    status: 'ok',
+    generatedAt: '2026-06-18T00:00:00.000Z',
+    files: [{ id: 'old-file', path: 'important.md', updatedAt: '2026-06-18T00:00:00Z', size: 10, mimeType: 'text/plain' }]
+  }));
+  fs.writeFileSync(path.join(configDir, 'google-drive-cloud-sync.json'), JSON.stringify({
+    folderName: 'test-folder',
+    appsScriptUrlSource: 'web/deployment-config.js'
+  }));
+  fs.writeFileSync(path.join(configDir, 'google-sheets-registry.json'), JSON.stringify({ readPolicy: [], sheets: [] }));
+  fs.writeFileSync(path.join(webDir, 'deployment-config.js'), "export const deploymentConfig = { appsScriptApiUrl: 'https://example.test/exec' };\n");
+  const preloadPath = path.join(tempRoot, 'reject-fetch.mjs');
+  fs.writeFileSync(preloadPath, "globalThis.fetch = async () => { throw new Error('fetch failed'); };\n");
+
+  try {
+    const result = spawnSync(process.execPath, [
+      '--import',
+      pathToFileURL(preloadPath).href,
+      fileURLToPath(new URL('../scripts/work-start.js', import.meta.url))
+    ], {
+      cwd: tempRoot,
+      encoding: 'utf8'
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /狀態：stale/);
+    assert.match(result.stdout, /使用上次成功雲端快照/);
+    assert.match(result.stdout, /刪除：0/);
+    assert.doesNotMatch(result.stdout, /刪除：important\.md/);
+    const savedCloudSnapshot = JSON.parse(fs.readFileSync(path.join(workflowDir, 'cloud-drive-snapshot.json'), 'utf8'));
+    assert.equal(savedCloudSnapshot.generatedAt, '2026-06-18T00:00:00.000Z');
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test('metadata cloud scan retries once before falling back', () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'soul-work-retry-'));
+  const workflowDir = path.join(tempRoot, '.workflow');
+  const configDir = path.join(tempRoot, 'config');
+  const webDir = path.join(tempRoot, 'web');
+  fs.mkdirSync(workflowDir, { recursive: true });
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.mkdirSync(webDir, { recursive: true });
+  fs.writeFileSync(path.join(workflowDir, 'startup-sync-token.txt'), 'test-token\n');
+  fs.writeFileSync(path.join(configDir, 'google-drive-cloud-sync.json'), JSON.stringify({
+    folderName: 'test-folder',
+    appsScriptUrlSource: 'web/deployment-config.js',
+    metadataRetryAttempts: 1,
+    metadataRetryDelayMs: 1
+  }));
+  fs.writeFileSync(path.join(configDir, 'google-sheets-registry.json'), JSON.stringify({ readPolicy: [], sheets: [] }));
+  fs.writeFileSync(path.join(webDir, 'deployment-config.js'), "export const deploymentConfig = { appsScriptApiUrl: 'https://example.test/exec' };\n");
+  const preloadPath = path.join(tempRoot, 'retry-fetch.mjs');
+  fs.writeFileSync(preloadPath, `let calls = 0;
+globalThis.fetch = async () => {
+  calls += 1;
+  if (calls === 1) throw new Error('temporary cloud failure');
+  return new Response(JSON.stringify({
+    ok: true,
+    folderName: 'test-folder',
+    folderId: 'folder-id',
+    folderUrl: 'https://example.test/folder',
+    folderCandidateCount: 1,
+    fileCount: 1,
+    files: [{ id: 'new-file', path: 'important.md', updatedAt: '2026-06-18T00:00:00Z', size: 10, mimeType: 'text/plain' }]
+  }), { status: 200 });
+};
+`);
+
+  try {
+    const result = spawnSync(process.execPath, [
+      '--import',
+      pathToFileURL(preloadPath).href,
+      fileURLToPath(new URL('../scripts/work-start.js', import.meta.url))
+    ], {
+      cwd: tempRoot,
+      encoding: 'utf8'
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /狀態：ok/);
+    assert.match(result.stdout, /雲端檔案數：1/);
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test('failed cloud content read keeps the intended target count', () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'soul-work-read-'));
+  const workflowDir = path.join(tempRoot, '.workflow');
+  const configDir = path.join(tempRoot, 'config');
+  const webDir = path.join(tempRoot, 'web');
+  fs.mkdirSync(workflowDir, { recursive: true });
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.mkdirSync(webDir, { recursive: true });
+  fs.writeFileSync(path.join(workflowDir, 'startup-sync-token.txt'), 'test-token\n');
+  fs.writeFileSync(path.join(workflowDir, 'cloud-drive-snapshot.json'), JSON.stringify({
+    status: 'ok',
+    files: [{ id: 'changed-file', path: 'important.md', updatedAt: '2026-06-17T00:00:00Z', size: 10, mimeType: 'text/plain' }]
+  }));
+  fs.writeFileSync(path.join(configDir, 'google-drive-cloud-sync.json'), JSON.stringify({
+    folderName: 'test-folder',
+    appsScriptUrlSource: 'web/deployment-config.js'
+  }));
+  fs.writeFileSync(path.join(configDir, 'google-sheets-registry.json'), JSON.stringify({ readPolicy: [], sheets: [] }));
+  fs.writeFileSync(path.join(webDir, 'deployment-config.js'), "export const deploymentConfig = { appsScriptApiUrl: 'https://example.test/exec' };\n");
+  const preloadPath = path.join(tempRoot, 'content-read-fails.mjs');
+  fs.writeFileSync(preloadPath, `globalThis.fetch = async (url, options = {}) => {
+    const mode = new URL(url).searchParams.get('mode');
+    if (mode === 'readAll') {
+      if (options.method !== 'POST') throw new Error('readAll did not use POST');
+      const body = JSON.parse(options.body || '{}');
+      if (!Array.isArray(body.fileIds) || body.fileIds[0] !== 'changed-file') throw new Error('readAll did not send fileIds in body');
+      throw new Error('content read failed');
+    }
+    return new Response(JSON.stringify({
+      ok: true,
+      folderName: 'test-folder',
+      folderId: 'folder-id',
+      folderUrl: 'https://example.test/folder',
+      folderCandidateCount: 1,
+      fileCount: 1,
+      files: [{ id: 'changed-file', path: 'important.md', updatedAt: '2026-06-18T00:00:00Z', size: 10, mimeType: 'text/plain' }]
+    }), { status: 200 });
+  };\n`);
+
+  try {
+    const result = spawnSync(process.execPath, [
+      '--import',
+      pathToFileURL(preloadPath).href,
+      fileURLToPath(new URL('../scripts/work-start.js', import.meta.url))
+    ], {
+      cwd: tempRoot,
+      encoding: 'utf8'
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /網路讀取狀態：failed/);
+    assert.match(result.stdout, /目標檔案：1/);
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test('shutdown workflow records daily status and keeps shutdown manual', () => {
@@ -102,6 +263,7 @@ test('shutdown workflow records daily status and keeps shutdown manual', () => {
   assert.match(shutdownScript, /本次可同步檔案清單/);
   assert.match(shutdownScript, /commit message/);
   assert.match(shutdownScript, /git add \./);
+  assert.match(shutdownScript, /finally/);
 });
 
 test('workflow documentation explains manual start and shutdown process', () => {
@@ -126,6 +288,10 @@ test('workflow documentation explains manual start and shutdown process', () => 
   assert.match(workflowDoc, /Google Drive/);
   assert.match(workflowDoc, /雲端 Drive/);
   assert.match(workflowDoc, /STARTUP_SYNC_TOKEN/);
+  assert.match(workflowDoc, /metadataRetryAttempts/);
+  assert.match(workflowDoc, /metadata 預設 120 秒/);
+  assert.match(workflowDoc, /metadata 模式只取差異比對必要欄位/);
+  assert.match(workflowDoc, /stale/);
   assert.match(workflowDoc, /cloud-drive-read-report/);
   assert.match(workflowDoc, /docs\/lazy-pack\.md/);
   assert.match(workflowDoc, /GitHub \/ 第二大腦同步規則/);

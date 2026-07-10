@@ -33,7 +33,13 @@ function safeHashFile(filePath) {
 }
 
 function scanWorkspaceFiles(dir = ROOT, files = []) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return files;
+  }
+  for (const entry of entries) {
     if (entry.isDirectory() && IGNORED_DIRS.has(entry.name)) continue;
     const absolutePath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -42,19 +48,30 @@ function scanWorkspaceFiles(dir = ROOT, files = []) {
     }
     if (!entry.isFile()) continue;
     const relativePath = toPosix(path.relative(ROOT, absolutePath));
-    const stat = fs.statSync(absolutePath);
+    let stat;
+    try {
+      stat = fs.statSync(absolutePath);
+    } catch {
+      continue;
+    }
     files.push({
       path: relativePath,
       size: stat.size,
       mtimeMs: Math.round(stat.mtimeMs),
-      sha256: hashFile(absolutePath)
+      sha256: safeHashFile(absolutePath)
     });
   }
   return files.sort((a, b) => a.path.localeCompare(b.path));
 }
 
 function scanSpreadsheetFiles(dir = SPREADSHEET_SCAN_DIR, files = []) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return files;
+  }
+  for (const entry of entries) {
     if (entry.isDirectory() && IGNORED_DIRS.has(entry.name)) continue;
     const absolutePath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -64,7 +81,12 @@ function scanSpreadsheetFiles(dir = SPREADSHEET_SCAN_DIR, files = []) {
     if (!entry.isFile()) continue;
     const extension = path.extname(entry.name).toLowerCase();
     if (!SPREADSHEET_EXTENSIONS.has(extension)) continue;
-    const stat = fs.statSync(absolutePath);
+    let stat;
+    try {
+      stat = fs.statSync(absolutePath);
+    } catch {
+      continue;
+    }
     if (!stat.isFile()) continue;
     files.push({
       path: toPosix(path.relative(SPREADSHEET_SCAN_DIR, absolutePath)),
@@ -195,11 +217,65 @@ function buildCloudUrl(apiUrl, config, mode, token) {
   for (const key of ['maxTextCharsPerFile', 'maxPreviewRowsPerSheet', 'maxPreviewColumnsPerSheet', 'maxBlobBytesPerFile']) {
     if (config[key] != null) url.searchParams.set(key, String(config[key]));
   }
+  if (config.fileIds?.length) url.searchParams.set('fileIds', config.fileIds.join(','));
   return url;
 }
 
-async function fetchCloudDrive(apiUrl, config, mode, token) {
-  const response = await fetch(buildCloudUrl(apiUrl, config, mode, token));
+function buildCloudPayload(config, mode, token) {
+  const payload = {
+    action: 'startup-cloud-scan',
+    mode,
+    token,
+    folderName: config.folderName || '靈魂萬花筒'
+  };
+  if (config.folderId) payload.folderId = config.folderId;
+  for (const key of ['maxTextCharsPerFile', 'maxPreviewRowsPerSheet', 'maxPreviewColumnsPerSheet', 'maxBlobBytesPerFile']) {
+    if (config[key] != null) payload[key] = config[key];
+  }
+  if (config.fileIds?.length) payload.fileIds = config.fileIds;
+  return payload;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getCloudRetryOptions(config, mode) {
+  const retryAttempts = mode === 'readAll'
+    ? Number(config.readAllRetryAttempts || 0)
+    : Number(config.metadataRetryAttempts || 0);
+  const retryDelayMs = mode === 'readAll'
+    ? Number(config.readAllRetryDelayMs || 1000)
+    : Number(config.metadataRetryDelayMs || 1000);
+  return {
+    retryAttempts: Math.max(0, retryAttempts),
+    retryDelayMs: Math.max(0, retryDelayMs)
+  };
+}
+
+async function fetchCloudDriveOnce(apiUrl, config, mode, token) {
+  const timeoutMs = mode === 'readAll'
+    ? Number(config.readAllTimeoutMs || 45000)
+    : Number(config.metadataTimeoutMs || 15000);
+  const url = buildCloudUrl(apiUrl, config, mode, token);
+  const options = {
+    signal: AbortSignal.timeout(timeoutMs)
+  };
+  if (mode === 'readAll' && config.fileIds?.length) {
+    url.searchParams.delete('fileIds');
+    options.method = 'POST';
+    options.headers = { 'content-type': 'application/json' };
+    options.body = JSON.stringify(buildCloudPayload(config, mode, token));
+  }
+  let response;
+  try {
+    response = await fetch(url, options);
+  } catch (error) {
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+      throw new Error(`cloud ${mode} scan timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  }
   const text = await response.text();
   let data;
   try {
@@ -213,7 +289,38 @@ async function fetchCloudDrive(apiUrl, config, mode, token) {
   return data;
 }
 
-async function buildCloudDriveState(generatedAt, config) {
+async function fetchCloudDrive(apiUrl, config, mode, token) {
+  const retry = getCloudRetryOptions(config, mode);
+  let lastError;
+  for (let attempt = 0; attempt <= retry.retryAttempts; attempt += 1) {
+    try {
+      return await fetchCloudDriveOnce(apiUrl, config, mode, token);
+    } catch (error) {
+      lastError = error;
+      if (attempt >= retry.retryAttempts) break;
+      await sleep(retry.retryDelayMs);
+    }
+  }
+  throw lastError;
+}
+
+function buildStaleCloudDriveState(generatedAt, config, previousSnapshot, error) {
+  if (!previousSnapshot || previousSnapshot.status !== 'ok' || !Array.isArray(previousSnapshot.files)) {
+    return null;
+  }
+  return {
+    ...previousSnapshot,
+    status: 'stale',
+    reason: `${error.message}; 使用上次成功雲端快照`,
+    staleReason: error.message,
+    staleGeneratedAt: previousSnapshot.generatedAt,
+    generatedAt,
+    folderName: previousSnapshot.folderName || config.folderName || '靈魂萬花筒',
+    files: previousSnapshot.files
+  };
+}
+
+async function buildCloudDriveState(generatedAt, config, previousSnapshot) {
   const apiUrl = resolveAppsScriptUrl(config);
   const token = loadStartupSyncToken();
   if (!apiUrl) {
@@ -249,6 +356,8 @@ async function buildCloudDriveState(generatedAt, config) {
       files: metadata.files
     };
   } catch (error) {
+    const stale = buildStaleCloudDriveState(generatedAt, config, previousSnapshot, error);
+    if (stale) return stale;
     return {
       status: 'failed',
       reason: error.message,
@@ -264,14 +373,20 @@ async function readAllCloudFilesIfNeeded(cloudDriveSnapshot, cloudDriveDiff, con
   if (!hasChanges || cloudDriveSnapshot.status !== 'ok') return null;
   const apiUrl = resolveAppsScriptUrl(config);
   const token = loadStartupSyncToken();
+  const changedPaths = new Set([...cloudDriveDiff.addedFiles, ...cloudDriveDiff.changedFiles]);
+  const fileIds = cloudDriveSnapshot.files
+    .filter((file) => changedPaths.has(file.path))
+    .filter((file) => !/(^|\/)(dist|tmp|outputs)(\/|$)/.test(file.path))
+    .map((file) => file.id);
   let safeReport;
   try {
-    const readReport = await fetchCloudDrive(apiUrl, config, 'readAll', token);
+    const readReport = await fetchCloudDrive(apiUrl, { ...config, fileIds }, 'readAll', token);
     safeReport = {
       status: 'ok',
       generatedAt: readReport.generatedAt,
       folderName: readReport.folderName,
       fileCount: readReport.fileCount,
+      readTargetCount: readReport.readTargetCount,
       readSummary: readReport.readSummary,
       reads: readReport.reads
     };
@@ -281,6 +396,7 @@ async function readAllCloudFilesIfNeeded(cloudDriveSnapshot, cloudDriveDiff, con
       generatedAt: new Date().toISOString(),
       folderName: config.folderName || '靈魂萬花筒',
       error: error.message,
+      readTargetCount: fileIds.length,
       readSummary: { read: 0, skipped: 0, failed: 1 },
       reads: []
     };
@@ -298,6 +414,9 @@ function renderCloudDriveSection(cloudDriveConfig, cloudDriveSnapshot, cloudDriv
     `- 狀態：${cloudDriveSnapshot.status}`
   ];
   if (cloudDriveSnapshot.reason) lines.push(`- 狀態說明：${cloudDriveSnapshot.reason}`);
+  if (cloudDriveSnapshot.status === 'stale' && cloudDriveSnapshot.staleGeneratedAt) {
+    lines.push(`- 上次成功快照：${cloudDriveSnapshot.staleGeneratedAt}`);
+  }
   lines.push(
     `- 雲端檔案數：${cloudDriveSnapshot.files.length}`,
     `- 新增：${cloudDriveDiff.addedFiles.length}`,
@@ -316,8 +435,9 @@ function renderCloudDriveSection(cloudDriveConfig, cloudDriveSnapshot, cloudDriv
   lines.push('', '## 雲端更新後網路讀取');
   if (cloudReadReport) {
     lines.push(
-      `- 已透過 Apps Script 網路讀取雲端資料夾檔案摘要：${CLOUD_DRIVE_READ_REPORT_FILE}`,
+      `- 已透過 Apps Script 網路讀取新增與修改檔案摘要：${CLOUD_DRIVE_READ_REPORT_FILE}`,
       `- 網路讀取狀態：${cloudReadReport.status}`,
+      `- 目標檔案：${cloudReadReport.readTargetCount ?? 0}`,
       `- 讀取成功：${cloudReadReport.readSummary?.read ?? 0}`,
       `- 跳過：${cloudReadReport.readSummary?.skipped ?? 0}`,
       `- 失敗：${cloudReadReport.readSummary?.failed ?? 0}`
@@ -325,6 +445,8 @@ function renderCloudDriveSection(cloudDriveConfig, cloudDriveSnapshot, cloudDriv
     if (cloudReadReport.error) lines.push(`- 錯誤：${cloudReadReport.error}`);
   } else if (cloudDriveSnapshot.status === 'ok' && !(cloudDriveDiff.addedFiles.length || cloudDriveDiff.changedFiles.length || cloudDriveDiff.removedFiles.length)) {
     lines.push('- 沒有雲端更新，未觸發完整網路讀取。');
+  } else if (cloudDriveSnapshot.status === 'stale') {
+    lines.push('- 未執行；metadata 掃描未完成，本次只使用上次成功快照避免誤判刪除，仍需人工補讀雲端變更。');
   } else {
     lines.push('- 未執行；請先完成 Apps Script token 設定或排除雲端掃描錯誤。');
   }
@@ -405,10 +527,12 @@ async function main() {
     sourceDir: SPREADSHEET_SCAN_DIR,
     files: scanSpreadsheetFiles()
   };
-  const cloudDriveSnapshot = await buildCloudDriveState(current.generatedAt, cloudDriveConfig);
+  const cloudDriveSnapshot = await buildCloudDriveState(current.generatedAt, cloudDriveConfig, previousCloudDriveSnapshot);
   const diff = compareSnapshots(previous, current);
   const spreadsheetDiff = compareSnapshots(previousSpreadsheetSnapshot, spreadsheetSnapshot);
-  const cloudDriveDiff = compareCloudSnapshots(previousCloudDriveSnapshot, cloudDriveSnapshot);
+  const cloudDriveDiff = cloudDriveSnapshot.status === 'ok'
+    ? compareCloudSnapshots(previousCloudDriveSnapshot, cloudDriveSnapshot)
+    : { addedFiles: [], removedFiles: [], changedFiles: [] };
   const cloudReadReport = await readAllCloudFilesIfNeeded(cloudDriveSnapshot, cloudDriveDiff, cloudDriveConfig);
   const advice = recommendations(diff);
   if (spreadsheetDiff.addedFiles.length || spreadsheetDiff.changedFiles.length || spreadsheetDiff.removedFiles.length) {
@@ -417,7 +541,9 @@ async function main() {
   if (cloudDriveDiff.addedFiles.length || cloudDriveDiff.changedFiles.length || cloudDriveDiff.removedFiles.length) {
     advice.unshift('雲端 Drive 檔案有更新：已優先使用網路讀取狀態，請依雲端讀取報告判斷是否要修正流程。');
   }
-  if (cloudDriveSnapshot.status !== 'ok') {
+  if (cloudDriveSnapshot.status === 'stale') {
+    advice.unshift(`雲端 Drive 掃描使用上次成功快照：${cloudDriveSnapshot.staleReason}；不要視為最新雲端狀態。`);
+  } else if (cloudDriveSnapshot.status !== 'ok') {
     advice.unshift(`雲端 Drive 掃描未完成：${cloudDriveSnapshot.reason}`);
   }
   const report = renderReport(

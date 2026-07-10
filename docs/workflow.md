@@ -24,7 +24,11 @@ npm run work:start
 - 根據更新檔案給出修改或建議。
 - 讀取 `config/google-sheets-registry.json`，列出需要用 Google Drive / Google Sheets 追蹤的線上試算表與重點分頁。
 
-這樣做的風險是：如果每次更新都完整讀取雲端內容，Apps Script 與 Google Drive 額度會被消耗很快。建議改成 metadata-first：每次先查雲端更新日期；只有雲端檔案有變動時，才讀取雲端資料夾內所有可讀檔案的摘要與雜湊。
+這樣做的風險是：如果任一檔案更新就重讀整個雲端資料夾，Apps Script 會逾時，Google Drive 免費額度也會被快速消耗。正式策略採 metadata-first：每次線上掃描全部檔案修改時間；只有新增與修改的檔案才讀內容摘要，並排除 `dist`、`tmp` 等可重新產生的檔案。
+
+雲端請求設有逾時保護：metadata 預設 120 秒、完整讀取預設 120 秒。metadata 第一次失敗會依 `metadataRetryAttempts` 重試；若重試後仍失敗，且本機已有上次成功的 `.workflow/cloud-drive-snapshot.json`，開工流程會標成 `stale` 並沿用上次成功快照，避免把所有雲端檔案誤判成刪除。metadata 模式只取差異比對必要欄位，不逐檔取 URL；只有 `readAll` 讀內容摘要時才回傳可點連結，減少 Apps Script metadata 掃描時間。目前雲端資料夾檔案量已超過 300 個，實測全量 metadata 掃描可能接近或超過 60 秒；因此雲端掃描會排除 `dist`、`tmp`、`outputs` 這類本機可重建或可由本機掃描的產物，並保留 120 秒緩衝避免每日開工因網路波動直接降級成 `stale`。若新增或修改檔案很多，`readAll` 會用 POST body 傳遞 `fileIds`，避免大量 ID 塞在 URL query 裡造成 Apps Script 回 HTTP 400。
+
+這樣做的風險是：`stale` 只代表「本次雲端讀不到，但有舊快照可降級」，不代表雲端沒有更新。建議看到 `狀態：stale` 時，先完成本機開工，再用 Google Drive / Google Sheets 連線工具人工補讀本日雲端變更；不要把上次快照當成最新狀態，也不要回寫成新的成功快照。
 
 雲端讀取需要一組本機 token：
 
@@ -42,11 +46,13 @@ npm run work:start
 2. 跑 `npm run work:start`。
 3. 讀 `.workflow/start-report.md`。
 4. 若「雲端 Drive 檔案檢查」有更新，先讀 `.workflow/cloud-drive-read-report.json`。
-5. 若試算表有更新，照 `config/google-sheets-registry.json` 與 `docs/google-sheets-live-check.md` 用 Google Drive / Google Sheets 讀取重點表格內容。
-6. 若有程式更新或今天要部署，跑 `npm run readiness`。
-7. 若已拿到 Apps Script Web App URL，依序跑 `npm run verify:deployment:url`、`npm run verify:deployment:setup`、`npm run verify:deployment`。
-8. 部署時只使用 `dist/apps-script` 與 `dist/static-site`，不要直接貼原始資料夾。
-9. 再開始修改或給建議，不要直接沿用昨天的判斷。
+5. 若「雲端 Drive 檔案檢查」顯示 `stale`，代表 Apps Script metadata 掃描重試後仍失敗；先用報告中的本機與試算表更新繼續，但雲端 Drive 變更要人工補讀。
+6. 若試算表有更新，照 `config/google-sheets-registry.json` 與 `docs/google-sheets-live-check.md` 用 Google Drive / Google Sheets 讀取重點表格內容。
+7. 若有程式更新或今天要部署，跑 `npm run readiness`。
+8. 若已拿到 Apps Script Web App URL，依序跑 `npm run verify:deployment:url`、`npm run verify:deployment:setup`、`npm run verify:deployment`。
+9. 部署時只使用 `dist/apps-script` 與 `dist/static-site`，不要直接貼原始資料夾。
+10. 再開始修改或給建議，不要直接沿用昨天的判斷。
+
 
 ## 收工流程
 
@@ -93,6 +99,14 @@ npm run work:shutdown
 | 可同步 | 程式碼、測試、正式文件、流程規則、可公開設定樣板 | 可列入 commit 候選，但仍需確認是本次任務相關檔案 |
 | 需人工確認 | 治理文件、候選清單、輸出規格、Google Sheet registry | 先確認是否要同步摘要或正式副本，不能整批推送 |
 | 禁止同步 | 個案、PDF 證據、密鑰、`.workflow/startup-sync-token.txt`、Google Docs / Sheets 捷徑、未核准 Legacy 資料 | 不得推上 GitHub，不得用 `git add .` 整包提交 |
+
+收工時應確認：
+
+1. 本次修改是否在 `soul-kaleidoscope-v1` repo 內。
+2. 若修改在根目錄治理文件，是否需要同步摘要或正式副本到 repo 文件區。
+3. `git status --short --branch` 是否仍有未提交變更。
+4. commit 前是否排除個案、密鑰、`.workflow/startup-sync-token.txt`、Google 文件捷徑與不應公開資料。
+5. 只有人工確認可同步檔案後，才可 commit / push 到 GitHub。
 
 若需要同步到 GitHub：
 
