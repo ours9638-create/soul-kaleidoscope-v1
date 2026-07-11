@@ -1,4 +1,4 @@
-const CACHE_NAME = "soul-kaleidoscope-v2.2.0-r2";
+const CACHE_NAME = "soul-kaleidoscope-v2.2.0-r3";
 const ASSETS = [
   "./",
   "./index.html",
