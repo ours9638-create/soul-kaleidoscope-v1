@@ -34,7 +34,7 @@ if (!indexHtml.includes("layout-fix.css")) {
 }
 
 const separateStatusCards = /<div><span>國曆生日狀態<\/span><strong id="summarySolarStatus">—<\/strong><\/div>\s*<div><span>農曆生日狀態<\/span><strong id="summaryLunarStatus">—<\/strong><\/div>/;
-const combinedStatusCard = '<div><span>國曆／農曆生日狀態</span><strong id="summaryBirthdayStatus" class="birthday-status-lines">國曆：—\n農曆：—</strong></div>';
+const combinedStatusCard = '<div><span>國曆／農曆生日狀態</span><strong id="summaryBirthdayStatus" class="birthday-status-lines">國曆：—&#10;農曆：—</strong></div>';
 indexHtml = indexHtml.replace(separateStatusCards, combinedStatusCard);
 indexHtml = indexHtml.replace(/<span class="version-pill">v[^<]+<\/span>/, `<span class="version-pill">v${APP_VERSION}</span>`);
 writeFileSync(indexPath, indexHtml, "utf8");
@@ -64,5 +64,5 @@ swText = swText.replace(/const CACHE_NAME = "soul-kaleidoscope-v[^"]+";/, `const
 writeFileSync(swPath, swText, "utf8");
 
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
-console.log(`Merged Gregorian and lunar birthday status into one summary card.`);
+console.log("Merged Gregorian and lunar birthday status into one summary card.");
 console.log(`Prepared Soul Kaleidoscope calculator v${APP_VERSION}.`);
