@@ -19,7 +19,7 @@
   const ids = [
     "calcForm","name","solarBirth","birthTime","queryDate","lunarYear","lunarMonth","lunarDay","lunarLeap",
     "lunarAdjustNote","autoLunarBtn","resetBtn","lookupNotice","queryLunarText","summaryName","summaryQueryDate",
-    "summaryQueryLunar","summaryBirthdayStatus","summaryLunarBirthdayDate","summaryLunarAdjustment",
+    "summaryQueryLunar","summaryBirthdayStatus","summarySolarBirthdayDate","summaryLunarBirthdayDate","summaryLunarAdjustment",
     "summaryTimeRule","solarBirthdayCell","lunarBirthdayCell","solarFlowYear","solarPosition","solarFlowMonth","solarFlowDay",
     "lunarFlowYear","lunarPosition","lunarFlowMonth","lunarFlowDay","solarDetailTable","lunarDetailTable","solarHorseTable",
     "lunarHorseTable","copyQuickBtn","copyFullBtn","systemStatus","systemStatusDetail","toast"
@@ -129,15 +129,19 @@
     table.innerHTML = `<thead><tr>${labels.map((label) => `<th>${label}</th>`).join("")}</tr></thead><tbody><tr>${values.map((item) => `<td>${item}</td>`).join("")}</tr></tbody>`;
   }
 
+  function annualLunarBirthdayText(input, result) {
+    if (!result.lunarFlow.birthdayGregorianDate) return "需人工確認";
+    return `農曆：${result.lunarFlow.birthdayLunarYear}/${C.pad2(input.lunarBirth.calculationMonth)}/${C.pad2(input.lunarBirth.day)}\n國曆對應：${C.formatDateSlash(result.lunarFlow.birthdayGregorianDate)}`;
+  }
+
   function render(input, result) {
     const lunarBirthText = `${input.lunarBirth.year}/${C.pad2(input.lunarBirth.month)}/${C.pad2(input.lunarBirth.day)}${input.lunarBirth.leap ? "（閏月）" : ""}`;
     el.summaryName.textContent = input.name;
     el.summaryQueryDate.textContent = C.formatDateSlash(input.queryDate);
     el.summaryQueryLunar.textContent = C.formatLunarDate(result.queryLunar);
     el.summaryBirthdayStatus.textContent = `國曆：${result.solarFlow.status}\n農曆：${result.lunarFlow.status}`;
-    el.summaryLunarBirthdayDate.textContent = result.lunarFlow.birthdayGregorianDate
-      ? `農曆 ${result.lunarFlow.birthdayLunarYear}/${C.pad2(input.lunarBirth.calculationMonth)}/${C.pad2(input.lunarBirth.day)} → ${C.formatDateSlash(result.lunarFlow.birthdayGregorianDate)}`
-      : "需人工確認";
+    el.summarySolarBirthdayDate.textContent = C.formatDateSlash(result.solarFlow.birthdayGregorianDate);
+    el.summaryLunarBirthdayDate.textContent = annualLunarBirthdayText(input, result);
     el.summaryLunarAdjustment.textContent = input.lunarBirth.leap ? `閏${C.pad2(input.lunarBirth.month)}月 → 計算${C.pad2(input.lunarBirth.calculationMonth)}月` : "未遇閏月";
     el.summaryTimeRule.textContent = input.time.inputHour === 0 ? `輸入 00:${C.pad2(input.time.minute)}，計算時數 24` : `${C.pad2(input.time.inputHour)}:${C.pad2(input.time.minute)}`;
 
@@ -161,10 +165,13 @@
   function resultText(full = false) {
     if (!lastResult) return "尚未計算";
     const { input, result } = lastResult;
+    const annualLunarBirthday = annualLunarBirthdayText(input, result).replace("\n", "｜");
     const lines = [
       `姓名：${input.name}`,
       `查詢日期：${C.formatDateSlash(input.queryDate)}（農曆 ${C.formatLunarDate(result.queryLunar)}）`,
       `生日狀態：國曆 ${result.solarFlow.status}｜農曆 ${result.lunarFlow.status}`,
+      `本年國曆生日：${C.formatDateSlash(result.solarFlow.birthdayGregorianDate)}`,
+      `本年農曆生日：${annualLunarBirthday}`,
       `國曆：流年 ${result.solarFlow.flowYear}｜位格 ${result.solarFlow.position}｜流月 ${result.solarFlow.flowMonth}｜流日 ${result.solarFlow.flowDay}`,
       `農曆：流年 ${result.lunarFlow.flowYear || "—"}｜位格 ${result.lunarFlow.position ?? "—"}｜流月 ${result.lunarFlow.flowMonth || "—"}｜流日 ${result.lunarFlow.flowDay || "—"}`
     ];
@@ -215,6 +222,7 @@
       if (!node.closest("table[id]")) node.textContent = "—";
     });
     el.summaryBirthdayStatus.textContent = "國曆：—\n農曆：—";
+    el.summaryLunarBirthdayDate.textContent = "農曆：—\n國曆對應：—";
     [el.solarDetailTable, el.lunarDetailTable, el.solarHorseTable, el.lunarHorseTable].forEach((table) => { table.innerHTML = ""; });
     el.queryLunarText.textContent = "當日農曆日期：—";
     updateLunarNote();
