@@ -1,8 +1,23 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { runInThisContext } from "node:vm";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
-const APP_VERSION = "2.2.0";
+const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+const APP_VERSION = packageJson.version;
+const requiredFiles = [
+  "public/index.html",
+  "public/style.css",
+  "public/layout-fix.css",
+  "public/core.js",
+  "public/script.js",
+  "public/sw.js",
+  "public/manifest.webmanifest",
+  "public/icon.svg"
+];
+
+for (const file of requiredFiles) {
+  if (!existsSync(file)) throw new Error(`Missing required deployment file: ${file}`);
+}
 
 mkdirSync("public", { recursive: true });
 
@@ -18,62 +33,41 @@ const lunarOutput = [
   "if (typeof module !== \"undefined\" && module.exports) module.exports = globalThis.LUNAR_DATA;",
   ""
 ].join("\n");
-
 writeFileSync("public/lunar-data.js", lunarOutput, "utf8");
 
-const indexPath = "public/index.html";
-const layoutStyle = `<link rel="stylesheet" href="layout-fix.css?v=${APP_VERSION}" />`;
-let indexHtml = readFileSync(indexPath, "utf8");
+const indexHtml = readFileSync("public/index.html", "utf8");
+const scriptText = readFileSync("public/script.js", "utf8");
+const swText = readFileSync("public/sw.js", "utf8");
 
-if (!indexHtml.includes("layout-fix.css")) {
-  indexHtml = indexHtml.replace(
-    '<link rel="stylesheet" href="style.css" />',
-    '<link rel="stylesheet" href="style.css" />\n  ' + layoutStyle
-  );
-} else {
-  indexHtml = indexHtml.replace(/<link rel="stylesheet" href="layout-fix\.css[^"]*" \/>/, layoutStyle);
-}
+const sourceChecks = [
+  [indexHtml.includes(`v${APP_VERSION}`), `index.html version must be v${APP_VERSION}`],
+  [indexHtml.includes(`layout-fix.css?v=${APP_VERSION}`), "index.html layout stylesheet version is inconsistent"],
+  [indexHtml.includes('id="summaryBirthdayStatus"'), "combined birthday status card is missing"],
+  [!indexHtml.includes('id="summarySolarStatus"') && !indexHtml.includes('id="summaryLunarStatus"'), "old split birthday status cards still exist"],
+  [scriptText.includes('"summaryBirthdayStatus"'), "script.js does not use combined birthday status"],
+  [!scriptText.includes('"summarySolarStatus"') && !scriptText.includes('"summaryLunarStatus"'), "script.js still references old birthday status ids"],
+  [swText.includes(`soul-kaleidoscope-v${APP_VERSION}`), "service worker cache version is inconsistent"]
+];
 
-const separateStatusCards = /<div><span>國曆生日狀態<\/span><strong id="summarySolarStatus">—<\/strong><\/div>\s*<div><span>農曆生日狀態<\/span><strong id="summaryLunarStatus">—<\/strong><\/div>/;
-const combinedStatusCard = '<div><span>國曆／農曆生日狀態</span><strong id="summaryBirthdayStatus" class="birthday-status-lines">國曆：—&#10;農曆：—</strong></div>';
-indexHtml = indexHtml.replace(separateStatusCards, combinedStatusCard);
-indexHtml = indexHtml.replace(/<span class="version-pill">v[^<]+<\/span>/, `<span class="version-pill">v${APP_VERSION}</span>`);
-writeFileSync(indexPath, indexHtml, "utf8");
+const failedSourceChecks = sourceChecks.filter(([pass]) => !pass).map(([, message]) => message);
+if (failedSourceChecks.length) throw new Error(`Static source validation failed:\n${failedSourceChecks.join("\n")}`);
 
-const scriptPath = "public/script.js";
-let scriptText = readFileSync(scriptPath, "utf8");
-scriptText = scriptText.replace(
-  '"summaryQueryLunar","summarySolarStatus","summaryLunarStatus","summaryLunarBirthdayDate"',
-  '"summaryQueryLunar","summaryBirthdayStatus","summaryLunarBirthdayDate"'
-);
-scriptText = scriptText.replace(
-  /el\.summarySolarStatus\.textContent = result\.solarFlow\.status;\s*el\.summaryLunarStatus\.textContent = result\.lunarFlow\.status;/,
-  'el.summaryBirthdayStatus.textContent = `國曆：${result.solarFlow.status}\\n農曆：${result.lunarFlow.status}`;'
-);
-writeFileSync(scriptPath, scriptText, "utf8");
-
-const layoutPath = "public/layout-fix.css";
-let layoutCss = readFileSync(layoutPath, "utf8");
-if (!layoutCss.includes(".birthday-status-lines")) {
-  layoutCss += "\n\n.birthday-status-lines {\n  white-space: pre-line;\n  line-height: 1.55;\n}\n";
-}
-writeFileSync(layoutPath, layoutCss, "utf8");
-
-const swPath = "public/sw.js";
-let swText = readFileSync(swPath, "utf8");
-swText = swText.replace(/const CACHE_NAME = "soul-kaleidoscope-v[^"]+";/, `const CACHE_NAME = "soul-kaleidoscope-v${APP_VERSION}";`);
-writeFileSync(swPath, swText, "utf8");
-
-// Build-time formula gate: deployment fails when any confirmed regression case fails.
+new Function(scriptText);
 runInThisContext(lunarOutput, { filename: "generated-lunar-data.js" });
 runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/core.js" });
 const engine = globalThis.SoulKaleidoscopeCore.createEngine(globalThis.LUNAR_DATA);
 const regression = engine.runSelfTests();
+
+if (regression.version !== APP_VERSION) {
+  throw new Error(`Version mismatch: package ${APP_VERSION}, core ${regression.version}`);
+}
+
 if (!regression.ok) {
   const detail = regression.failed.map((test) => `${test.name}: ${test.actual} !== ${test.expected}`).join("\n");
   throw new Error(`Formula regression failed (${regression.passed}/${regression.total})\n${detail}`);
 }
 
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
+console.log(`Static source validation passed ${sourceChecks.length}/${sourceChecks.length}.`);
 console.log(`Formula regression passed ${regression.passed}/${regression.total}.`);
 console.log(`Prepared Soul Kaleidoscope calculator v${APP_VERSION}.`);
