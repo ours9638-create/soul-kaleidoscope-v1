@@ -1,0 +1,13 @@
+{
+  "name": "soul-kaleidoscope-calculator-deploy",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-calculator.js",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}
