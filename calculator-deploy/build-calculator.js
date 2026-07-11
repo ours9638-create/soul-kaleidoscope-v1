@@ -4,6 +4,7 @@ import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const APP_VERSION = packageJson.version;
+const UI_VERSION = `${APP_VERSION}-r2`;
 const requiredFiles = [
   "public/index.html",
   "public/style.css",
@@ -40,17 +41,17 @@ const scriptText = readFileSync("public/script.js", "utf8");
 const swText = readFileSync("public/sw.js", "utf8");
 
 const sourceChecks = [
-  [indexHtml.includes(`v${APP_VERSION}`), `index.html version must include v${APP_VERSION}`],
-  [indexHtml.includes(`layout-fix.css?v=${APP_VERSION}`), "index.html layout stylesheet version is inconsistent"],
-  [indexHtml.includes('id="summaryBirthdayStatus"'), "combined birthday status card is missing"],
-  [!indexHtml.includes('id="summarySolarStatus"') && !indexHtml.includes('id="summaryLunarStatus"'), "old split birthday status cards still exist"],
-  [indexHtml.includes('id="summarySolarBirthdayDate"'), "annual Gregorian birthday card is missing"],
+  [indexHtml.includes(`v${UI_VERSION}`), `index.html version must include v${UI_VERSION}`],
+  [indexHtml.includes(`layout-fix.css?v=${UI_VERSION}`), "index.html layout stylesheet version is inconsistent"],
+  [!indexHtml.includes('id="summaryBirthdayStatus"'), "birthday status card must be removed"],
+  [!indexHtml.includes('id="summarySolarBirthdayDate"'), "annual Gregorian birthday card must be removed"],
   [indexHtml.includes('id="summaryLunarBirthdayDate"'), "annual lunar birthday card is missing"],
-  [indexHtml.includes("本年國曆生日") && indexHtml.includes("本年農曆生日"), "annual birthday labels are not separated"],
-  [scriptText.includes('"summaryBirthdayStatus"'), "script.js does not use combined birthday status"],
-  [!scriptText.includes('"summarySolarStatus"') && !scriptText.includes('"summaryLunarStatus"'), "script.js still references old birthday status ids"],
-  [scriptText.includes('"summarySolarBirthdayDate"') && scriptText.includes('"summaryLunarBirthdayDate"'), "script.js does not render separate annual birthday fields"],
-  [swText.includes(`soul-kaleidoscope-v${APP_VERSION}`), "service worker cache version is inconsistent"]
+  [!indexHtml.includes("國曆／農曆生日狀態"), "birthday status label still exists"],
+  [!indexHtml.includes("本年國曆生日"), "annual Gregorian birthday label still exists"],
+  [!scriptText.includes('"summaryBirthdayStatus"'), "script.js still references birthday status"],
+  [!scriptText.includes('"summarySolarBirthdayDate"'), "script.js still references annual Gregorian birthday"],
+  [scriptText.includes('"summaryLunarBirthdayDate"'), "script.js does not render annual lunar birthday"],
+  [swText.includes(`soul-kaleidoscope-v${UI_VERSION}`), "service worker cache version is inconsistent"]
 ];
 
 const failedSourceChecks = sourceChecks.filter(([pass]) => !pass).map(([, message]) => message);
@@ -74,4 +75,4 @@ if (!regression.ok) {
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
 console.log(`Static source validation passed ${sourceChecks.length}/${sourceChecks.length}.`);
 console.log(`Formula regression passed ${regression.passed}/${regression.total}.`);
-console.log(`Prepared Soul Kaleidoscope calculator v${APP_VERSION}.`);
+console.log(`Prepared Soul Kaleidoscope calculator v${UI_VERSION} (engine ${APP_VERSION}).`);
