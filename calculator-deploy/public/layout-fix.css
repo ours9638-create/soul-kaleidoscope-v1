@@ -1,0 +1,91 @@
+/* Mobile layout normalization for the Cloudflare calculator deployment. */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-shell,
+main,
+.hero,
+.panel,
+.input-panel,
+.result-stack,
+.quick-panel,
+form,
+.form-grid {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+main {
+  display: block !important;
+}
+
+.hero,
+.panel,
+.input-panel,
+.result-stack {
+  grid-column: 1 / -1 !important;
+}
+
+.form-grid > *,
+.result-stack > *,
+.section-title > div,
+.table-scroll {
+  min-width: 0;
+}
+
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+
+  .hero,
+  .panel,
+  .input-panel,
+  .result-stack,
+  .quick-panel {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .form-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .field,
+  .field--wide,
+  .lunar-box,
+  .button-row {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .summary-strip {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .summary-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
