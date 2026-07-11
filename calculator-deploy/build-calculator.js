@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
-const APP_VERSION = "2.1.4";
+const APP_VERSION = "2.1.5";
 
 mkdirSync("public", { recursive: true });
 
@@ -30,7 +30,7 @@ if (!indexHtml.includes("layout-fix.css")) {
     '<link rel="stylesheet" href="style.css" />\n  ' + layoutStyle
   );
 } else {
-  indexHtml = indexHtml.replace(/<link rel="stylesheet" href="layout-fix\.css[^\"]*" \/>/, layoutStyle);
+  indexHtml = indexHtml.replace(/<link rel="stylesheet" href="layout-fix\.css[^"]*" \/>/, layoutStyle);
 }
 
 const separateStatusCards = /<div><span>國曆生日狀態<\/span><strong id="summarySolarStatus">—<\/strong><\/div>\s*<div><span>農曆生日狀態<\/span><strong id="summaryLunarStatus">—<\/strong><\/div>/;
