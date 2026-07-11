@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
-const APP_VERSION = "2.1.3";
+const APP_VERSION = "2.1.4";
 
 mkdirSync("public", { recursive: true });
 
@@ -23,6 +23,7 @@ writeFileSync("public/lunar-data.js", output, "utf8");
 const indexPath = "public/index.html";
 const layoutStyle = `<link rel="stylesheet" href="layout-fix.css?v=${APP_VERSION}" />`;
 let indexHtml = readFileSync(indexPath, "utf8");
+
 if (!indexHtml.includes("layout-fix.css")) {
   indexHtml = indexHtml.replace(
     '<link rel="stylesheet" href="style.css" />',
@@ -31,9 +32,37 @@ if (!indexHtml.includes("layout-fix.css")) {
 } else {
   indexHtml = indexHtml.replace(/<link rel="stylesheet" href="layout-fix\.css[^\"]*" \/>/, layoutStyle);
 }
+
+const separateStatusCards = /<div><span>國曆生日狀態<\/span><strong id="summarySolarStatus">—<\/strong><\/div>\s*<div><span>農曆生日狀態<\/span><strong id="summaryLunarStatus">—<\/strong><\/div>/;
+const combinedStatusCard = '<div><span>國曆／農曆生日狀態</span><strong id="summaryBirthdayStatus" class="birthday-status-lines">國曆：—\n農曆：—</strong></div>';
+indexHtml = indexHtml.replace(separateStatusCards, combinedStatusCard);
 indexHtml = indexHtml.replace(/<span class="version-pill">v[^<]+<\/span>/, `<span class="version-pill">v${APP_VERSION}</span>`);
 writeFileSync(indexPath, indexHtml, "utf8");
 
+const scriptPath = "public/script.js";
+let scriptText = readFileSync(scriptPath, "utf8");
+scriptText = scriptText.replace(
+  '"summaryQueryLunar","summarySolarStatus","summaryLunarStatus","summaryLunarBirthdayDate"',
+  '"summaryQueryLunar","summaryBirthdayStatus","summaryLunarBirthdayDate"'
+);
+scriptText = scriptText.replace(
+  /el\.summarySolarStatus\.textContent = result\.solarFlow\.status;\s*el\.summaryLunarStatus\.textContent = result\.lunarFlow\.status;/,
+  'el.summaryBirthdayStatus.textContent = `國曆：${result.solarFlow.status}\\n農曆：${result.lunarFlow.status}`;'
+);
+writeFileSync(scriptPath, scriptText, "utf8");
+
+const layoutPath = "public/layout-fix.css";
+let layoutCss = readFileSync(layoutPath, "utf8");
+if (!layoutCss.includes(".birthday-status-lines")) {
+  layoutCss += "\n\n.birthday-status-lines {\n  white-space: pre-line;\n  line-height: 1.55;\n}\n";
+}
+writeFileSync(layoutPath, layoutCss, "utf8");
+
+const swPath = "public/sw.js";
+let swText = readFileSync(swPath, "utf8");
+swText = swText.replace(/const CACHE_NAME = "soul-kaleidoscope-v[^"]+";/, `const CACHE_NAME = "soul-kaleidoscope-v${APP_VERSION}";`);
+writeFileSync(swPath, swText, "utf8");
+
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
-console.log(`Injected layout-fix.css v${APP_VERSION} into public/index.html.`);
+console.log(`Merged Gregorian and lunar birthday status into one summary card.`);
 console.log(`Prepared Soul Kaleidoscope calculator v${APP_VERSION}.`);
