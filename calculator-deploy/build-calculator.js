@@ -4,7 +4,7 @@ import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const APP_VERSION = packageJson.version;
-const UI_VERSION = `${APP_VERSION}-r2`;
+const UI_VERSION = `${APP_VERSION}-r3`;
 const requiredFiles = [
   "public/index.html",
   "public/style.css",
@@ -45,12 +45,14 @@ const sourceChecks = [
   [indexHtml.includes(`layout-fix.css?v=${UI_VERSION}`), "index.html layout stylesheet version is inconsistent"],
   [!indexHtml.includes('id="summaryBirthdayStatus"'), "birthday status card must be removed"],
   [!indexHtml.includes('id="summarySolarBirthdayDate"'), "annual Gregorian birthday card must be removed"],
-  [indexHtml.includes('id="summaryLunarBirthdayDate"'), "annual lunar birthday card is missing"],
+  [!indexHtml.includes('id="summaryLunarBirthdayDate"'), "annual lunar birthday card must be removed"],
   [!indexHtml.includes("國曆／農曆生日狀態"), "birthday status label still exists"],
   [!indexHtml.includes("本年國曆生日"), "annual Gregorian birthday label still exists"],
+  [!indexHtml.includes("本年農曆生日"), "annual lunar birthday label still exists"],
   [!scriptText.includes('"summaryBirthdayStatus"'), "script.js still references birthday status"],
   [!scriptText.includes('"summarySolarBirthdayDate"'), "script.js still references annual Gregorian birthday"],
-  [scriptText.includes('"summaryLunarBirthdayDate"'), "script.js does not render annual lunar birthday"],
+  [!scriptText.includes('"summaryLunarBirthdayDate"'), "script.js still references annual lunar birthday"],
+  [!scriptText.includes("本年農曆生日"), "copy output still includes annual lunar birthday"],
   [swText.includes(`soul-kaleidoscope-v${UI_VERSION}`), "service worker cache version is inconsistent"]
 ];
 
