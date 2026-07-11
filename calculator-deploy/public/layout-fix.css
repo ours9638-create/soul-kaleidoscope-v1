@@ -1,26 +1,44 @@
-/* Mobile layout normalization for the Cloudflare calculator deployment. */
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-.app-shell,
-main,
-.hero,
-.panel,
-.input-panel,
-.result-stack,
-.quick-panel,
-form,
-.form-grid {
+/* Unified outer width and mobile layout normalization for Cloudflare deployment. */
+html,
+body {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+}
+
+/* The header, input panel and every result card share this exact outer width. */
+.app-shell {
+  width: min(1100px, calc(100% - 20px)) !important;
+  max-width: 1100px !important;
+  min-width: 0 !important;
+  margin: 0 auto !important;
+  padding: 10px 0 calc(16px + env(safe-area-inset-bottom)) !important;
+}
+
+.app-shell > .hero,
+.app-shell > main,
+main > .input-panel,
+main > .result-stack,
+.result-stack > .panel,
+.hero,
+.panel,
+.input-panel,
+.quick-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 main {
   display: block !important;
+  min-width: 0;
 }
 
 .hero,
@@ -30,7 +48,9 @@ main {
   grid-column: 1 / -1 !important;
 }
 
+.form-grid,
 .form-grid > *,
+.result-stack,
 .result-stack > *,
 .section-title > div,
 .table-scroll {
@@ -46,10 +66,10 @@ main {
 
 @media (max-width: 720px) {
   .app-shell {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 10px !important;
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+    margin: 0 10px !important;
+    padding: 10px 0 calc(16px + env(safe-area-inset-bottom)) !important;
   }
 
   .hero,
@@ -58,10 +78,8 @@ main {
   .result-stack,
   .quick-panel {
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
     min-width: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
   }
 
   .form-grid {
@@ -88,4 +106,9 @@ main {
   .summary-strip {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.birthday-status-lines {
+  white-space: pre-line;
+  line-height: 1.55;
 }
