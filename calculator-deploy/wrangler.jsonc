@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "holy-forest-c019",
+  "name": "soul-kaleidoscope-v1",
   "compatibility_date": "2026-07-11",
   "assets": {
     "directory": "./public",
