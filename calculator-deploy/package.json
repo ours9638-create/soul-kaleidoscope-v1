@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check": "node build-calculator.js",
     "build": "node build-calculator.js",
     "deploy": "npm run build && wrangler deploy"
   },
