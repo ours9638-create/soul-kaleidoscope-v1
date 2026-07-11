@@ -1,7 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import vm from "node:vm";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
-const APP_VERSION = "2.1.5";
+const APP_VERSION = "2.2.0";
 
 mkdirSync("public", { recursive: true });
 
@@ -11,14 +12,14 @@ const rows = Object.entries(LUNAR_CALENDAR_1940_2035).map(([solarDate, lunarValu
   return [solarDate, year, month, day, isLeap ? 1 : 0];
 });
 
-const output = [
+const lunarOutput = [
   "/* Generated from src/core/lunar-calendar-data.js during Cloudflare build. */",
   `globalThis.LUNAR_DATA = ${JSON.stringify(rows)};`,
   "if (typeof module !== \"undefined\" && module.exports) module.exports = globalThis.LUNAR_DATA;",
   ""
 ].join("\n");
 
-writeFileSync("public/lunar-data.js", output, "utf8");
+writeFileSync("public/lunar-data.js", lunarOutput, "utf8");
 
 const indexPath = "public/index.html";
 const layoutStyle = `<link rel="stylesheet" href="layout-fix.css?v=${APP_VERSION}" />`;
@@ -63,6 +64,16 @@ let swText = readFileSync(swPath, "utf8");
 swText = swText.replace(/const CACHE_NAME = "soul-kaleidoscope-v[^"]+";/, `const CACHE_NAME = "soul-kaleidoscope-v${APP_VERSION}";`);
 writeFileSync(swPath, swText, "utf8");
 
+// Build-time formula gate: deployment fails when any confirmed regression case fails.
+vm.runInThisContext(lunarOutput, { filename: "generated-lunar-data.js" });
+vm.runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/core.js" });
+const engine = globalThis.SoulKaleidoscopeCore.createEngine(globalThis.LUNAR_DATA);
+const regression = engine.runSelfTests();
+if (!regression.ok) {
+  const detail = regression.failed.map((test) => `${test.name}: ${test.actual} !== ${test.expected}`).join("\n");
+  throw new Error(`Formula regression failed (${regression.passed}/${regression.total})\n${detail}`);
+}
+
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
-console.log("Merged Gregorian and lunar birthday status into one summary card.");
+console.log(`Formula regression passed ${regression.passed}/${regression.total}.`);
 console.log(`Prepared Soul Kaleidoscope calculator v${APP_VERSION}.`);
