@@ -1,5 +1,5 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import vm from "node:vm";
+import { runInThisContext } from "node:vm";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
 const APP_VERSION = "2.2.0";
@@ -65,8 +65,8 @@ swText = swText.replace(/const CACHE_NAME = "soul-kaleidoscope-v[^"]+";/, `const
 writeFileSync(swPath, swText, "utf8");
 
 // Build-time formula gate: deployment fails when any confirmed regression case fails.
-vm.runInThisContext(lunarOutput, { filename: "generated-lunar-data.js" });
-vm.runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/core.js" });
+runInThisContext(lunarOutput, { filename: "generated-lunar-data.js" });
+runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/core.js" });
 const engine = globalThis.SoulKaleidoscopeCore.createEngine(globalThis.LUNAR_DATA);
 const regression = engine.runSelfTests();
 if (!regression.ok) {
