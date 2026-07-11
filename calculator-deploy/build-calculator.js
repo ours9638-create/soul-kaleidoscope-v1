@@ -40,12 +40,16 @@ const scriptText = readFileSync("public/script.js", "utf8");
 const swText = readFileSync("public/sw.js", "utf8");
 
 const sourceChecks = [
-  [indexHtml.includes(`v${APP_VERSION}`), `index.html version must be v${APP_VERSION}`],
+  [indexHtml.includes(`v${APP_VERSION}`), `index.html version must include v${APP_VERSION}`],
   [indexHtml.includes(`layout-fix.css?v=${APP_VERSION}`), "index.html layout stylesheet version is inconsistent"],
   [indexHtml.includes('id="summaryBirthdayStatus"'), "combined birthday status card is missing"],
   [!indexHtml.includes('id="summarySolarStatus"') && !indexHtml.includes('id="summaryLunarStatus"'), "old split birthday status cards still exist"],
+  [indexHtml.includes('id="summarySolarBirthdayDate"'), "annual Gregorian birthday card is missing"],
+  [indexHtml.includes('id="summaryLunarBirthdayDate"'), "annual lunar birthday card is missing"],
+  [indexHtml.includes("本年國曆生日") && indexHtml.includes("本年農曆生日"), "annual birthday labels are not separated"],
   [scriptText.includes('"summaryBirthdayStatus"'), "script.js does not use combined birthday status"],
   [!scriptText.includes('"summarySolarStatus"') && !scriptText.includes('"summaryLunarStatus"'), "script.js still references old birthday status ids"],
+  [scriptText.includes('"summarySolarBirthdayDate"') && scriptText.includes('"summaryLunarBirthdayDate"'), "script.js does not render separate annual birthday fields"],
   [swText.includes(`soul-kaleidoscope-v${APP_VERSION}`), "service worker cache version is inconsistent"]
 ];
 
