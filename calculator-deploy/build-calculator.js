@@ -11,6 +11,10 @@ const requiredFiles = [
   "public/style.css",
   "public/layout-fix.css",
   "public/case-manager.css",
+  "public/report.html",
+  "public/report.css",
+  "public/report.js",
+  "public/report-preview.js",
   "public/core.js",
   "public/profile-model.js",
   "public/sngl-report.js",
@@ -61,11 +65,14 @@ const snglOutput = [
 writeFileSync("public/sngl-data.js", snglOutput, "utf8");
 
 const indexHtml = readFileSync("public/index.html", "utf8");
+const reportHtml = readFileSync("public/report.html", "utf8");
 const scriptText = readFileSync("public/script.js", "utf8");
 const profileText = readFileSync("public/profile-model.js", "utf8");
-const reportText = readFileSync("public/sngl-report.js", "utf8");
+const reportEngineText = readFileSync("public/sngl-report.js", "utf8");
 const caseStoreText = readFileSync("public/case-store.js", "utf8");
 const caseUiText = readFileSync("public/case-ui.js", "utf8");
+const reportPreviewText = readFileSync("public/report-preview.js", "utf8");
+const reportPageText = readFileSync("public/report.js", "utf8");
 const swText = readFileSync("public/sw.js", "utf8");
 JSON.parse(readFileSync("schemas/soul-profile.schema.json", "utf8"));
 JSON.parse(readFileSync("tests/fixtures/regression-cases.json", "utf8"));
@@ -85,21 +92,38 @@ const sourceChecks = [
   [indexHtml.includes('id="deleteCaseBtn"'), "delete case action is missing"],
   [indexHtml.includes('id="exportCasesBtn"'), "case export action is missing"],
   [indexHtml.includes('id="importCasesBtn"'), "case import action is missing"],
+  [indexHtml.includes('id="openReportBtn"'), "open report action is missing"],
   [indexHtml.includes('<script src="profile-model.js"></script>'), "profile model script is missing from index.html"],
   [indexHtml.includes('<script src="sngl-data.js"></script>'), "SNGL data script is missing from index.html"],
   [indexHtml.includes('<script src="sngl-report.js"></script>'), "SNGL report script is missing from index.html"],
   [indexHtml.includes('<script src="case-store.js"></script>'), "case store script is missing from index.html"],
   [indexHtml.includes('<script src="case-ui.js"></script>'), "case UI script is missing from index.html"],
+  [indexHtml.includes(`report-preview.js?v=${UI_VERSION}`), "report preview script is missing from index.html"],
+  [reportHtml.includes('id="reportApp"'), "report page root is missing"],
+  [reportHtml.includes('id="printReportBtn"'), "report print action is missing"],
+  [reportHtml.includes('id="clearReportBtn"'), "report clear action is missing"],
+  [reportHtml.includes(`report.css?v=${UI_VERSION}`), "report stylesheet version is inconsistent"],
+  [reportHtml.includes(`report.js?v=${UI_VERSION}`), "report script version is inconsistent"],
   [scriptText.includes("SoulKaleidoscopeProfile"), "script.js does not use canonical profile model"],
   [scriptText.includes("SoulKaleidoscopeReport"), "script.js does not use SNGL report engine"],
   [caseStoreText.includes('soul-kaleidoscope.case-store'), "case store key is inconsistent"],
   [caseStoreText.includes("SCHEMA_VERSION = 1"), "case store schema version is inconsistent"],
   [caseUiText.includes("addFromProfile"), "case UI does not save canonical profiles"],
   [caseUiText.includes('mode: "merge"'), "case UI import must default to merge"],
+  [reportPreviewText.includes('soul-kaleidoscope.report-preview.'), "report preview storage prefix is missing"],
+  [reportPreviewText.includes("window.__SOUL_PROFILE__"), "report preview does not read canonical Soul Profile"],
+  [reportPreviewText.includes("window.open"), "report preview does not open a new tab"],
+  [reportPreviewText.includes("expiresAt"), "report preview expiry is missing"],
+  [reportPageText.includes("window.print"), "report page print action is missing"],
+  [reportPageText.includes("localStorage.removeItem"), "report page clear action is missing"],
   [swText.includes(`soul-kaleidoscope-v${UI_VERSION}`), "service worker cache version is inconsistent"],
   [swText.includes('"./case-manager.css"'), "service worker does not cache case manager styles"],
   [swText.includes('"./case-store.js"'), "service worker does not cache case store"],
-  [swText.includes('"./case-ui.js"'), "service worker does not cache case UI"]
+  [swText.includes('"./case-ui.js"'), "service worker does not cache case UI"],
+  [swText.includes('"./report.html"'), "service worker does not cache report page"],
+  [swText.includes('"./report.css"'), "service worker does not cache report styles"],
+  [swText.includes('"./report.js"'), "service worker does not cache report renderer"],
+  [swText.includes('"./report-preview.js"'), "service worker does not cache report preview bridge"]
 ];
 
 const failedSourceChecks = sourceChecks.filter(([pass]) => !pass).map(([, message]) => message);
@@ -107,13 +131,15 @@ if (failedSourceChecks.length) throw new Error(`Static source validation failed:
 
 new Function(scriptText);
 new Function(profileText);
-new Function(reportText);
+new Function(reportEngineText);
 new Function(caseStoreText);
 new Function(caseUiText);
+new Function(reportPreviewText);
+new Function(reportPageText);
 runInThisContext(lunarOutput, { filename: "generated-lunar-data.js" });
 runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/core.js" });
 runInThisContext(profileText, { filename: "public/profile-model.js" });
-runInThisContext(reportText, { filename: "public/sngl-report.js" });
+runInThisContext(reportEngineText, { filename: "public/sngl-report.js" });
 const engine = globalThis.SoulKaleidoscopeCore.createEngine(globalThis.LUNAR_DATA);
 const regression = engine.runSelfTests();
 
