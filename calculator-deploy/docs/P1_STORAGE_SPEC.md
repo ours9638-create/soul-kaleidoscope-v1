@@ -44,7 +44,7 @@ soul-kaleidoscope.case-store
 
 - App Version：`2.3.0`
 - Engine Version：`2.2.0`
-- Case Store Module：`1.0.0`
+- Case Store Module：`1.0.1`
 - Case Store Schema：`1`
 
 App 功能更新不代表公式更新。每筆個案記錄保存建立時的引擎版本；載入後仍使用目前引擎重算。
@@ -161,12 +161,13 @@ soul-kaleidoscope-cases-YYYY-MM-DD.json
 1. 解析 JSON。
 2. 遷移舊 Schema。
 3. 驗證所有紀錄。
-4. 計算預覽：
+4. 驗證日期為實際存在的日曆日期，且查詢日不得早於生日。
+5. 計算預覽：
    - 新增。
    - 更新。
    - 相同略過。
    - 保留本機較新資料。
-5. 使用者確認後才寫入。
+6. 使用者確認後才寫入。
 
 合併規則：
 
@@ -175,7 +176,7 @@ soul-kaleidoscope-cases-YYYY-MM-DD.json
 - ID 相同且匯入檔 `modifiedAt` 較新：更新。
 - ID 相同且本機較新或相同：保留本機並列為衝突。
 
-任何解析、格式或 Schema 錯誤都不得先寫入本機資料。
+任何解析、格式、日期、重複 ID 或 Schema 錯誤都不得先寫入本機資料。
 
 ## 10. 資料遷移
 
@@ -185,6 +186,7 @@ soul-kaleidoscope-cases-YYYY-MM-DD.json
 - Schema `0`：遷移至 Schema `1`。
 - 舊版資料直接為陣列：包裝成 Schema `1`。
 - 舊欄位 `solarBirthDate`：遷移為 `solarBirth`。
+- 本機資料庫 `appVersion`：讀取後同步更新為目前 App 版本。
 
 不支援的未來 Schema 必須拒絕，不可自行猜測。
 
@@ -196,6 +198,7 @@ soul-kaleidoscope-cases-YYYY-MM-DD.json
 - JSON 備份為明文，畫面必須清楚警示。
 - 清除 Safari 網站資料或移除 PWA 前提醒先備份。
 - 私密瀏覽模式不保證長期保存。
+- 儲存空間不足時顯示明確提示，不靜默失敗。
 - P5 才評估加密與跨裝置同步。
 
 ## 12. 介面
@@ -214,7 +217,7 @@ soul-kaleidoscope-cases-YYYY-MM-DD.json
 - 匯入並合併。
 - 本機保存與明文備份警示。
 
-手機版不得產生整頁水平捲動。
+按「清除重算」時必須取消目前個案選取，避免誤覆寫。手機版不得產生整頁水平捲動。
 
 ## 13. 自動測試
 
@@ -224,14 +227,16 @@ soul-kaleidoscope-cases-YYYY-MM-DD.json
 npm run test:cases
 ```
 
-目前 20 項檢查涵蓋：
+目前 24 項檢查涵蓋：
 
 - 空資料庫與 Schema。
 - 新增、同名、覆寫與刪除。
 - 搜尋與排序。
 - 匯出／匯入一致。
-- 無效 JSON 與不支援 Schema。
+- 無效 JSON、不支援 Schema 與缺少 records。
+- 無效日曆日期與查詢日早於生日。
 - 匯入失敗不改變原資料。
+- 本機 App 版本自動升級。
 - 100 筆保存與搜尋。
 - 舊 Schema 與舊欄位遷移。
 
