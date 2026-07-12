@@ -3,7 +3,10 @@
 
   const VERSION = "1.0.0";
 
-  const finalNumber = (chain) => Number(String(chain || "").split("/").at(-1));
+  const finalNumber = (chain) => {
+    const text = String(chain || "").trim();
+    return text ? Number(text.split("/").at(-1)) : null;
+  };
 
   function getEntry(number, data) {
     const entry = data?.numbers?.[String(number)];
@@ -31,6 +34,12 @@
     };
   }
 
+  function appendNumberSection(sections, config) {
+    const number = finalNumber(config.chain);
+    if (number === null) return;
+    sections.push(makeSection({ ...config, number }));
+  }
+
   function generate(profile, data = global.SNGL_DATA) {
     if (!profile) throw new TypeError("SNGL 報告缺少統一個案資料");
     if (!data?.numbers) throw new TypeError("SNGL 數字資料尚未載入");
@@ -42,40 +51,35 @@
     const solarFlowYear = profile.numerology.solar.flow.flowYear;
     const lunarFlowYear = profile.numerology.lunar.flow.flowYear;
 
-    const sections = [
-      makeSection({
-        id: "solar-primary",
-        title: "國曆主命數",
-        role: "core-solar",
-        chain: solarPrimary.chain,
-        number: finalNumber(solarPrimary.chain),
-        data
-      }),
-      makeSection({
-        id: "lunar-primary",
-        title: "農曆主命數",
-        role: "core-lunar",
-        chain: lunarPrimary.chain,
-        number: finalNumber(lunarPrimary.chain),
-        data
-      }),
-      makeSection({
-        id: "solar-flow-year",
-        title: "國曆流年",
-        role: "annual-solar",
-        chain: solarFlowYear,
-        number: finalNumber(solarFlowYear),
-        data
-      }),
-      makeSection({
-        id: "lunar-flow-year",
-        title: "農曆流年",
-        role: "annual-lunar",
-        chain: lunarFlowYear,
-        number: finalNumber(lunarFlowYear),
-        data
-      })
-    ];
+    const sections = [];
+    appendNumberSection(sections, {
+      id: "solar-primary",
+      title: "國曆主命數",
+      role: "core-solar",
+      chain: solarPrimary.chain,
+      data
+    });
+    appendNumberSection(sections, {
+      id: "lunar-primary",
+      title: "農曆主命數",
+      role: "core-lunar",
+      chain: lunarPrimary.chain,
+      data
+    });
+    appendNumberSection(sections, {
+      id: "solar-flow-year",
+      title: "國曆流年",
+      role: "annual-solar",
+      chain: solarFlowYear,
+      data
+    });
+    appendNumberSection(sections, {
+      id: "lunar-flow-year",
+      title: "農曆流年",
+      role: "annual-lunar",
+      chain: lunarFlowYear,
+      data
+    });
 
     return {
       version: VERSION,
@@ -85,6 +89,7 @@
       generatedAt: profile.meta.generatedAt,
       subjectName: profile.subject.name,
       sections,
+      needsReview: Boolean(profile.calendar.lunar.needsReview),
       summary: sections.map((section) => `${section.title} ${section.chain}：${section.theme}`).join("；")
     };
   }
