@@ -1,0 +1,52 @@
+name: Calculator CI
+
+on:
+  push:
+    branches:
+      - calculator-deploy-setup
+    paths:
+      - "calculator-deploy/**"
+      - "src/core/lunar-calendar-data.js"
+      - ".github/workflows/calculator-ci.yml"
+  pull_request:
+    paths:
+      - "calculator-deploy/**"
+      - "src/core/lunar-calendar-data.js"
+      - ".github/workflows/calculator-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: calculator-deploy
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Show versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Run core regression suite
+        run: npm run test:core
+
+      - name: Run case store tests
+        run: npm run test:cases
+
+      - name: Validate production build
+        run: node build-calculator.js
