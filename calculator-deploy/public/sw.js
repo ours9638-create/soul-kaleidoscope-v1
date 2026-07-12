@@ -6,6 +6,9 @@ const ASSETS = [
   "./layout-fix.css",
   "./lunar-data.js",
   "./core.js",
+  "./profile-model.js",
+  "./sngl-data.js",
+  "./sngl-report.js",
   "./script.js",
   "./manifest.webmanifest",
   "./icon.svg"
