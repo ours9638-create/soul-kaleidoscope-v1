@@ -2,19 +2,20 @@
 
 ## A. 版本基準
 
-- App／PWA：`2.3.0`
+- App／PWA：`2.4.0`
 - 計算引擎：`2.2.0`
 - Soul Profile Schema：`1.0.0`
 - SNGL Report Engine：`1.0.0`
 - SNGL Number Data：`1.0.0`
 - Case Store Module：`1.0.1`
 - Case Store Schema：`1`
+- Report Preview Spec：`1.0`
 
-產品版本與計算引擎版本分開管理。P1 功能上線不得改動既有公式結果。
+App、公式引擎、資料模型、內容資料與報告頁分開管理。新增報告頁不得改變既有公式結果。
 
 ---
 
-## B. Cloudflare 自動建置順序
+## B. 自動建置順序
 
 正式分支每次提交必須依序完成：
 
@@ -23,7 +24,7 @@ npm run test:core
 → npm run test:cases
 → 產生 lunar-data.js
 → 產生 sngl-data.js
-→ 29 項靜態來源與版本檢查
+→ 46 項靜態來源與版本檢查
 → 27 項核心自檢
 → npx wrangler deploy
 ```
@@ -37,9 +38,9 @@ Regression suite passed .../...
 Core self-tests passed 27/27.
 Case store tests passed 24/24.
 Generated public/sngl-data.js version 1.0.0.
-Static source validation passed 29/29.
+Static source validation passed 46/46.
 Formula regression passed 27/27.
-Prepared Soul Kaleidoscope app v2.3.0 (engine 2.2.0).
+Prepared Soul Kaleidoscope app v2.4.0 (engine 2.2.0).
 ```
 
 ---
@@ -47,8 +48,6 @@ Prepared Soul Kaleidoscope app v2.3.0 (engine 2.2.0).
 ## C. 核心固定案例
 
 ### 案例一｜1989/05/28
-
-輸入：
 
 - 國曆生日：`1989/05/28`
 - 出生時間：`15:17`
@@ -58,8 +57,8 @@ Prepared Soul Kaleidoscope app v2.3.0 (engine 2.2.0).
 預期：
 
 - 查詢農曆：`2026/05/21`
-- 國曆流年 `25/7`、位格 2、流月 `44/8`、流日 `37/10/1`
-- 農曆流年 `20/2`、位格 2、流月 `38/11/2`、流日 `34/7`
+- 國曆：流年 `25/7`、位格 2、流月 `44/8`、流日 `37/10/1`
+- 農曆：流年 `20/2`、位格 2、流月 `38/11/2`、流日 `34/7`
 - 國曆五階段：`27/9、32/5、42/6、48/12/3、56/11/2`
 - 農曆五階段：`27/9、31/4、37/10/1、43/7、51/6`
 - 農曆主命數靈魂等級：`5級`
@@ -67,8 +66,6 @@ Prepared Soul Kaleidoscope app v2.3.0 (engine 2.2.0).
 - 農曆貴人 7、第一木馬 2
 
 ### 案例二｜1989/12/28
-
-輸入：
 
 - 國曆生日：`1989/12/28`
 - 出生時間：`00:00`
@@ -85,8 +82,6 @@ Prepared Soul Kaleidoscope app v2.3.0 (engine 2.2.0).
 
 ### 案例三｜1991/09/23
 
-輸入：
-
 - 國曆生日：`1991/09/23`
 - 出生時間：`11:17`
 - 農曆生日：`1991/08/16`
@@ -96,8 +91,8 @@ Prepared Soul Kaleidoscope app v2.3.0 (engine 2.2.0).
 
 - 查詢農曆：`2026/05/27`
 - 本農曆年生日對應國曆：`2026/09/26`
-- 國曆流年 `23/5`、位格 8、流月 `32/5`、流日 `31/4`
-- 農曆流年 `24/6`、位格 8、流月 `32/5`、流日 `37/10/1`
+- 國曆：流年 `23/5`、位格 8、流月 `32/5`、流日 `31/4`
+- 農曆：流年 `24/6`、位格 8、流月 `32/5`、流日 `37/10/1`
 - 國曆五階段：`20/2、29/11/2、34/7、36/9、44/8`
 - 農曆五階段：`20/2、28/10/1、35/8、37/10/1、45/9`
 - 國曆貴人 3、第一木馬 4
@@ -110,7 +105,7 @@ P0 關閉前必須補上：
 - 實際國曆生日與農曆閏月日期。
 - 查詢日期。
 - 原始閏月與計算月。
-- 國／農曆五階段、流年、位格、流月、流日、貴人與木馬完整預期值。
+- 國／農曆五階段、流年、位格、流月、流日、貴人與木馬完整預期。
 - fixture、`RULES_LOCK.md` 與整合試算表一致。
 
 ---
@@ -138,7 +133,8 @@ P0 關閉前必須補上：
 - `Profile.validate(profile).ok === true`
 - 國／農曆 `soulStages` 各有 5 階段。
 - `primaryNumber` 與日階段鏈條最後主數一致。
-- 網站畫面與複製結果讀取 Soul Profile。
+- 主頁、報告頁與複製結果讀取同一份 Soul Profile。
+- 報告頁不得重新呼叫核心公式。
 - 清除重算後移除 `window.__SOUL_PROFILE__`。
 - 真實個案資料不得寫入 console、網址、GitHub 或 Cloudflare 日誌。
 
@@ -146,91 +142,95 @@ P0 關閉前必須補上：
 
 ## E. SNGL 與報告引擎
 
-必須驗證：
-
 - `data/sngl/numbers.v1.json` 完整包含 0～9。
 - Build 產生 `public/sngl-data.js`。
 - 國曆主命數、農曆主命數、國曆流年與農曆流年可產生段落。
 - 缺少可靠農曆流年時，不把空值解讀為 0。
 - 每個段落包含 code、number、chain、theme、observation、mature、imbalance、action、geometry、colors、clientText。
 - 客戶文字避免斷言、標籤與醫療化措辭。
-- `profile.outputs.report` 保存 report engine 與 data version。
+- `profile.outputs.report` 保存 Report Engine 與 Data Version。
 
 ---
 
-## F. Case Store 自動測試
+## F. Case Store 自動與人工驗收
 
-執行：
+### 自動測試
 
 ```bash
 npm run test:cases
 ```
 
-必須通過 24 項檢查：
+24 項資料層檢查至少涵蓋：
 
-- 空資料庫初始化與 Schema。
-- 新增一筆。
-- 同名個案使用不同 ID，不互相覆寫。
-- 覆寫保留 `createdAt` 並更新 `modifiedAt`。
-- 刪除指定 ID。
-- 搜尋姓名與國曆生日。
-- 依修改時間由新到舊排序。
-- JSON 匯出再匯入資料一致。
-- 無效 JSON 被拒絕。
-- 不支援 Schema 被拒絕。
-- 缺少 `records` 陣列被拒絕。
-- 無效日曆日期被拒絕。
-- 查詢日期早於生日被拒絕。
-- 匯入失敗不改變本機原資料。
-- 舊 App 版本的本機資料庫可更新為目前 App 版本。
-- 100 筆資料保存與搜尋正常。
-- 舊 Schema `0` 與舊欄位可遷移。
+- 初始化、新增、同名、覆寫與刪除。
+- 搜尋與排序。
+- 匯出／匯入一致。
+- 無效 JSON、不支援 Schema、缺少 records。
+- 無效日曆日期與查詢日早於生日。
+- 匯入失敗不改變原資料。
+- App 版本自動升級。
+- 100 筆資料保存與搜尋。
+- 舊 Schema 與舊欄位遷移。
+
+### 介面流程
+
+1. 計算後儲存為新個案。
+2. 列表顯示姓名、生日、修改時間與建立引擎。
+3. 點選列表後帶入表單並以目前引擎重算。
+4. 覆寫保留 ID 與建立時間。
+5. 另存建立新 ID；同名可並存。
+6. 清除重算後取消目前個案選取。
+7. 刪除前顯示姓名與生日確認。
+8. 匯入前顯示新增、更新、略過與衝突預覽。
+9. 取消匯入時不得寫入。
+10. 匯出、刪除、匯入後可完整還原。
 
 ---
 
-## G. P1 個案管理介面
+## G. P2a 新分頁報告預覽
 
-### 基本流程
+### 主頁
 
-1. 輸入有效資料並計算。
-2. 點「儲存為新個案」。
-3. 個案列表新增一筆並顯示姓名、國曆生日、修改時間與建立引擎。
-4. 點選列表紀錄，表單自動帶入並以目前引擎重新計算。
-5. 修改姓名或查詢日期後點「覆寫目前個案」，ID 與建立時間保持不變。
-6. 點「儲存為新個案」，建立另一個新 ID。
-7. 同名紀錄可以並存。
-8. 點「清除重算」後取消目前個案選取，覆寫與刪除按鈕停用。
+- 計算結果區包含「在新分頁開啟報告」。
+- 未計算時按下，只顯示提示，不建立空報告。
+- 完成計算後建立隨機 Token 與報告快照。
+- 網址不得包含姓名、生日、出生時間或完整結果。
+- 最多保留 10 份有效預覽。
+- 預覽 24 小時後失效。
 
-### 搜尋與排序
+### 報告內容
 
-- 搜尋姓名片段可找到個案。
-- 搜尋 `YYYY-MM` 或完整國曆生日可找到個案。
-- 預設依最後修改時間由新到舊。
-- 找不到資料時顯示空狀態，不產生錯誤。
+- 姓名與報告產生時間。
+- 國曆生日、農曆生日、出生時間、查詢日期與查詢日農曆。
+- 國／農曆主命數、流年、今年位格、流月與流日。
+- 國曆主命數、農曆主命數、國曆流年與農曆流年 SNGL 段落。
+- 貴人數、日座、日月綻放與四個木馬。
+- Soul Profile、Engine、SNGL Report 與 SNGL Data 版本。
 
-### 刪除
+### 新分頁與資料隔離
 
-- 未載入個案時「覆寫」與「刪除」按鈕停用。
-- 刪除前顯示姓名與生日二次確認。
-- 取消確認不刪除。
-- 刪除後列表、筆數與目前個案狀態同步更新。
+1. 計算個案 A，開啟報告 A。
+2. 回主頁計算個案 B，開啟報告 B。
+3. 報告 A 不得被 B 覆寫。
+4. 兩個報告分頁均可重新整理。
+5. 關閉主頁後，未過期報告仍可重新整理。
+6. Token 不存在、資料錯誤或過期時顯示明確提示。
 
-### 匯出
+### 列印／PDF
 
-- 無資料時不可匯出空備份。
-- 匯出前顯示筆數與明文個資警示。
-- 檔名：`soul-kaleidoscope-cases-YYYY-MM-DD.json`
-- 匯出後顯示最後備份時間。
-- iPhone 可在「檔案」App 找到備份。
+- 點「列印／儲存 PDF」可開啟列印介面。
+- 列印版隱藏返回、列印與清除按鈕。
+- A4 排版無截字、漏頁或整段切斷。
+- 手機與桌面報告內容一致。
+- PDF 頁尾保留版本資訊。
 
-### 匯入
+### 清除與隱私
 
-- 匯入前先顯示：新增、更新、相同略過、保留本機較新資料的筆數。
-- 使用者取消時不寫入。
-- 預設只使用「合併」，不清空現有資料。
-- 相同 ID 且匯入資料較新時更新。
-- 相同 ID 且本機較新時保留本機資料。
-- 錯誤 JSON、錯誤日期、重複 ID 或不支援 Schema 均不得寫入。
+- 「清除此報告」需要確認。
+- 清除後重新整理不可再次顯示。
+- 報告頁設定 `noindex,nofollow,noarchive`。
+- 預覽只存於同一瀏覽器 LocalStorage。
+- 不將報告傳送到 GitHub、Cloudflare 日誌或第三方分析服務。
 
 ---
 
@@ -239,58 +239,54 @@ npm run test:cases
 ### 版面
 
 - 首頁、輸入、個案管理與結果卡片左右對齊。
-- 個案管理按鈕在手機不造成水平捲動。
-- 個案列表可垂直滑動。
-- 寬表格只在表格容器內左右滑動，整頁不漂移。
+- 個案管理與報告按鈕不造成水平捲動。
+- 寬表格只在容器內左右滑動。
+- 報告頁手機版基本資料與數字結構使用單欄顯示。
 
-### 本機保存
+### 保存與快取
 
-- Safari 一般分頁保存後關閉再開，資料仍存在。
-- 加入主畫面後保存，關閉 App 再開資料仍存在。
-- 清除網站資料後個案會消失，畫面已明確提醒先備份。
-- 私密瀏覽模式顯示不保證長期保存的警示。
-- LocalStorage 不可用時，計算功能仍可使用；個案管理按鈕停用並顯示錯誤。
-
-### 快取
-
-- 頁首顯示 `v2.3.0`。
-- Service Worker cache name：`soul-kaleidoscope-v2.3.0`
-- 離線時能載入最近一次完整快取的核心、Profile、SNGL 與 Case Store 資產。
+- Safari 關閉再開後本機個案仍存在。
+- 主畫面 PWA 關閉再開後本機個案仍存在。
+- Service Worker cache name：`soul-kaleidoscope-v2.4.0`
+- 快取核心、Profile、SNGL、Case Store 與四個報告資產。
+- 已建立的有效報告在資產快取完整時可離線重新開啟。
 - 不快取第三方來源請求。
+
+### 新分頁呈現
+
+- 功能使用 `_blank` 開啟；實際顯示為 Safari 分頁、視窗或系統瀏覽器由 iOS 決定。
+- 無論呈現方式為何，報告內容與 Token 讀取必須正常。
+- 若新分頁被阻擋，主頁顯示明確提示。
 
 ---
 
 ## I. 靜態來源與版本檢查
 
-Cloudflare Build 必須確認：
+Build 必須確認：
 
-- App 版本 `2.3.0` 與引擎版本 `2.2.0` 分開管理。
-- `index.html` 包含 app-version metadata 與 `v2.3.0`。
-- `case-manager.css`、`case-store.js`、`case-ui.js` 已載入。
-- Service Worker 快取上述 P1 資產。
-- 快速閱覽中不存在：
-  - 國曆／農曆生日狀態。
-  - 本年國曆生日。
-  - 本年農曆生日。
-- P1 介面包含搜尋、列表、新增、覆寫、刪除、匯出與匯入。
-- 匯入預設為 merge。
+- App `2.4.0` 與 Engine `2.2.0` 分開管理。
+- 主頁版本、CSS 查詢字串與 Service Worker 快取一致。
+- Case Store、Case UI、Report Preview、Report Page 全部存在。
+- 主頁包含報告按鈕並載入 `report-preview.js`。
+- 報告頁包含列印與清除操作。
+- 報告頁只讀取報告快照，不重新計算。
+- Service Worker 快取 `report.html`、`report.css`、`report.js`、`report-preview.js`。
+- 快速閱覽中不存在生日狀態、本年國曆生日與本年農曆生日摘要卡。
 - 所有 JavaScript 可解析。
 - Schema、fixture 與 SNGL JSON 可解析。
-- Build 只生成 `lunar-data.js` 與 `sngl-data.js`，不臨時改寫正式 HTML、JS、CSS 或 Service Worker。
+- Build 只生成 `lunar-data.js` 與 `sngl-data.js`，不改寫正式 HTML、JS、CSS 或 Service Worker。
 
 ---
 
 ## J. 發版規則
 
-每次正式修改至少完成：
-
 1. 修改正式來源檔。
-2. 新增或更新 fixture／測試。
-3. 公式異動同步更新 `RULES_LOCK.md` 與計算引擎版本。
-4. App 功能異動更新 App 版本，不強制提升引擎版本。
+2. 新增或更新 fixture／測試／驗收文件。
+3. 公式異動更新 `RULES_LOCK.md` 與 Engine Version。
+4. App 功能異動更新 App Version。
 5. 資料模型異動更新 Schema 與 migration。
 6. SNGL 內容異動更新 dataVersion。
 7. 執行 `npm test` 與 `npm run build`。
-8. GitHub Actions 與 Cloudflare 組建成功。
-9. 使用固定案例與 P1 備份流程做手機人工驗收。
-10. 更新路線圖、驗收文件與 GitHub Issue。
+8. GitHub Actions 與 Cloudflare Build 成功。
+9. 使用固定案例、P1 備份流程與 P2a 報告流程做 iPhone 驗收。
+10. 更新路線圖、規格文件與 GitHub Issue。
