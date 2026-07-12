@@ -6,15 +6,69 @@
   <meta name="theme-color" content="#4B3B73" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
   <title>靈魂萬花筒｜個案報告</title>
-  <link rel="stylesheet" href="report.css?v=2.4.0" />
+  <link rel="stylesheet" href="report.css?v=2.5.0" />
 </head>
-<body>
+<body data-report-mode="full">
   <div class="report-shell">
     <nav class="report-actions" aria-label="報告操作">
       <a class="action-button action-button--secondary" href="./">返回計算器</a>
+      <button id="copyReportBtn" class="action-button action-button--secondary" type="button">複製純文字</button>
       <button id="printReportBtn" class="action-button action-button--primary" type="button">列印／儲存 PDF</button>
       <button id="clearReportBtn" class="action-button action-button--danger" type="button">清除此報告</button>
     </nav>
+
+    <section id="reportEditor" class="report-editor" aria-labelledby="report-editor-title">
+      <div class="editor-heading">
+        <div>
+          <p class="editor-kicker">Report Workspace</p>
+          <h1 id="report-editor-title">報告設定與草稿</h1>
+          <p>切換報告版本、調整段落並加入個案觀察。草稿只保存在目前瀏覽器。</p>
+        </div>
+        <span id="reportDraftStatus" class="draft-status">尚未修改</span>
+      </div>
+
+      <div class="editor-grid">
+        <label class="editor-field">
+          <span>報告版本</span>
+          <select id="reportModeSelect">
+            <option value="quick">快速版</option>
+            <option value="full" selected>完整版</option>
+            <option value="teacher">老師版</option>
+          </select>
+          <small>快速版適合簡短交付；完整版保留所有主要段落；老師版顯示 SNGL 技術資料。</small>
+        </label>
+
+        <fieldset class="section-toggles">
+          <legend>報告段落</legend>
+          <label><input type="checkbox" data-section-toggle="basic" checked />基本資料</label>
+          <label><input type="checkbox" data-section-toggle="summary" checked />數字摘要</label>
+          <label><input type="checkbox" data-section-toggle="interpretations" checked />頻率解讀</label>
+          <label><input type="checkbox" data-section-toggle="stages" checked />五階段數字</label>
+          <label><input type="checkbox" data-section-toggle="structure" checked />數字結構</label>
+          <label><input type="checkbox" data-section-toggle="notes" checked />個案補充</label>
+        </fieldset>
+      </div>
+
+      <div class="notes-editor">
+        <label>
+          <span>整體觀察</span>
+          <textarea id="reportOverviewInput" rows="4" placeholder="整理個案目前的整體狀態、核心主題與重要脈絡。"></textarea>
+        </label>
+        <label>
+          <span>當期重點</span>
+          <textarea id="reportFocusInput" rows="4" placeholder="記錄本次查詢期間需要特別留意的流年、關係或行動焦點。"></textarea>
+        </label>
+        <label>
+          <span>補充建議</span>
+          <textarea id="reportRecommendationsInput" rows="4" placeholder="加入實際可執行的練習、提醒或後續追蹤方向。"></textarea>
+        </label>
+      </div>
+
+      <div class="editor-actions">
+        <button id="saveReportDraftBtn" class="action-button action-button--primary" type="button">儲存草稿</button>
+        <button id="resetReportDraftBtn" class="action-button action-button--secondary" type="button">重設報告設定</button>
+      </div>
+    </section>
 
     <main id="reportApp" class="report-document" aria-live="polite">
       <section id="reportLoading" class="report-state">
@@ -32,11 +86,14 @@
         <header class="report-cover">
           <p class="report-kicker">Soul Kaleidoscope</p>
           <h1>靈魂萬花筒個案報告</h1>
+          <p id="reportModeLabel" class="report-mode-label">完整版</p>
           <p id="reportSubject" class="report-subject"></p>
           <p id="reportGeneratedAt" class="report-generated"></p>
         </header>
 
-        <section class="report-section">
+        <aside id="reportWarnings" class="report-warning" hidden></aside>
+
+        <section id="reportBasicSection" class="report-section" data-report-section="basic">
           <div class="section-heading">
             <span></span>
             <div>
@@ -47,7 +104,7 @@
           <dl id="basicInfo" class="info-grid"></dl>
         </section>
 
-        <section class="report-section">
+        <section id="reportSummarySection" class="report-section" data-report-section="summary">
           <div class="section-heading">
             <span></span>
             <div>
@@ -72,18 +129,38 @@
           </div>
         </section>
 
-        <section class="report-section">
+        <section id="reportInterpretationsSection" class="report-section" data-report-section="interpretations">
           <div class="section-heading">
             <span></span>
             <div>
               <h2>SNGL 頻率解讀</h2>
-              <p>目前第一版包含國曆主命數、農曆主命數、國曆流年與農曆流年。</p>
+              <p>目前包含國曆主命數、農曆主命數、國曆流年與農曆流年。</p>
             </div>
           </div>
           <div id="reportSections" class="interpretation-list"></div>
         </section>
 
-        <section class="report-section report-section--compact">
+        <section id="reportStagesSection" class="report-section" data-report-section="stages">
+          <div class="section-heading">
+            <span></span>
+            <div>
+              <h2>五階段數字</h2>
+              <p>呈現年、月、日、時、分依序累加後的完整數字鏈與靈魂等級。</p>
+            </div>
+          </div>
+          <div class="stage-grid">
+            <article class="stage-card">
+              <h3>國曆五階段</h3>
+              <div class="table-wrap"><table class="stage-table"><thead><tr><th>階段</th><th>輸入值</th><th>完整鏈</th><th>靈魂等級</th></tr></thead><tbody id="solarStages"></tbody></table></div>
+            </article>
+            <article class="stage-card">
+              <h3>農曆五階段</h3>
+              <div class="table-wrap"><table class="stage-table"><thead><tr><th>階段</th><th>輸入值</th><th>完整鏈</th><th>靈魂等級</th></tr></thead><tbody id="lunarStages"></tbody></table></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="reportStructureSection" class="report-section report-section--compact" data-report-section="structure">
           <div class="section-heading">
             <span></span>
             <div>
@@ -94,11 +171,28 @@
           <div id="horseCards" class="horse-grid"></div>
         </section>
 
+        <section id="reportNotesSection" class="report-section" data-report-section="notes">
+          <div class="section-heading">
+            <span></span>
+            <div>
+              <h2>個案補充</h2>
+              <p>由報告工作區加入的整體觀察、當期重點與可執行建議。</p>
+            </div>
+          </div>
+          <div class="notes-output">
+            <article><h3>整體觀察</h3><p id="noteOverviewOutput">—</p></article>
+            <article><h3>當期重點</h3><p id="noteFocusOutput">—</p></article>
+            <article><h3>補充建議</h3><p id="noteRecommendationsOutput">—</p></article>
+          </div>
+        </section>
+
         <footer id="reportVersions" class="report-footer"></footer>
       </article>
     </main>
   </div>
 
-  <script src="report.js?v=2.4.0"></script>
+  <div id="reportToast" class="report-toast" role="status" aria-live="polite"></div>
+  <script src="report-model.js?v=2.5.0"></script>
+  <script src="report.js?v=2.5.0"></script>
 </body>
 </html>
