@@ -83,6 +83,9 @@ check("匯出再匯入資料一致", importedReplace.database.records, Store.sor
 
 expectError("無效 JSON 被拒絕", () => Store.importDatabase(db, "{not-json", { mode: "merge" }));
 expectError("不支援 schema 被拒絕", () => Store.importDatabase(db, { schemaVersion: 99, records: [] }, { mode: "merge" }));
+expectError("缺少 records 陣列被拒絕", () => Store.importDatabase(db, { schemaVersion: 1, appVersion: "2.3.0" }, { mode: "merge" }));
+expectError("無效日曆日期被拒絕", () => Store.addRecord(empty, { ...recordA, id: "invalid-date", solarBirth: "2026-02-30" }));
+expectError("查詢日早於生日被拒絕", () => Store.addRecord(empty, { ...recordA, id: "invalid-order", solarBirth: "2026-07-06", queryDate: "2026-07-05" }));
 
 const storage = memoryStorage();
 const browserStore = Store.createStore({ storage, appVersion: "2.3.0" });
@@ -90,6 +93,11 @@ browserStore.save(db);
 const beforeFailedImport = storage.snapshot();
 expectError("匯入失敗會拋錯", () => browserStore.importText("{broken"));
 check("匯入失敗不改變原資料", storage.snapshot(), beforeFailedImport);
+
+const oldVersionStorage = memoryStorage();
+oldVersionStorage.setItem(Store.STORE_KEY, JSON.stringify({ ...db, appVersion: "2.2.0" }));
+const upgradedStore = Store.createStore({ storage: oldVersionStorage, appVersion: "2.3.0" });
+check("本機資料庫 appVersion 自動升級", upgradedStore.load().appVersion, "2.3.0");
 
 let hundred = Store.createEmptyDatabase({ appVersion: "2.3.0" });
 for (let index = 0; index < 100; index += 1) {
