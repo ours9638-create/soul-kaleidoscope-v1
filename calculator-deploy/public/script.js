@@ -3,15 +3,17 @@
 
   const $ = (id) => document.getElementById(id);
   const C = window.SoulKaleidoscopeCore;
+  const Profile = window.SoulKaleidoscopeProfile;
+  const ReportEngine = window.SoulKaleidoscopeReport;
   const statusNode = $("systemStatus");
   const statusDetailNode = $("systemStatusDetail");
 
-  if (!C || !Array.isArray(window.LUNAR_DATA) || window.LUNAR_DATA.length === 0) {
+  if (!C || !Profile || !ReportEngine || !Array.isArray(window.LUNAR_DATA) || window.LUNAR_DATA.length === 0 || !window.SNGL_DATA?.numbers) {
     if (statusNode) {
       statusNode.textContent = "引擎載入失敗";
       statusNode.classList.add("status-pill--error");
     }
-    if (statusDetailNode) statusDetailNode.textContent = "核心程式或農曆資料未正確載入，請重新整理或查看部署紀錄。";
+    if (statusDetailNode) statusDetailNode.textContent = "核心程式、統一資料模型、SNGL 資料或農曆資料未正確載入，請重新整理或查看部署紀錄。";
     return;
   }
 
@@ -25,7 +27,7 @@
     "copyQuickBtn","copyFullBtn","systemStatus","systemStatusDetail","toast"
   ];
   const el = Object.fromEntries(ids.map((id) => [id, $(id)]));
-  let lastResult = null;
+  let lastProfile = null;
 
   function toast(message) {
     el.toast.textContent = message;
@@ -129,50 +131,58 @@
     table.innerHTML = `<thead><tr>${labels.map((label) => `<th>${label}</th>`).join("")}</tr></thead><tbody><tr>${values.map((item) => `<td>${item}</td>`).join("")}</tr></tbody>`;
   }
 
-  function render(input, result) {
-    const lunarBirthText = `${input.lunarBirth.year}/${C.pad2(input.lunarBirth.month)}/${C.pad2(input.lunarBirth.day)}${input.lunarBirth.leap ? "（閏月）" : ""}`;
-    el.summaryName.textContent = input.name;
-    el.summaryQueryDate.textContent = C.formatDateSlash(input.queryDate);
-    el.summaryQueryLunar.textContent = C.formatLunarDate(result.queryLunar);
-    el.summaryLunarAdjustment.textContent = input.lunarBirth.leap ? `閏${C.pad2(input.lunarBirth.month)}月 → 計算${C.pad2(input.lunarBirth.calculationMonth)}月` : "未遇閏月";
-    el.summaryTimeRule.textContent = input.time.inputHour === 0 ? `輸入 00:${C.pad2(input.time.minute)}，計算時數 24` : `${C.pad2(input.time.inputHour)}:${C.pad2(input.time.minute)}`;
+  function render(profile) {
+    const source = profile.source;
+    const solar = profile.numerology.solar;
+    const lunar = profile.numerology.lunar;
+    const lunarBirth = source.lunarBirth;
+    const lunarBirthText = `${lunarBirth.year}/${C.pad2(lunarBirth.month)}/${C.pad2(lunarBirth.day)}${lunarBirth.leap ? "（閏月）" : ""}`;
 
-    el.solarBirthdayCell.textContent = C.formatDateSlash(el.solarBirth.value);
+    el.summaryName.textContent = profile.subject.name;
+    el.summaryQueryDate.textContent = C.formatDateSlash(source.queryDate);
+    el.summaryQueryLunar.textContent = C.formatLunarDate(profile.calendar.queryLunar);
+    el.summaryLunarAdjustment.textContent = lunarBirth.leap ? `閏${C.pad2(lunarBirth.month)}月 → 計算${C.pad2(lunarBirth.calculationMonth)}月` : "未遇閏月";
+    el.summaryTimeRule.textContent = source.calculationHour === 24 ? `輸入 ${source.birthTime}，計算時數 24` : source.birthTime;
+
+    el.solarBirthdayCell.textContent = C.formatDateSlash(source.solarBirthDate);
     el.lunarBirthdayCell.textContent = lunarBirthText;
-    el.solarFlowYear.textContent = result.solarFlow.flowYear;
-    el.solarPosition.textContent = result.solarFlow.position ?? "—";
-    el.solarFlowMonth.textContent = result.solarFlow.flowMonth;
-    el.solarFlowDay.textContent = result.solarFlow.flowDay;
-    el.lunarFlowYear.textContent = result.lunarFlow.flowYear || "—";
-    el.lunarPosition.textContent = result.lunarFlow.position ?? "—";
-    el.lunarFlowMonth.textContent = result.lunarFlow.flowMonth || "—";
-    el.lunarFlowDay.textContent = result.lunarFlow.flowDay || "—";
+    el.solarFlowYear.textContent = solar.flow.flowYear;
+    el.solarPosition.textContent = solar.flow.position ?? "—";
+    el.solarFlowMonth.textContent = solar.flow.flowMonth;
+    el.solarFlowDay.textContent = solar.flow.flowDay;
+    el.lunarFlowYear.textContent = lunar.flow.flowYear || "—";
+    el.lunarPosition.textContent = lunar.flow.position ?? "—";
+    el.lunarFlowMonth.textContent = lunar.flow.flowMonth || "—";
+    el.lunarFlowDay.textContent = lunar.flow.flowDay || "—";
 
-    renderDetail(el.solarDetailTable, result.solarSoul);
-    renderDetail(el.lunarDetailTable, result.lunarSoul);
-    renderHorse(el.solarHorseTable, result.solarHorse);
-    renderHorse(el.lunarHorseTable, result.lunarHorse);
+    renderDetail(el.solarDetailTable, solar.soulStages);
+    renderDetail(el.lunarDetailTable, lunar.soulStages);
+    renderHorse(el.solarHorseTable, solar.horse);
+    renderHorse(el.lunarHorseTable, lunar.horse);
   }
 
   function resultText(full = false) {
-    if (!lastResult) return "尚未計算";
-    const { input, result } = lastResult;
+    if (!lastProfile) return "尚未計算";
+    const profile = lastProfile;
+    const solar = profile.numerology.solar;
+    const lunar = profile.numerology.lunar;
     const lines = [
-      `姓名：${input.name}`,
-      `查詢日期：${C.formatDateSlash(input.queryDate)}（農曆 ${C.formatLunarDate(result.queryLunar)}）`,
-      `國曆：流年 ${result.solarFlow.flowYear}｜位格 ${result.solarFlow.position}｜流月 ${result.solarFlow.flowMonth}｜流日 ${result.solarFlow.flowDay}`,
-      `農曆：流年 ${result.lunarFlow.flowYear || "—"}｜位格 ${result.lunarFlow.position ?? "—"}｜流月 ${result.lunarFlow.flowMonth || "—"}｜流日 ${result.lunarFlow.flowDay || "—"}`
+      `姓名：${profile.subject.name}`,
+      `查詢日期：${C.formatDateSlash(profile.source.queryDate)}（農曆 ${C.formatLunarDate(profile.calendar.queryLunar)}）`,
+      `國曆：流年 ${solar.flow.flowYear}｜位格 ${solar.flow.position}｜流月 ${solar.flow.flowMonth}｜流日 ${solar.flow.flowDay}`,
+      `農曆：流年 ${lunar.flow.flowYear || "—"}｜位格 ${lunar.flow.position ?? "—"}｜流月 ${lunar.flow.flowMonth || "—"}｜流日 ${lunar.flow.flowDay || "—"}`
     ];
     if (full) {
-      lines.push(`國曆主數：${result.solarSoul.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
-      lines.push(`農曆主數：${result.lunarSoul.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
+      lines.push(`國曆主數：${solar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
+      lines.push(`農曆主數：${lunar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
       lines.push(`時間：${el.summaryTimeRule.textContent}`);
+      lines.push(`資料版本：模型 ${profile.meta.schemaVersion}｜引擎 ${profile.meta.engineVersion}｜SNGL ${profile.outputs.report.version}`);
     }
     return lines.join("\n");
   }
 
   async function copy(full) {
-    if (!lastResult) return toast("請先計算");
+    if (!lastProfile) return toast("請先計算");
     try {
       await navigator.clipboard.writeText(resultText(full));
       toast(full ? "已複製完整結果" : "已複製快速結果");
@@ -193,9 +203,14 @@
     try {
       const input = readInput();
       const result = engine.calculateAll(input);
-      lastResult = { input, result };
-      render(input, result);
-      notice("計算完成。");
+      const profile = Profile.build({ input, result, engineVersion: C.VERSION });
+      const validation = Profile.validate(profile);
+      if (!validation.ok) throw new Error(`統一資料模型驗證失敗：${validation.errors.join("、")}`);
+      profile.outputs.report = ReportEngine.generate(profile, window.SNGL_DATA);
+      lastProfile = profile;
+      window.__SOUL_PROFILE__ = profile;
+      render(profile);
+      notice("計算完成。統一資料模型與 SNGL 報告已同步建立。");
       toast("計算完成");
     } catch (error) {
       notice(error.message, true);
@@ -205,7 +220,8 @@
 
   el.resetBtn.addEventListener("click", () => {
     el.calcForm.reset();
-    lastResult = null;
+    lastProfile = null;
+    delete window.__SOUL_PROFILE__;
     document.querySelectorAll("#resultPanel strong, #resultPanel td").forEach((node) => {
       if (!node.closest("table[id]")) node.textContent = "—";
     });
@@ -218,7 +234,9 @@
   const test = engine.runSelfTests();
   el.systemStatus.textContent = test.ok ? `引擎自檢通過 ${test.passed}/${test.total}` : `引擎自檢失敗 ${test.passed}/${test.total}`;
   el.systemStatus.classList.toggle("status-pill--error", !test.ok);
-  el.systemStatusDetail.textContent = test.ok ? "27 項核心規則、農曆換算、跨年生日、凌晨 12 點與靈魂等級均正常。" : test.failed.map((item) => item.name).join("、");
+  el.systemStatusDetail.textContent = test.ok
+    ? `核心規則 ${test.passed}/${test.total} 通過；統一模型 ${Profile.SCHEMA_VERSION}、SNGL 報告 ${ReportEngine.VERSION} 已載入。`
+    : test.failed.map((item) => item.name).join("、");
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
