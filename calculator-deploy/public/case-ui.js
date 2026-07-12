@@ -176,7 +176,7 @@
     document.body.append(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     const timestamp = new Date().toISOString();
     localStorage.setItem(LAST_BACKUP_KEY, timestamp);
@@ -225,6 +225,12 @@
   importInput.addEventListener("change", async () => {
     try { await importBackup(importInput.files?.[0]); } catch (error) { showNotice(`匯入失敗：${error.message}`, true); }
     finally { importInput.value = ""; }
+  });
+  $("resetBtn")?.addEventListener("click", () => {
+    currentCaseId = null;
+    currentNode.textContent = "目前未載入個案";
+    try { renderList(); } catch (error) { showNotice(error.message, true); }
+    showNotice("已清除計算表單；本機個案資料未刪除。");
   });
 
   try {
