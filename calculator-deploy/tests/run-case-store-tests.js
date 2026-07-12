@@ -64,8 +64,8 @@ const updatedA = db.records.find((record) => record.id === "case-a");
 check("覆寫保留 createdAt", updatedA.createdAt, recordA.createdAt);
 check("覆寫更新 modifiedAt", updatedA.modifiedAt, "2026-07-12T03:00:00.000Z");
 
-const deleted = Store.deleteRecord(db, "case-b");
-check("刪除指定 ID", deleted.records.map((record) => record.id), ["case-a"]);
+db = Store.deleteRecord(db, "case-b");
+check("刪除指定 ID", db.records.map((record) => record.id), ["case-a"]);
 
 const recordC = Store.recordFromProfile(profile("Joanna", "1991-09-23"), {
   id: "case-c",
