@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "cases": [
     {
       "id": "case-1989-05-28",
@@ -70,6 +70,45 @@
           "flowYear": "13/4",
           "position": 1
         }
+      }
+    },
+    {
+      "id": "case-1991-09-23",
+      "name": "固定案例三｜Ruru",
+      "input": {
+        "name": "Ruru",
+        "solarBirthDate": "1991-09-23",
+        "birthTime": "11:17",
+        "queryDate": "2026-07-11",
+        "lunarBirth": {
+          "year": 1991,
+          "month": 8,
+          "day": 16,
+          "leap": false,
+          "calculationMonth": 8
+        }
+      },
+      "expected": {
+        "queryLunar": "2026/05/27",
+        "annualLunarBirthdayGregorian": "2026-09-26",
+        "solarFlow": {
+          "status": "尚未過生日",
+          "flowYear": "23/5",
+          "position": 8,
+          "flowMonth": "32/5",
+          "flowDay": "31/4"
+        },
+        "lunarFlow": {
+          "status": "尚未過生日",
+          "flowYear": "24/6",
+          "position": 8,
+          "flowMonth": "32/5",
+          "flowDay": "37/10/1"
+        },
+        "solarSoulChains": ["20/2", "29/11/2", "34/7", "36/9", "44/8"],
+        "lunarSoulChains": ["20/2", "28/10/1", "35/8", "37/10/1", "45/9"],
+        "solarHorse": { "noble": 3, "first": 4 },
+        "lunarHorse": { "noble": 6, "first": 1 }
       }
     }
   ]
