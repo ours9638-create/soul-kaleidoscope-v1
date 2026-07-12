@@ -83,6 +83,20 @@ for (const fixture of fixtures.cases) {
   check(`${prefix} SNGL 報告無空白代碼`, report.sections.every((section) => Boolean(section.code && section.clientText)), true);
 }
 
+const reviewInput = makeInput(fixtures.cases[0].input);
+const reviewResult = engine.calculateAll(reviewInput);
+reviewResult.lunarFlow.flowYear = "";
+reviewResult.lunarFlow.needsReview = true;
+const reviewProfile = Profile.build({
+  input: reviewInput,
+  result: reviewResult,
+  engineVersion: C.VERSION,
+  generatedAt: "2026-07-12T00:00:00.000Z"
+});
+const reviewReport = Report.generate(reviewProfile, snglData);
+check("需人工確認時略過空白農曆流年段落", reviewReport.sections.some((section) => section.role === "annual-lunar"), false);
+check("需人工確認報告保留標記", reviewReport.needsReview, true);
+
 check("SNGL 0～9 資料完整", Object.keys(snglData.numbers).sort(), ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 check("統一模型版本", Profile.SCHEMA_VERSION, "1.0.0");
 check("SNGL 報告引擎版本", Report.VERSION, "1.0.0");
