@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "case-1989-05-28",
+      "name": "固定案例一",
+      "input": {
+        "name": "測試",
+        "solarBirthDate": "1989-05-28",
+        "birthTime": "15:17",
+        "queryDate": "2026-07-05",
+        "lunarBirth": {
+          "year": 1989,
+          "month": 4,
+          "day": 24,
+          "leap": false,
+          "calculationMonth": 4
+        }
+      },
+      "expected": {
+        "queryLunar": "2026/05/21",
+        "solarFlow": {
+          "status": "已過生日",
+          "flowYear": "25/7",
+          "position": 2,
+          "flowMonth": "44/8",
+          "flowDay": "37/10/1"
+        },
+        "lunarFlow": {
+          "status": "已過生日",
+          "flowYear": "20/2",
+          "position": 2,
+          "flowMonth": "38/11/2",
+          "flowDay": "34/7"
+        },
+        "solarSoulChains": ["27/9", "32/5", "42/6", "48/12/3", "56/11/2"],
+        "lunarSoulChains": ["27/9", "31/4", "37/10/1", "43/7", "51/6"],
+        "lunarPrimaryLevel": "5級",
+        "solarHorse": { "noble": 7, "first": 4 },
+        "lunarHorse": { "noble": 7, "first": 2 }
+      }
+    },
+    {
+      "id": "case-1989-12-28",
+      "name": "固定案例二",
+      "input": {
+        "name": "Bob",
+        "solarBirthDate": "1989-12-28",
+        "birthTime": "00:00",
+        "queryDate": "2026-07-06",
+        "lunarBirth": {
+          "year": 1989,
+          "month": 12,
+          "day": 1,
+          "leap": false,
+          "calculationMonth": 12
+        }
+      },
+      "expected": {
+        "queryLunar": "2026/05/22",
+        "calculationHour": 24,
+        "annualLunarBirthdayGregorian": "2027-01-08",
+        "solarFlow": {
+          "status": "尚未過生日",
+          "flowYear": "22/4",
+          "position": 1
+        },
+        "lunarFlow": {
+          "status": "尚未過生日",
+          "flowYear": "13/4",
+          "position": 1
+        }
+      }
+    }
+  ]
+}
