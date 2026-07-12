@@ -7,7 +7,7 @@
 - Soul Profile Schema：`1.0.0`
 - SNGL Report Engine：`1.0.0`
 - SNGL Number Data：`1.0.0`
-- Case Store Module：`1.0.0`
+- Case Store Module：`1.0.1`
 - Case Store Schema：`1`
 
 產品版本與計算引擎版本分開管理。P1 功能上線不得改動既有公式結果。
@@ -35,7 +35,7 @@ npm run test:core
 ```text
 Regression suite passed .../...
 Core self-tests passed 27/27.
-Case store tests passed 20/20.
+Case store tests passed 24/24.
 Generated public/sngl-data.js version 1.0.0.
 Static source validation passed 29/29.
 Formula regression passed 27/27.
@@ -166,7 +166,7 @@ P0 關閉前必須補上：
 npm run test:cases
 ```
 
-必須通過 20 項檢查：
+必須通過 24 項檢查：
 
 - 空資料庫初始化與 Schema。
 - 新增一筆。
@@ -178,7 +178,11 @@ npm run test:cases
 - JSON 匯出再匯入資料一致。
 - 無效 JSON 被拒絕。
 - 不支援 Schema 被拒絕。
+- 缺少 `records` 陣列被拒絕。
+- 無效日曆日期被拒絕。
+- 查詢日期早於生日被拒絕。
 - 匯入失敗不改變本機原資料。
+- 舊 App 版本的本機資料庫可更新為目前 App 版本。
 - 100 筆資料保存與搜尋正常。
 - 舊 Schema `0` 與舊欄位可遷移。
 
@@ -195,6 +199,7 @@ npm run test:cases
 5. 修改姓名或查詢日期後點「覆寫目前個案」，ID 與建立時間保持不變。
 6. 點「儲存為新個案」，建立另一個新 ID。
 7. 同名紀錄可以並存。
+8. 點「清除重算」後取消目前個案選取，覆寫與刪除按鈕停用。
 
 ### 搜尋與排序
 
@@ -286,6 +291,6 @@ Cloudflare Build 必須確認：
 5. 資料模型異動更新 Schema 與 migration。
 6. SNGL 內容異動更新 dataVersion。
 7. 執行 `npm test` 與 `npm run build`。
-8. Cloudflare 組建成功。
+8. GitHub Actions 與 Cloudflare 組建成功。
 9. 使用固定案例與 P1 備份流程做手機人工驗收。
 10. 更新路線圖、驗收文件與 GitHub Issue。
