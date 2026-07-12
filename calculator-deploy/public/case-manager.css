@@ -1,0 +1,152 @@
+/* P1 local case manager. */
+.case-panel {
+  overflow: hidden;
+}
+
+.case-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.case-meta {
+  display: grid;
+  gap: 5px;
+  min-width: 190px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.case-meta strong {
+  color: var(--ink);
+  font-size: .92rem;
+}
+
+.case-list {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 2px;
+  margin-bottom: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.case-empty {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 15px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.case-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.case-item:hover,
+.case-item:focus-visible {
+  border-color: var(--purple2);
+  outline: 3px solid rgba(109,90,147,.13);
+}
+
+.case-item.is-selected {
+  border-color: var(--purple2);
+  background: #f7f3ff;
+  box-shadow: inset 4px 0 0 var(--purple2);
+}
+
+.case-item__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 900;
+}
+
+.case-item__date,
+.case-item__modified {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.case-item__modified {
+  grid-column: 1 / -1;
+}
+
+.case-actions {
+  margin-top: 12px;
+}
+
+.case-actions button {
+  flex-basis: 145px;
+}
+
+.case-actions button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.case-danger {
+  border: 1px solid #efc4cc;
+  background: #fff2f4;
+  color: var(--danger);
+}
+
+.case-notice {
+  min-height: 1.4em;
+  margin: 12px 0 0;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.case-notice.is-error {
+  color: var(--danger);
+}
+
+.case-privacy {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .case-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .case-meta {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .case-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .case-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
