@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.0.1";
   const SCHEMA_VERSION = 1;
   const STORE_KEY = "soul-kaleidoscope.case-store";
   const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -15,14 +15,25 @@
     return `case-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
+  function isValidDate(value) {
+    if (!DATE_RE.test(String(value || ""))) return false;
+    const [year, month, day] = String(value).split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+  }
+
   function validateRecord(record) {
     const errors = [];
     if (!record || typeof record !== "object") return { ok: false, errors: ["個案紀錄必須是物件"] };
     if (!record.id || typeof record.id !== "string") errors.push("id 不可為空");
     if (typeof record.name !== "string") errors.push("name 必須是文字");
-    if (!DATE_RE.test(record.solarBirth || "")) errors.push("solarBirth 格式錯誤");
+    if (!isValidDate(record.solarBirth)) errors.push("solarBirth 日期錯誤");
     if (!TIME_RE.test(record.birthTime || "")) errors.push("birthTime 格式錯誤");
-    if (!DATE_RE.test(record.queryDate || "")) errors.push("queryDate 格式錯誤");
+    if (!isValidDate(record.queryDate)) errors.push("queryDate 日期錯誤");
+    if (isValidDate(record.solarBirth) && isValidDate(record.queryDate) && record.queryDate < record.solarBirth) {
+      errors.push("queryDate 不可早於 solarBirth");
+    }
+
     if (!record.lunarBirth || typeof record.lunarBirth !== "object") {
       errors.push("lunarBirth 不可為空");
     } else {
@@ -32,6 +43,7 @@
       if (!Number.isInteger(day) || day < 1 || day > 30) errors.push("lunarBirth.day 錯誤");
       if (typeof leap !== "boolean") errors.push("lunarBirth.leap 必須為布林值");
     }
+
     if (!record.engineVersion || typeof record.engineVersion !== "string") errors.push("engineVersion 不可為空");
     if (Number.isNaN(Date.parse(record.createdAt || ""))) errors.push("createdAt 格式錯誤");
     if (Number.isNaN(Date.parse(record.modifiedAt || ""))) errors.push("modifiedAt 格式錯誤");
@@ -64,33 +76,30 @@
     return { schemaVersion: SCHEMA_VERSION, exportedAt, appVersion: String(appVersion), records: [] };
   }
 
+  function normalizeRecordArray(value) {
+    if (!Array.isArray(value)) throw new Error("records 必須是陣列");
+    return value.map(normalizeRecord);
+  }
+
   function migrateDatabase(value, { appVersion = "unknown" } = {}) {
     if (Array.isArray(value)) {
       return {
         schemaVersion: SCHEMA_VERSION,
         exportedAt: nowIso(),
-        appVersion,
+        appVersion: String(appVersion),
         records: value.map(normalizeRecord)
       };
     }
     if (!value || typeof value !== "object") throw new Error("備份資料必須是物件或舊版陣列");
-    if (value.schemaVersion === SCHEMA_VERSION) {
-      return {
-        schemaVersion: SCHEMA_VERSION,
-        exportedAt: String(value.exportedAt || nowIso()),
-        appVersion: String(value.appVersion || appVersion),
-        records: (value.records || []).map(normalizeRecord)
-      };
+    if (value.schemaVersion !== SCHEMA_VERSION && value.schemaVersion !== 0) {
+      throw new Error(`不支援的個案資料版本：${value.schemaVersion}`);
     }
-    if (value.schemaVersion === 0) {
-      return {
-        schemaVersion: SCHEMA_VERSION,
-        exportedAt: String(value.exportedAt || nowIso()),
-        appVersion: String(value.appVersion || appVersion),
-        records: (value.records || []).map(normalizeRecord)
-      };
-    }
-    throw new Error(`不支援的個案資料版本：${value.schemaVersion}`);
+    return {
+      schemaVersion: SCHEMA_VERSION,
+      exportedAt: String(value.exportedAt || nowIso()),
+      appVersion: String(value.appVersion || appVersion),
+      records: normalizeRecordArray(value.records)
+    };
   }
 
   function validateDatabase(database) {
@@ -166,6 +175,8 @@
 
   function exportDatabase(database, { appVersion = database?.appVersion || "unknown", exportedAt = nowIso() } = {}) {
     const db = migrateDatabase(database, { appVersion });
+    const validation = validateDatabase(db);
+    if (!validation.ok) throw new Error(`個案資料庫驗證失敗：${validation.errors.join("、")}`);
     return JSON.stringify({ ...db, appVersion: String(appVersion), exportedAt, records: sortRecords(db.records) }, null, 2);
   }
 
@@ -178,7 +189,7 @@
 
     if (mode === "replace") {
       return {
-        database: { ...incoming, appVersion, exportedAt: nowIso(), records: sortRecords(incoming.records) },
+        database: { ...incoming, appVersion: String(appVersion), exportedAt: nowIso(), records: sortRecords(incoming.records) },
         summary: { added: incoming.records.length, updated: 0, skipped: 0, conflicts: 0, mode }
       };
     }
@@ -191,13 +202,9 @@
       if (!existing) {
         map.set(record.id, record);
         summary.added += 1;
-        continue;
-      }
-      if (JSON.stringify(existing) === JSON.stringify(record)) {
+      } else if (JSON.stringify(existing) === JSON.stringify(record)) {
         summary.skipped += 1;
-        continue;
-      }
-      if (record.modifiedAt > existing.modifiedAt) {
+      } else if (record.modifiedAt > existing.modifiedAt) {
         map.set(record.id, record);
         summary.updated += 1;
       } else {
@@ -205,7 +212,12 @@
       }
     }
     return {
-      database: { ...current, appVersion, exportedAt: nowIso(), records: sortRecords([...map.values()]) },
+      database: {
+        ...current,
+        appVersion: String(appVersion),
+        exportedAt: nowIso(),
+        records: sortRecords([...map.values()])
+      },
       summary
     };
   }
@@ -216,10 +228,16 @@
     }
 
     function save(database) {
-      const db = migrateDatabase(database, { appVersion });
+      const migrated = migrateDatabase(database, { appVersion });
+      const db = { ...migrated, appVersion: String(appVersion) };
       const validation = validateDatabase(db);
       if (!validation.ok) throw new Error(`個案資料庫驗證失敗：${validation.errors.join("、")}`);
-      storage.setItem(STORE_KEY, JSON.stringify(db));
+      try {
+        storage.setItem(STORE_KEY, JSON.stringify(db));
+      } catch (error) {
+        const message = error?.name === "QuotaExceededError" ? "本機儲存空間不足，請先匯出備份並刪除不需要的個案" : "無法寫入本機個案資料";
+        throw new Error(message);
+      }
       return clone(db);
     }
 
@@ -235,8 +253,9 @@
       const migrated = migrateDatabase(parsed, { appVersion });
       const validation = validateDatabase(migrated);
       if (!validation.ok) throw new Error(`本機個案資料驗證失敗：${validation.errors.join("、")}`);
-      if (JSON.stringify(parsed) !== JSON.stringify(migrated)) save(migrated);
-      return clone(migrated);
+      const normalized = { ...migrated, appVersion: String(appVersion) };
+      if (JSON.stringify(parsed) !== JSON.stringify(normalized)) save(normalized);
+      return clone(normalized);
     }
 
     function addFromProfile(profile, options = {}) {
@@ -256,13 +275,11 @@
     }
 
     function remove(id) {
-      const database = load();
-      return save(deleteRecord(database, id));
+      return save(deleteRecord(load(), id));
     }
 
     function importText(text, options = {}) {
-      const current = load();
-      const result = importDatabase(current, text, { ...options, appVersion });
+      const result = importDatabase(load(), text, { ...options, appVersion });
       save(result.database);
       return result;
     }
@@ -284,6 +301,7 @@
     VERSION,
     SCHEMA_VERSION,
     STORE_KEY,
+    isValidDate,
     createEmptyDatabase,
     migrateDatabase,
     validateRecord,
