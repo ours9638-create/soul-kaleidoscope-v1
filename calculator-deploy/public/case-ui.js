@@ -187,9 +187,15 @@
   async function importBackup(file) {
     if (!file) return;
     const text = await file.text();
-    const confirmed = window.confirm(`準備合併匯入「${file.name}」。\n現有資料不會先被清空；相同 ID 僅在匯入資料較新時更新。`);
+    const preview = CaseStore.importDatabase(store.load(), text, { mode: "merge", appVersion });
+    const { summary } = preview;
+    const confirmed = window.confirm(
+      `匯入預覽｜${file.name}\n\n` +
+      `新增：${summary.added} 筆\n更新：${summary.updated} 筆\n相同略過：${summary.skipped} 筆\n保留本機較新資料：${summary.conflicts} 筆\n\n` +
+      "現有資料不會先被清空。確定合併匯入？"
+    );
     if (!confirmed) return;
-    const { summary } = store.importText(text, { mode: "merge" });
+    store.save(preview.database);
     renderList();
     showNotice(`匯入完成：新增 ${summary.added}、更新 ${summary.updated}、略過 ${summary.skipped}、保留本機較新資料 ${summary.conflicts}。`);
   }
