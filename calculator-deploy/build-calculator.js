@@ -4,7 +4,7 @@ import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const APP_VERSION = packageJson.version;
-const UI_VERSION = `${APP_VERSION}-r3`;
+const UI_VERSION = `${APP_VERSION}-r4`;
 const requiredFiles = [
   "public/index.html",
   "public/style.css",
