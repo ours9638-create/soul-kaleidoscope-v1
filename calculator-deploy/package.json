@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node build-calculator.js",
-    "build": "node build-calculator.js",
+    "test": "node tests/run-regression-tests.js",
+    "check": "npm test && node build-calculator.js",
+    "build": "npm test && node build-calculator.js",
     "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
