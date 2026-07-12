@@ -1,18 +1,22 @@
-const CACHE_NAME = "soul-kaleidoscope-v2.3.0";
+const CACHE_NAME = "soul-kaleidoscope-v2.4.0";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./layout-fix.css",
   "./case-manager.css",
+  "./report.html",
+  "./report.css",
+  "./report.js",
+  "./report-preview.js",
   "./lunar-data.js",
   "./core.js",
   "./profile-model.js",
   "./sngl-data.js",
   "./sngl-report.js",
   "./case-store.js",
-  "./script.js",
   "./case-ui.js",
+  "./script.js",
   "./manifest.webmanifest",
   "./icon.svg"
 ];
