@@ -1,4 +1,4 @@
-const CACHE_NAME = "soul-kaleidoscope-v2.4.0";
+const CACHE_NAME = "soul-kaleidoscope-v2.5.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./case-manager.css",
   "./report.html",
   "./report.css",
+  "./report-model.js",
   "./report.js",
   "./report-preview.js",
   "./lunar-data.js",
