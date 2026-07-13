@@ -48,5 +48,8 @@ jobs:
       - name: Run case store tests
         run: npm run test:cases
 
+      - name: Run report model tests
+        run: npm run test:report
+
       - name: Validate production build
         run: node build-calculator.js
