@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "2.2.0";
+  const VERSION = "2.2.1";
 
   const pad2 = (n) => String(Number(n)).padStart(2, "0");
   const pad4 = (n) => String(Number(n)).padStart(4, "0");
@@ -59,6 +59,7 @@
     const dayR = reduceMod9(day);
     const first = Math.abs(monthR - dayR);
     const second = Math.abs(dayR - yearR);
+    const dayMoonChain = chainFromNumber(Number(month) + Number(day));
 
     return {
       yearR,
@@ -66,7 +67,8 @@
       dayR,
       noble: reduceMod9(reduceMod9(monthR + dayR) + reduceMod9(dayR + yearR)),
       daySeat: dayR,
-      dayMoon: reduceMod9(monthR + dayR),
+      dayMoon: finalFromChain(dayMoonChain),
+      dayMoonChain,
       first,
       second,
       third: Math.abs(first - second),
@@ -206,6 +208,8 @@
         ["陰曆貴人數", sampleResult.lunarHorse.noble, 7],
         ["陽曆第一木馬", sampleResult.solarHorse.first, 4],
         ["陰曆第一木馬", sampleResult.lunarHorse.first, 2],
+        ["國曆日月綻放完整鏈", sampleResult.solarHorse.dayMoonChain, "33/6"],
+        ["陰曆日月綻放完整鏈", sampleResult.lunarHorse.dayMoonChain, "28/10/1"],
         ["Bob 國曆尚未過生日", bobResult.solarFlow.status, "尚未過生日"],
         ["Bob 農曆尚未過生日", bobResult.lunarFlow.status, "尚未過生日"],
         ["Bob 國曆流年", bobResult.solarFlow.flowYear, "22/4"],
@@ -235,6 +239,7 @@
     formatLunarDate,
     normalizeHourForCalculation,
     effectiveLunarMonth,
+    chainFromNumber,
     createEngine
   };
 })(globalThis);
