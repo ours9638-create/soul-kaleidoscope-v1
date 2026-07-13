@@ -46,7 +46,7 @@ function makeInput(source) {
 
 const coreSelfTest = engine.runSelfTests();
 check("核心內建自檢通過", coreSelfTest.ok, true);
-check("核心內建自檢數量", coreSelfTest.total, 27);
+check("核心內建自檢數量", coreSelfTest.total, 29);
 
 for (const fixture of fixtures.cases) {
   const input = makeInput(fixture.input);
