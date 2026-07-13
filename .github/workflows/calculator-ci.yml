@@ -54,5 +54,17 @@ jobs:
       - name: Run kaleidoscope model tests
         run: npm run test:kaleidoscope
 
+      - name: Run knowledge data tests
+        run: npm run test:knowledge
+
+      - name: Upload knowledge diff summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-number-topic-diff
+          path: calculator-deploy/data/knowledge/reports/number-topic-diff.generated.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Validate production build
         run: node build-calculator.js
