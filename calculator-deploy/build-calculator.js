@@ -12,6 +12,9 @@ const requiredFiles = [
   "public/layout-fix.css",
   "public/case-manager.css",
   "public/brand-theme.css",
+  "public/results-ui.css",
+  "public/results-ui.js",
+  "public/kaleidoscope-model.js",
   "public/report.html",
   "public/report.css",
   "public/report-brand.css",
@@ -33,7 +36,8 @@ const requiredFiles = [
   "tests/fixtures/regression-cases.json",
   "tests/run-regression-tests.js",
   "tests/run-case-store-tests.js",
-  "tests/run-report-model-tests.js"
+  "tests/run-report-model-tests.js",
+  "tests/run-kaleidoscope-model-tests.js"
 ];
 
 for (const file of requiredFiles) {
@@ -77,7 +81,10 @@ writeFileSync("public/sngl-data.js", snglOutput, "utf8");
 
 const indexHtml = readFileSync("public/index.html", "utf8");
 const reportHtml = readFileSync("public/report.html", "utf8");
+const manifest = JSON.parse(readFileSync("public/manifest.webmanifest", "utf8"));
 const scriptText = readFileSync("public/script.js", "utf8");
+const resultsUiText = readFileSync("public/results-ui.js", "utf8");
+const visualModelText = readFileSync("public/kaleidoscope-model.js", "utf8");
 const profileText = readFileSync("public/profile-model.js", "utf8");
 const reportEngineText = readFileSync("public/sngl-report.js", "utf8");
 const reportModelText = readFileSync("public/report-model.js", "utf8");
@@ -95,14 +102,29 @@ const sourceChecks = [
   [indexHtml.includes(`layout-fix.css?v=${UI_VERSION}`), "index.html layout stylesheet version is inconsistent"],
   [indexHtml.includes(`case-manager.css?v=${UI_VERSION}`), "case manager stylesheet version is inconsistent"],
   [indexHtml.includes(`brand-theme.css?v=${UI_VERSION}`), "brand theme stylesheet version is inconsistent"],
+  [indexHtml.includes(`results-ui.css?v=${UI_VERSION}`), "results UI stylesheet version is inconsistent"],
+  [indexHtml.includes(`kaleidoscope-model.js?v=${UI_VERSION}`), "kaleidoscope model script is missing"],
+  [indexHtml.includes(`results-ui.js?v=${UI_VERSION}`), "results UI script is missing"],
+  [manifest.description.includes(`v${APP_VERSION}`), "PWA manifest version is inconsistent"],
   [indexHtml.includes("靈魂數字"), "canonical term 靈魂數字 is missing"],
   [indexHtml.includes("國曆日月綻放"), "canonical term 國曆日月綻放 is missing"],
   [indexHtml.includes("陰曆日月綻放"), "canonical term 陰曆日月綻放 is missing"],
   [!indexHtml.includes("生命數字"), "deprecated term 生命數字 must not appear in the app"],
   [!indexHtml.includes("內頻"), "deprecated term 內頻 must not appear in the app"],
+  [!indexHtml.includes("Joanna"), "Joanna example must be removed from the public app"],
+  [indexHtml.includes("例如：個案 A 或 1991-09"), "neutral case search example is missing"],
   [!indexHtml.includes('id="summaryBirthdayStatus"'), "birthday status card must remain removed"],
   [!indexHtml.includes('id="summarySolarBirthdayDate"'), "annual Gregorian birthday card must remain removed"],
   [!indexHtml.includes('id="summaryLunarBirthdayDate"'), "annual lunar birthday card must remain removed"],
+  [indexHtml.includes('role="tablist"'), "result tab list is missing"],
+  [indexHtml.includes('data-result-tab="overview"'), "overview result tab is missing"],
+  [indexHtml.includes('data-result-tab="solar"'), "solar result tab is missing"],
+  [indexHtml.includes('data-result-tab="lunar"'), "lunar result tab is missing"],
+  [indexHtml.includes('data-result-tab="annual"'), "annual result tab is missing"],
+  [indexHtml.includes('data-result-tab="kaleidoscope"'), "kaleidoscope result tab is missing"],
+  [indexHtml.includes('id="annualInterpretationList"'), "annual interpretation view is missing"],
+  [indexHtml.includes('id="kaleidoscopeRows"'), "kaleidoscope verification table is missing"],
+  [indexHtml.includes('id="copyKaleidoscopeBtn"'), "kaleidoscope copy action is missing"],
   [indexHtml.includes('id="caseSearch"'), "case search field is missing"],
   [indexHtml.includes('id="caseList"'), "case list is missing"],
   [indexHtml.includes('id="saveNewCaseBtn"'), "save-new case action is missing"],
@@ -134,6 +156,14 @@ const sourceChecks = [
   [scriptText.includes("SoulKaleidoscopeProfile"), "script.js does not use canonical profile model"],
   [scriptText.includes("SoulKaleidoscopeReport"), "script.js does not use SNGL report engine"],
   [scriptText.includes("POSITION_DATA"), "script.js does not load annual position data"],
+  [scriptText.includes("soul-profile-updated"), "script.js does not publish profile updates"],
+  [resultsUiText.includes("activateTab"), "results UI does not manage tabs"],
+  [resultsUiText.includes("annualInterpretationList"), "results UI does not render annual interpretations"],
+  [resultsUiText.includes("SoulKaleidoscopeVisualModel"), "results UI does not use the canonical kaleidoscope model"],
+  [visualModelText.includes('position: "中心"'), "kaleidoscope center position is missing"],
+  [visualModelText.includes('label: "木馬（二）"'), "kaleidoscope horse two position is missing"],
+  [visualModelText.includes('label: "陰曆貴人"'), "kaleidoscope lunar noble position is missing"],
+  [visualModelText.includes('label: "今年位格"'), "kaleidoscope annual position is missing"],
   [reportEngineText.includes("annualSections"), "SNGL report engine does not generate annual sections"],
   [reportEngineText.includes("annualSummary"), "SNGL report engine does not generate dual annual summary"],
   [reportModelText.includes('"annual"'), "report view model does not expose annual visibility"],
@@ -151,6 +181,9 @@ const sourceChecks = [
   [reportPageText.includes("localStorage.removeItem"), "report page clear action is missing"],
   [swText.includes(`soul-kaleidoscope-v${UI_VERSION}`), "service worker cache version is inconsistent"],
   [swText.includes('"./brand-theme.css"'), "service worker does not cache brand theme"],
+  [swText.includes('"./results-ui.css"'), "service worker does not cache results styles"],
+  [swText.includes('"./results-ui.js"'), "service worker does not cache results UI"],
+  [swText.includes('"./kaleidoscope-model.js"'), "service worker does not cache kaleidoscope model"],
   [swText.includes('"./case-manager.css"'), "service worker does not cache case manager styles"],
   [swText.includes('"./case-store.js"'), "service worker does not cache case store"],
   [swText.includes('"./case-ui.js"'), "service worker does not cache case UI"],
@@ -166,6 +199,8 @@ const failedSourceChecks = sourceChecks.filter(([pass]) => !pass).map(([, messag
 if (failedSourceChecks.length) throw new Error(`Static source validation failed:\n${failedSourceChecks.join("\n")}`);
 
 new Function(scriptText);
+new Function(resultsUiText);
+new Function(visualModelText);
 new Function(profileText);
 new Function(reportEngineText);
 new Function(reportModelText);
@@ -179,13 +214,13 @@ runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/cor
 runInThisContext(profileText, { filename: "public/profile-model.js" });
 runInThisContext(reportEngineText, { filename: "public/sngl-report.js" });
 runInThisContext(reportModelText, { filename: "public/report-model.js" });
+runInThisContext(visualModelText, { filename: "public/kaleidoscope-model.js" });
 const engine = globalThis.SoulKaleidoscopeCore.createEngine(globalThis.LUNAR_DATA);
 const regression = engine.runSelfTests();
 
 if (regression.version !== ENGINE_VERSION) {
   throw new Error(`Engine version mismatch: package expects ${ENGINE_VERSION}, core reports ${regression.version}`);
 }
-
 if (!regression.ok) {
   const detail = regression.failed.map((test) => `${test.name}: ${test.actual} !== ${test.expected}`).join("\n");
   throw new Error(`Formula regression failed (${regression.passed}/${regression.total})\n${detail}`);
@@ -193,6 +228,7 @@ if (!regression.ok) {
 
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
 console.log(`Generated public/sngl-data.js with number data ${snglData.version} and position data ${positionData.version}.`);
+console.log(`Soul Kaleidoscope visual model ${globalThis.SoulKaleidoscopeVisualModel.VERSION}.`);
 console.log(`Static source validation passed ${sourceChecks.length}/${sourceChecks.length}.`);
 console.log(`Formula regression passed ${regression.passed}/${regression.total}.`);
 console.log(`Prepared Soul Kaleidoscope app v${APP_VERSION} (engine ${ENGINE_VERSION}).`);
