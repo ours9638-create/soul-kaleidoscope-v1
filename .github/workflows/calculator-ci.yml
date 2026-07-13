@@ -57,6 +57,9 @@ jobs:
       - name: Run knowledge data tests
         run: npm run test:knowledge
 
+      - name: Run Phase 6 context rule tests
+        run: npm run test:context
+
       - name: Upload knowledge diff summary
         if: always()
         uses: actions/upload-artifact@v4
