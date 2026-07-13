@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "datasetId": "number-topic",
+  "source": {
+    "system": "google-drive",
+    "knowledgeBaseFolderId": "18pitXmSuxH2HjYRK-o-8mId5oORQcFID",
+    "spreadsheetId": "10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo",
+    "spreadsheetTitle": "03_數字主題庫_0到9_V1",
+    "sheetName": "Sheet1",
+    "modifiedAt": "2026-07-04T18:22:48.524Z"
+  },
+  "target": {
+    "candidateFile": "data/knowledge/candidates/number-topics.drive.v1.json",
+    "publishedFile": "data/sngl/numbers.v1.json",
+    "recordSchema": "schemas/knowledge-record.schema.json"
+  },
+  "publishPolicy": {
+    "allowedReviewStatus": ["Canonical"],
+    "candidateMayPublish": false,
+    "conflictMayPublish": false,
+    "manualApprovalRequired": true,
+    "directRuntimeDriveRead": false
+  },
+  "columns": [
+    { "source": "ID", "target": "id", "transform": "string" },
+    { "source": "數字", "target": "matchKey.number", "transform": "integer" },
+    { "source": "來源ID", "target": "sourceRefs[].sourceId", "transform": "string" },
+    { "source": "課程主題", "target": "content.sourceTheme", "transform": "string" },
+    { "source": "系統整合方向", "target": "content.theme", "transform": "string" },
+    { "source": "光頻顏色", "target": "applications.colors", "transform": "split-slash" },
+    { "source": "核心原型", "target": "governance.sourceArchetype", "transform": "string-review-required" },
+    { "source": "關鍵字", "target": "content.keywords", "transform": "split-comma" },
+    { "source": "狀態", "target": "governance.sourceStatus", "transform": "string" },
+    { "source": "備註", "target": "governance.notes", "transform": "string" },
+    { "source": "原型名稱", "target": "content.title", "transform": "string" },
+    { "source": "能量對應", "target": "applications.energyCorrespondence", "transform": "string" },
+    { "source": "身體部位", "target": "applications.bodyNotes", "transform": "string" },
+    { "source": "本質摘要", "target": "content.observation", "transform": "string" },
+    { "source": "性格光面", "target": "content.mature", "transform": "string" },
+    { "source": "陰影提醒", "target": "content.imbalance", "transform": "string" },
+    { "source": "情感與關係", "target": "applications.relationship", "transform": "string" },
+    { "source": "金錢與物質界", "target": "applications.money", "transform": "string" },
+    { "source": "精神修行", "target": "applications.spiritual", "transform": "string" },
+    { "source": "落地練習", "target": "content.action", "transform": "string" },
+    { "source": "錨定語", "target": "applications.affirmation", "transform": "string" },
+    { "source": "課本頁碼", "target": "sourceRefs[].pageRefs", "transform": "string" }
+  ],
+  "manualReviewFields": [
+    "content.title",
+    "content.theme",
+    "content.observation",
+    "content.mature",
+    "content.imbalance",
+    "content.action",
+    "applications.geometry",
+    "applications.colors"
+  ],
+  "notes": [
+    "Drive 的核心原型欄位內容不一致，不可自動映射為 App 幾何原型。",
+    "Drive 狀態文字不是 Canonical 審核狀態，第一批一律轉為 Candidate。",
+    "候選資料只能產生差異報告，不得直接覆蓋 numbers.v1.json。"
+  ]
+}
