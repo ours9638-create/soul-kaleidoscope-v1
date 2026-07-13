@@ -14,6 +14,7 @@ const requiredFiles = [
   "public/brand-theme.css",
   "public/report.html",
   "public/report.css",
+  "public/report-brand.css",
   "public/report-model.js",
   "public/report.js",
   "public/report-preview.js",
@@ -127,6 +128,7 @@ const sourceChecks = [
   [reportHtml.includes('id="saveReportDraftBtn"'), "report draft save action is missing"],
   [reportHtml.includes('id="clearReportBtn"'), "report clear action is missing"],
   [reportHtml.includes(`report.css?v=${UI_VERSION}`), "report stylesheet version is inconsistent"],
+  [reportHtml.includes(`report-brand.css?v=${UI_VERSION}`), "report brand stylesheet version is inconsistent"],
   [reportHtml.includes(`report-model.js?v=${UI_VERSION}`), "report model version is inconsistent"],
   [reportHtml.includes(`report.js?v=${UI_VERSION}`), "report script version is inconsistent"],
   [scriptText.includes("SoulKaleidoscopeProfile"), "script.js does not use canonical profile model"],
@@ -154,6 +156,7 @@ const sourceChecks = [
   [swText.includes('"./case-ui.js"'), "service worker does not cache case UI"],
   [swText.includes('"./report.html"'), "service worker does not cache report page"],
   [swText.includes('"./report.css"'), "service worker does not cache report styles"],
+  [swText.includes('"./report-brand.css"'), "service worker does not cache report brand theme"],
   [swText.includes('"./report-model.js"'), "service worker does not cache report model"],
   [swText.includes('"./report.js"'), "service worker does not cache report renderer"],
   [swText.includes('"./report-preview.js"'), "service worker does not cache report preview bridge"]
