@@ -9,13 +9,9 @@
   const statusDetailNode = $("systemStatusDetail");
 
   if (
-    !C ||
-    !Profile ||
-    !ReportEngine ||
-    !Array.isArray(window.LUNAR_DATA) ||
-    window.LUNAR_DATA.length === 0 ||
-    !window.SNGL_DATA?.numbers ||
-    !window.POSITION_DATA?.positions
+    !C || !Profile || !ReportEngine ||
+    !Array.isArray(window.LUNAR_DATA) || window.LUNAR_DATA.length === 0 ||
+    !window.SNGL_DATA?.numbers || !window.POSITION_DATA?.positions
   ) {
     if (statusNode) {
       statusNode.textContent = "引擎載入失敗";
@@ -47,6 +43,10 @@
   function notice(message, error = false) {
     el.lookupNotice.textContent = message;
     el.lookupNotice.classList.toggle("notice--error", error);
+  }
+
+  function publishProfile(profile) {
+    window.dispatchEvent(new CustomEvent("soul-profile-updated", { detail: { profile } }));
   }
 
   function fillLunarFromSolar() {
@@ -219,7 +219,8 @@
       lastProfile = profile;
       window.__SOUL_PROFILE__ = profile;
       render(profile);
-      notice("計算完成。統一資料模型、靈魂數字報告與流年位格解讀已同步建立。");
+      publishProfile(profile);
+      notice("計算完成。統一資料模型、靈魂數字報告、流年位格解讀與萬花圖核對資料已同步建立。");
       toast("計算完成");
     } catch (error) {
       notice(error.message, true);
@@ -231,12 +232,13 @@
     el.calcForm.reset();
     lastProfile = null;
     delete window.__SOUL_PROFILE__;
-    document.querySelectorAll("#resultPanel strong, #resultPanel td").forEach((node) => {
+    document.querySelectorAll("#results strong, #results td").forEach((node) => {
       if (!node.closest("table[id]")) node.textContent = "—";
     });
     [el.solarDetailTable, el.lunarDetailTable, el.solarHorseTable, el.lunarHorseTable].forEach((table) => { table.innerHTML = ""; });
     el.queryLunarText.textContent = "當日農曆日期：—";
     updateLunarNote();
+    publishProfile(null);
     notice("");
   });
 
