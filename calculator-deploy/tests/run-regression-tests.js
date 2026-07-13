@@ -19,6 +19,7 @@ const Report = globalThis.SoulKaleidoscopeReport;
 const engine = C.createEngine(rows);
 const fixtures = JSON.parse(readFileSync("tests/fixtures/regression-cases.json", "utf8"));
 const snglData = JSON.parse(readFileSync("data/sngl/numbers.v1.json", "utf8"));
+const positionData = JSON.parse(readFileSync("data/sngl/positions.v1.json", "utf8"));
 JSON.parse(readFileSync("schemas/soul-profile.schema.json", "utf8"));
 
 const checks = [];
@@ -77,10 +78,13 @@ for (const fixture of fixtures.cases) {
   check(`${prefix} 統一資料模型國曆主數`, profile.numerology.solar.primaryNumber, result.solarSoul[2].final);
   check(`${prefix} 統一資料模型農曆主數`, profile.numerology.lunar.primaryNumber, result.lunarSoul[2].final);
 
-  const report = Report.generate(profile, snglData);
-  check(`${prefix} SNGL 報告段落數`, report.sections.length, 4);
-  check(`${prefix} SNGL 資料版本`, report.dataVersion, snglData.version);
-  check(`${prefix} SNGL 報告無空白代碼`, report.sections.every((section) => Boolean(section.code && section.clientText)), true);
+  const report = Report.generate(profile, snglData, positionData);
+  check(`${prefix} SNGL 基礎段落數`, report.sections.length, 4);
+  check(`${prefix} 流年位格段落數`, report.annualSections.length, 4);
+  check(`${prefix} 雙曆年度總結`, Boolean(report.annualSummary?.clientText), true);
+  check(`${prefix} SNGL 數字資料版本`, report.dataVersion, snglData.version);
+  check(`${prefix} SNGL 位格資料版本`, report.positionDataVersion, positionData.version);
+  check(`${prefix} SNGL 報告無空白代碼`, [...report.sections, ...report.annualSections, report.annualSummary].every((section) => Boolean(section?.code && section?.clientText)), true);
 }
 
 const reviewInput = makeInput(fixtures.cases[0].input);
@@ -93,13 +97,16 @@ const reviewProfile = Profile.build({
   engineVersion: C.VERSION,
   generatedAt: "2026-07-12T00:00:00.000Z"
 });
-const reviewReport = Report.generate(reviewProfile, snglData);
+const reviewReport = Report.generate(reviewProfile, snglData, positionData);
 check("需人工確認時略過空白農曆流年段落", reviewReport.sections.some((section) => section.role === "annual-lunar"), false);
+check("需人工確認時略過農曆流年位格整合", reviewReport.annualSections.some((section) => section.role === "annual-position-lunar"), false);
 check("需人工確認報告保留標記", reviewReport.needsReview, true);
+check("需人工確認仍保留雙曆年度總結", Boolean(reviewReport.annualSummary), true);
 
 check("SNGL 0～9 資料完整", Object.keys(snglData.numbers).sort(), ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+check("位格 1～9 資料完整", Object.keys(positionData.positions).sort(), ["1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 check("統一模型版本", Profile.SCHEMA_VERSION, "1.0.0");
-check("SNGL 報告引擎版本", Report.VERSION, "1.0.0");
+check("SNGL 報告引擎版本", Report.VERSION, "1.1.0");
 
 const failed = checks.filter((item) => !item.pass);
 if (failed.length) {
@@ -110,4 +117,4 @@ if (failed.length) {
 
 console.log(`Regression suite passed ${checks.length}/${checks.length}.`);
 console.log(`Core self-tests passed ${coreSelfTest.passed}/${coreSelfTest.total}.`);
-console.log(`Profile schema ${Profile.SCHEMA_VERSION}; SNGL report ${Report.VERSION}; data ${snglData.version}.`);
+console.log(`Profile schema ${Profile.SCHEMA_VERSION}; SNGL report ${Report.VERSION}; number data ${snglData.version}; position data ${positionData.version}.`);
