@@ -42,11 +42,11 @@ function expectError(name, fn) {
   check(name, failed, true);
 }
 
-check("模型版本", Visual.VERSION, "1.0.0");
+check("模型版本", Visual.VERSION, "1.0.1");
 check("固定位置數量", model.rows.length, 11);
 check("中心主命數", byKey.center.value, "7");
-check("上方國曆日月綻放", byKey.top.value, "5");
-check("上方副標陰曆日月綻放", byKey.topSub.value, "6");
+check("上方國曆日月綻放", byKey.top.value, "32/5");
+check("上方副標陰曆日月綻放", byKey.topSub.value, "24/6");
 check("左上木馬二", byKey.horse2.value, "3");
 check("右上木馬一", byKey.horse1.value, "4");
 check("左下木馬三", byKey.horse3.value, "1");
@@ -56,6 +56,8 @@ check("右側陽曆貴人", byKey.solarNoble.value, "3");
 check("下方流年", byKey.flowYear.value, "23/5");
 check("最外圈今年位格", byKey.position.value, "8");
 check("純文字包含位置", Visual.plainText(model).includes("最外圈｜今年位格：8"), true);
+check("純文字包含國曆完整鏈", Visual.plainText(model).includes("上方｜國曆日月綻放：32/5"), true);
+check("純文字包含陰曆完整鏈", Visual.plainText(model).includes("上方副標｜陰曆日月綻放：24/6"), true);
 check("純文字不含 Joanna", Visual.plainText(model).includes("Joanna"), false);
 expectError("缺少 Profile 被拒絕", () => Visual.build(null));
 
