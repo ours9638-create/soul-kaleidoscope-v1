@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.1.0";
+  const VERSION = "1.1.1";
   const MODES = Object.freeze({
     quick: "快速版",
     full: "完整版",
@@ -66,7 +66,7 @@
     return [
       { label: "貴人數", value: horse?.noble },
       { label: "日座數", value: horse?.daySeat },
-      { label: dayMoonLabel, value: horse?.dayMoon },
+      { label: dayMoonLabel, value: horse?.dayMoonChain || horse?.dayMoon },
       { label: "第一木馬", value: horse?.first },
       { label: "第二木馬", value: horse?.second },
       { label: "第三木馬", value: horse?.third },
