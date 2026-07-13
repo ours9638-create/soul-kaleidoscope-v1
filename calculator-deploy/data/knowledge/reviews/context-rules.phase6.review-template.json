@@ -1,0 +1,36 @@
+{
+  "version": "0.1.0",
+  "datasetId": "context-rules",
+  "candidateVersion": "0.1.0",
+  "reviewStatus": "Pending",
+  "allowedDecisions": [
+    "Adopt",
+    "AdoptWithChanges",
+    "KeepCandidate",
+    "Conflict",
+    "Rejected"
+  ],
+  "reviewer": null,
+  "reviewedAt": null,
+  "records": [
+    { "id": "CTX-001", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-002", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-003", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-004", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-005", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-006", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-007", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-008", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-009", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-010", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-011", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-012", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-013", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
+    { "id": "CTX-014", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" }
+  ],
+  "approval": {
+    "approved": false,
+    "approvalRecord": null,
+    "canonicalVersion": null
+  }
+}
