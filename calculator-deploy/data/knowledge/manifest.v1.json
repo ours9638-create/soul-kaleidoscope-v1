@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "platform": "soul-kaleidoscope-knowledge",
+  "sourceOfTruth": {
+    "humanEditable": "Google Drive / 靈魂數字系統_Knowledge Base",
+    "runtimePublished": "GitHub JSON validated by CI",
+    "runtimeReadsGoogleDrive": false
+  },
+  "governance": {
+    "sourcePriorityDocument": "Google Drive / SOURCE_PRIORITY.md",
+    "databaseStructureDocument": "Google Drive / DATABASE_STRUCTURE.md",
+    "publishableStatuses": ["Canonical"],
+    "recordsFolder": "Google Drive / 靈魂萬花筒 / Records",
+    "manualApprovalRequired": true
+  },
+  "datasets": [
+    {
+      "id": "number-topic",
+      "domain": "number-topic",
+      "source": {
+        "knowledgeBaseFolderId": "18pitXmSuxH2HjYRK-o-8mId5oORQcFID",
+        "spreadsheetId": "10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo",
+        "sheetName": "Sheet1",
+        "modifiedAt": "2026-07-04T18:22:48.524Z"
+      },
+      "mapping": "data/knowledge/mappings/number-topic.drive.v1.json",
+      "candidate": "data/knowledge/candidates/number-topics.drive.v1.json",
+      "published": "data/sngl/numbers.v1.json",
+      "diffReport": "data/knowledge/reports/number-topic-diff.generated.json",
+      "reviewStatus": "Candidate",
+      "autoPublish": false
+    },
+    {
+      "id": "position",
+      "domain": "position",
+      "source": null,
+      "mapping": null,
+      "candidate": null,
+      "published": "data/sngl/positions.v1.json",
+      "diffReport": null,
+      "reviewStatus": "Canonical",
+      "autoPublish": false
+    }
+  ]
+}
