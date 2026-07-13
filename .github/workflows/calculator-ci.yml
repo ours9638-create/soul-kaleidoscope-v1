@@ -51,5 +51,8 @@ jobs:
       - name: Run report model tests
         run: npm run test:report
 
+      - name: Run kaleidoscope model tests
+        run: npm run test:kaleidoscope
+
       - name: Validate production build
         run: node build-calculator.js
