@@ -9,7 +9,9 @@
     "test:cases": "node tests/run-case-store-tests.js",
     "test:report": "node tests/run-report-model-tests.js",
     "test:kaleidoscope": "node tests/run-kaleidoscope-model-tests.js",
-    "test": "npm run test:core && npm run test:cases && npm run test:report && npm run test:kaleidoscope",
+    "knowledge:diff": "node scripts/compare-number-topics.js",
+    "test:knowledge": "node tests/run-knowledge-data-tests.js",
+    "test": "npm run test:core && npm run test:cases && npm run test:report && npm run test:kaleidoscope && npm run test:knowledge",
     "check": "npm test && node build-calculator.js",
     "build": "npm test && node build-calculator.js",
     "deploy": "npm run build && wrangler deploy"
