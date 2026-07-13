@@ -1,13 +1,13 @@
 # 靈魂萬花筒｜Phase 6 來源對齊稽核
 
-> 版本：0.1.0  
+> 版本：0.1.1  
 > 日期：2026-07-13  
 > 狀態：Evidence audit；不具正式核准效力  
 > 對照基準：Calculator Engine 2.2.1、使用者已確認規則、原始《數字課程》頁面、可驗算公式表
 
 ## 1. 稽核結論
 
-本次稽核確認：Phase 6 的 14 條 Context Rule 整體方向正確，但不能整包直接升為 Canonical。建議採「9 條 Adopt、4 條 AdoptWithChanges、1 條 Adopt」的逐條建議模式；正式決策仍須由使用者核准。
+本次稽核確認：Phase 6 的 14 條 Context Rule 整體方向正確，但不能整包直接升為 Canonical。逐條建議為「10 條 Adopt、4 條 AdoptWithChanges」；正式決策仍須由使用者核准。
 
 主要結論：
 
