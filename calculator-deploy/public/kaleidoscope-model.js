@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.0.1";
 
   function text(value, fallback = "—") {
     return value === null || value === undefined || value === "" ? fallback : String(value);
@@ -27,8 +27,8 @@
 
     const rows = [
       { key: "center", position: "中心", label: "主命數", value: text(solar.primaryNumber), source: "國曆主命數" },
-      { key: "top", position: "上方", label: "國曆日月綻放", value: text(solar.horse.dayMoon), source: "國曆" },
-      { key: "topSub", position: "上方副標", label: "陰曆日月綻放", value: text(lunar.horse.dayMoon), source: "農曆" },
+      { key: "top", position: "上方", label: "國曆日月綻放", value: text(solar.horse.dayMoonChain || solar.horse.dayMoon), source: "國曆" },
+      { key: "topSub", position: "上方副標", label: "陰曆日月綻放", value: text(lunar.horse.dayMoonChain || lunar.horse.dayMoon), source: "農曆" },
       { key: "horse2", position: "左上", label: "木馬（二）", value: text(horse.second), source: "國曆木馬" },
       { key: "horse1", position: "右上", label: "木馬（一）", value: text(horse.first), source: "國曆木馬" },
       { key: "horse3", position: "左下", label: "木馬（三）", value: text(horse.third), source: "國曆木馬" },
