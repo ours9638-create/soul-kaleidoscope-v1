@@ -3,10 +3,12 @@ import { readFileSync } from "node:fs";
 const datasetPath = "data/knowledge/candidates/context-rules.phase6.v0.1.json";
 const schemaPath = "schemas/context-rule.schema.json";
 const manifestPath = "data/knowledge/manifest.v1.json";
+const reviewTemplatePath = "data/knowledge/reviews/context-rules.phase6.review-template.json";
 
 const dataset = JSON.parse(readFileSync(datasetPath, "utf8"));
 const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+const reviewTemplate = JSON.parse(readFileSync(reviewTemplatePath, "utf8"));
 
 const checks = [];
 function check(name, actual, expected) {
@@ -40,6 +42,7 @@ const allowedContextTypes = new Set([
   "conditional-combination",
   "soul-level-link"
 ]);
+const expectedDecisions = ["Adopt", "AdoptWithChanges", "KeepCandidate", "Conflict", "Rejected"];
 const expectedRecordIds = Array.from({ length: 14 }, (_, index) => `CTX-${String(index + 1).padStart(3, "0")}`);
 const expectedBlockedIds = Array.from({ length: 6 }, (_, index) => `P6-BLOCK-${String(index + 1).padStart(3, "0")}`);
 const expectedValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -58,6 +61,23 @@ check("Manifest context-rule candidate path", manifestEntry?.candidate, datasetP
 check("Manifest context-rule published target", manifestEntry?.published, null);
 check("Manifest context-rule review status", manifestEntry?.reviewStatus, "Candidate");
 check("Manifest context-rule auto publish disabled", manifestEntry?.autoPublish, false);
+
+check("Review template version", reviewTemplate.version, "0.1.0");
+check("Review template dataset id", reviewTemplate.datasetId, "context-rules");
+check("Review template candidate version", reviewTemplate.candidateVersion, dataset.version);
+check("Review template status", reviewTemplate.reviewStatus, "Pending");
+check("Review template decisions", reviewTemplate.allowedDecisions, expectedDecisions);
+check("Review template rule IDs", reviewTemplate.records.map((record) => record.id), expectedRecordIds);
+checkTrue("Review template decisions remain empty", reviewTemplate.records.every((record) => record.decision === null));
+checkTrue("Review template source checks remain Pending", reviewTemplate.records.every((record) => record.sourceCheck === "Pending"));
+checkTrue("Review template required changes are arrays", reviewTemplate.records.every((record) => Array.isArray(record.requiredChanges)));
+check("Review template reviewer remains empty", reviewTemplate.reviewer, null);
+check("Review template reviewedAt remains empty", reviewTemplate.reviewedAt, null);
+check("Review template approval remains closed", reviewTemplate.approval, {
+  approved: false,
+  approvalRecord: null,
+  canonicalVersion: null
+});
 
 check("Schema draft", schema.$schema, "https://json-schema.org/draft/2020-12/schema");
 check("Schema dataset title", schema.title, "Soul Kaleidoscope Phase 6 Context Rule Dataset");
@@ -151,5 +171,5 @@ if (failed.length) {
 }
 
 console.log(`Phase 6 context rule tests passed ${checks.length}/${checks.length}.`);
-console.log(`Validated ${dataset.records.length} candidate rules, ${generatedMatchKeys.length} annual-position match keys, and ${dataset.blockedScopes.length} blocked scopes.`);
+console.log(`Validated ${dataset.records.length} candidate rules, ${generatedMatchKeys.length} annual-position match keys, ${dataset.blockedScopes.length} blocked scopes, and ${reviewTemplate.records.length} pending review records.`);
 console.log("Publication gate remains closed until manual approval and a Canonical dataset are recorded.");
