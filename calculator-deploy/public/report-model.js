@@ -1,17 +1,17 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
   const MODES = Object.freeze({
     quick: "快速版",
     full: "完整版",
     teacher: "老師版"
   });
-  const SECTION_IDS = Object.freeze(["basic", "summary", "interpretations", "stages", "structure", "notes"]);
+  const SECTION_IDS = Object.freeze(["basic", "summary", "interpretations", "annual", "stages", "structure", "notes"]);
   const DEFAULT_VISIBILITY = Object.freeze({
-    quick: Object.freeze({ basic: true, summary: true, interpretations: true, stages: false, structure: false, notes: true }),
-    full: Object.freeze({ basic: true, summary: true, interpretations: true, stages: true, structure: true, notes: true }),
-    teacher: Object.freeze({ basic: true, summary: true, interpretations: true, stages: true, structure: true, notes: true })
+    quick: Object.freeze({ basic: true, summary: true, interpretations: true, annual: true, stages: false, structure: false, notes: true }),
+    full: Object.freeze({ basic: true, summary: true, interpretations: true, annual: true, stages: true, structure: true, notes: true }),
+    teacher: Object.freeze({ basic: true, summary: true, interpretations: true, annual: true, stages: true, structure: true, notes: true })
   });
 
   const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -47,6 +47,7 @@
     if (!Array.isArray(profile.numerology?.solar?.soulStages) || profile.numerology.solar.soulStages.length !== 5) errors.push("國曆五階段資料不完整");
     if (!Array.isArray(profile.numerology?.lunar?.soulStages) || profile.numerology.lunar.soulStages.length !== 5) errors.push("農曆五階段資料不完整");
     if (!profile.outputs?.report || !Array.isArray(profile.outputs.report.sections)) errors.push("SNGL 報告資料不完整");
+    if (!Array.isArray(profile.outputs?.report?.annualSections)) errors.push("流年位格解讀資料不完整");
     return { ok: errors.length === 0, errors };
   }
 
@@ -60,11 +61,12 @@
     }));
   }
 
-  function horseRows(horse) {
+  function horseRows(horse, calendar) {
+    const dayMoonLabel = calendar === "solar" ? "國曆日月綻放" : "陰曆日月綻放";
     return [
       { label: "貴人數", value: horse?.noble },
       { label: "日座數", value: horse?.daySeat },
-      { label: "日月綻放", value: horse?.dayMoon },
+      { label: dayMoonLabel, value: horse?.dayMoon },
       { label: "第一木馬", value: horse?.first },
       { label: "第二木馬", value: horse?.second },
       { label: "第三木馬", value: horse?.third },
@@ -120,13 +122,15 @@
         }
       ],
       interpretations: clone(report.sections),
+      annualInterpretations: clone(report.annualSections || []),
+      annualSummary: report.annualSummary ? clone(report.annualSummary) : null,
       stages: {
         solar: stageRows(solar.soulStages),
         lunar: stageRows(lunar.soulStages)
       },
       structures: {
-        solar: horseRows(solar.horse),
-        lunar: horseRows(lunar.horse)
+        solar: horseRows(solar.horse, "solar"),
+        lunar: horseRows(lunar.horse, "lunar")
       },
       warnings: report.needsReview || profile.calendar?.lunar?.needsReview ? ["農曆年度資料含需人工確認項目，正式交付前請再次核對。"] : [],
       versions: {
@@ -134,9 +138,24 @@
         engine: text(profile.meta?.engineVersion),
         report: text(report.version),
         data: text(report.dataVersion),
+        positionData: text(report.positionDataVersion),
         view: VERSION
       }
     };
+  }
+
+  function appendInterpretationLines(lines, section, mode) {
+    lines.push(`${section.title}｜${section.chain}`);
+    if (mode === "quick") {
+      lines.push(section.clientText || `${section.theme}。${section.action}`);
+    } else {
+      lines.push(`頻率觀察：${section.observation}`);
+      lines.push(`成熟展現：${section.mature}`);
+      lines.push(`失衡提醒：${section.imbalance}`);
+      lines.push(`行動建議：${section.action}`);
+      if (mode === "teacher") lines.push(`技術資料：${section.code}｜角色 ${section.role}｜幾何 ${section.geometry}｜配色 ${(section.colors || []).join("、") || "—"}`);
+    }
+    lines.push("");
   }
 
   function plainText(view, options = {}) {
@@ -158,7 +177,7 @@
     }
 
     if (visibility.summary) {
-      lines.push("【國曆與農曆數字摘要】");
+      lines.push("【雙曆靈魂數字摘要】");
       for (const row of view.summaryRows) {
         lines.push(`${row.calendar}：主命數 ${row.primary}｜流年 ${row.flowYear}｜今年位格 ${row.position}｜流月 ${row.flowMonth}｜流日 ${row.flowDay}`);
       }
@@ -166,24 +185,18 @@
     }
 
     if (visibility.interpretations) {
-      lines.push("【SNGL 頻率解讀】");
-      for (const section of view.interpretations) {
-        lines.push(`${section.title}｜${section.chain}`);
-        if (mode === "quick") {
-          lines.push(section.clientText || `${section.theme}。${section.action}`);
-        } else {
-          lines.push(`頻率觀察：${section.observation}`);
-          lines.push(`成熟展現：${section.mature}`);
-          lines.push(`失衡提醒：${section.imbalance}`);
-          lines.push(`行動建議：${section.action}`);
-          if (mode === "teacher") lines.push(`技術資料：${section.code}｜幾何 ${section.geometry}｜配色 ${(section.colors || []).join("、")}`);
-        }
-        lines.push("");
-      }
+      lines.push("【靈魂數字頻率解讀】");
+      for (const section of view.interpretations) appendInterpretationLines(lines, section, mode);
+    }
+
+    if (visibility.annual) {
+      lines.push("【流年位格解讀】");
+      for (const section of view.annualInterpretations || []) appendInterpretationLines(lines, section, mode);
+      if (view.annualSummary) appendInterpretationLines(lines, view.annualSummary, mode);
     }
 
     if (visibility.stages) {
-      lines.push("【五階段數字】");
+      lines.push("【五階段靈魂數字】");
       for (const [label, rows] of [["國曆", view.stages.solar], ["農曆", view.stages.lunar]]) {
         lines.push(`${label}：${rows.map((row) => `${row.label} ${row.chain}（${row.level}）`).join("；")}`);
       }
@@ -191,7 +204,7 @@
     }
 
     if (visibility.structure) {
-      lines.push("【數字結構】");
+      lines.push("【靈魂數字結構】");
       for (const [label, rows] of [["國曆", view.structures.solar], ["農曆", view.structures.lunar]]) {
         lines.push(`${label}：${rows.map((row) => `${row.label} ${row.value}`).join("｜")}`);
       }
@@ -212,7 +225,7 @@
       lines.push("");
     }
 
-    lines.push(`版本：Soul Profile ${view.versions.profile}｜引擎 ${view.versions.engine}｜SNGL Report ${view.versions.report}｜SNGL Data ${view.versions.data}｜Report View ${view.versions.view}`);
+    lines.push(`版本：Soul Profile ${view.versions.profile}｜引擎 ${view.versions.engine}｜SNGL Report ${view.versions.report}｜SNGL Data ${view.versions.data}｜Position Data ${view.versions.positionData}｜Report View ${view.versions.view}`);
     return lines.join("\n").trim();
   }
 
