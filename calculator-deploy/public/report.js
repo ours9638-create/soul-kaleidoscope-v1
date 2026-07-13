@@ -97,7 +97,9 @@
 
     const theme = document.createElement("p");
     theme.className = "interpretation-theme";
-    theme.textContent = `${section.number}｜${section.theme}`;
+    theme.textContent = section.number === null || section.number === undefined
+      ? text(section.theme)
+      : `${section.number}｜${section.theme}`;
 
     const clientText = document.createElement("p");
     clientText.className = "quick-client-text";
@@ -123,7 +125,7 @@
 
     const meta = document.createElement("div");
     meta.className = "interpretation-meta teacher-only";
-    const colors = Array.isArray(section.colors) ? section.colors.join("、") : "—";
+    const colors = Array.isArray(section.colors) && section.colors.length ? section.colors.join("、") : "—";
     meta.textContent = `SNGL：${text(section.code)}｜角色：${text(section.role)}｜幾何：${text(section.geometry)}｜配色：${colors}`;
     card.append(meta);
     return card;
@@ -208,11 +210,13 @@
     $("basicInfo").replaceChildren(...view.basicInfo.map(createInfoItem));
     $("numerologySummary").replaceChildren(...view.summaryRows.map(createSummaryRow));
     $("reportSections").replaceChildren(...view.interpretations.map(createInterpretationCard));
+    const annualItems = [...view.annualInterpretations, ...(view.annualSummary ? [view.annualSummary] : [])];
+    $("annualSections").replaceChildren(...annualItems.map(createInterpretationCard));
     $("solarStages").replaceChildren(...view.stages.solar.map(createStageRow));
     $("lunarStages").replaceChildren(...view.stages.lunar.map(createStageRow));
     $("horseCards").replaceChildren(
-      createStructureCard("國曆數字結構", view.structures.solar),
-      createStructureCard("農曆數字結構", view.structures.lunar)
+      createStructureCard("國曆靈魂數字結構", view.structures.solar),
+      createStructureCard("農曆靈魂數字結構", view.structures.lunar)
     );
     renderNotesOutput();
     renderWarnings();
@@ -225,6 +229,7 @@
       `計算引擎 ${view.versions.engine}`,
       `SNGL Report ${view.versions.report}`,
       `SNGL Data ${view.versions.data}`,
+      `Position Data ${view.versions.positionData}`,
       `Report View ${view.versions.view}`,
       "本報告依目前已核准資料產生。"
     ].join("｜");
