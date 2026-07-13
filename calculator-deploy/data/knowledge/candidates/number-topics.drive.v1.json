@@ -1,0 +1,303 @@
+{
+  "version": "1.0.0",
+  "datasetId": "number-topic",
+  "sourceSnapshot": {
+    "spreadsheetId": "10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo",
+    "spreadsheetTitle": "03_數字主題庫_0到9_V1",
+    "sheetName": "Sheet1",
+    "modifiedAt": "2026-07-04T18:22:48.524Z",
+    "capturedAt": "2026-07-13T00:00:00.000Z"
+  },
+  "records": [
+    {
+      "id": "NUM-000",
+      "domain": "number-topic",
+      "matchKey": { "number": 0 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 2, "pageRefs": "p32-p33、p62-p63", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的源頭",
+        "theme": "空性、源頭、放大器、重啟",
+        "observation": "數字 0 代表宇宙的初始狀態，是源頭、空性、潛能與倍增器。它不是空無，而是尚未成形前的巨大可能。",
+        "mature": "能承載龐大資訊與能量，對靈性事物敏感，能在空性中找到生命定位。成熟時可成為承接高頻資訊與轉化的管道。",
+        "imbalance": "可能感到人生沒有意義、陷入空轉、迷失方向，或形成能量黑洞。若未整合，容易沉溺靈性而忽略現實生活。",
+        "action": "今天做一件讓自己回到身體與現實的小事，例如整理桌面、走路、喝水或完成一項小任務。",
+        "keywords": ["源頭", "無限", "空性", "歸零", "重啟", "純粹"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["銀白", "透明"],
+        "relationship": "關係中可能帶有吸收或放大的作用，容易感知他人，也容易被他人能量影響。需要穩定界線與現實連結。",
+        "money": "物質界主題與潛能、源頭、放大、尚未成形的資源有關。需要透過穩定行動，把潛能轉化成可承接的形式。",
+        "spiritual": "成長方向是學習穩定承接，從空性進入創造。練習在靈性連結中保留現實定位。",
+        "affirmation": "我穩定承接源頭之光。",
+        "energyCorrespondence": "源頭之光；宇宙源頭與空性場域；白蓮、源頭之花。",
+        "bodyNotes": "整體能量場、神經系統與潛意識空間。"
+      },
+      "governance": { "sourceStatus": "數字0詳細頁已初步整理，待再次校對", "notes": "先建基礎條目，後續補原文與頁碼", "conflicts": ["Drive 核心原型欄位不可直接映射為幾何原型"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-001",
+      "domain": "number-topic",
+      "matchKey": { "number": 1 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 3, "pageRefs": "p14-p15", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "領航者",
+        "theme": "開始、行動、意志、自我允許",
+        "observation": "數字 1 常與生命起點、主動性、自我意識與創造力有關。這個頻率較明顯時，個體通常會被推向開始、決定、行動與自我實現的經驗。",
+        "mature": "當數字 1 的能量發展得較穩定時，會比較容易展現明確的方向感與行動力，也能在需要時做出決定並持續推進目標。",
+        "imbalance": "當數字 1 的能量較緊繃時，啟動力可能轉成壓力。有些人會過度用力、害怕失敗、急著證明自己，或習慣把事情全部扛在自己身上。",
+        "action": "今天為一件事做出最小行動，3 分鐘即可。先確認內在方向，再採取一個小行動。",
+        "keywords": ["開始", "啟動", "自我", "意志", "創造", "方向", "行動"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["深紫紅"],
+        "relationship": "關係中常重視獨立、尊重與對等，也容易欣賞有能力、有主見的人。",
+        "money": "物質主題常與個人品牌、專業能力與扎根實力有關，需要留意是否把自我價值過度綁在成果上。",
+        "spiritual": "成長方向圍繞獨立、自我認同與內在力量的建立。",
+        "affirmation": "我允許自己開始。",
+        "energyCorrespondence": "陽光香檳；大天使麥達昶；向日葵；頂輪、海底輪。",
+        "bodyNotes": "頭部、脊椎、腿部。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": "先天數解析另建表，不混入原型", "conflicts": ["Drive 顏色與目前 App 數字配色不同，需人工決策"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-002",
+      "domain": "number-topic",
+      "matchKey": { "number": 2 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 4, "pageRefs": "p16-p17", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的映照",
+        "theme": "感受、合作、平衡、細膩、直覺、外交、連結",
+        "observation": "數字 2 常與感受、合作、連結、平衡與直覺有關。這個頻率較明顯時，個體通常會透過關係、傾聽與陪伴來理解世界，也容易感受到他人的情緒與場域變化。",
+        "mature": "能傾聽、能陪伴、感受細膩，具備調和與支持他人的能力。成熟時能在關係中保持同理，也能保留自己的位置。",
+        "imbalance": "可能過度配合、太在意他人感受，或因害怕衝突而延後表達自己。若界線不足，容易被情緒、人際壓力或外在評價影響。",
+        "action": "今天停下來 3 次，說出『我現在感覺到……』。練習辨認自己的情緒，並留意是否過度迎合。",
+        "keywords": ["感受", "關係", "共鳴", "合作", "陪伴", "直覺", "平衡", "細膩"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["藍色"],
+        "relationship": "關係中重視理解、陪伴與情感交流，需要練習在靠近他人時保留自己的感受與界線。",
+        "money": "金錢與物質界主題與流動資源、人際合作、輔佐與幕後支持有關。",
+        "spiritual": "成長方向是停止自我批判、接納陰影面，並建立心理與能量界線。",
+        "affirmation": "我感受，並允許流動。",
+        "energyCorrespondence": "千手千眼菩薩；大天使拉吉爾；眉心輪；繡球花。",
+        "bodyNotes": "眼部、手部；延伸留意肩背、腎臟、生殖系統。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": "詳細解讀需補數字 2 頁面", "conflicts": ["Drive 核心原型欄位為完整句子，不能自動視為幾何原型"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-003",
+      "domain": "number-topic",
+      "matchKey": { "number": 3 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 5, "pageRefs": "p18-p19", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "創造之光",
+        "theme": "表達、創意、喜悅、被看見",
+        "observation": "數字 3 常與創意、表達、溝通、樂觀、社交與綻放有關。這個頻率較明顯時，個體通常會透過說話、創作、分享與互動來展現生命力。",
+        "mature": "能表達、能創造，反應快、點子多，也容易把靈感轉成語言、作品或社交連結。成熟時能穩定呈現創意，也能讓自己被看見。",
+        "imbalance": "可能容易分心、三分鐘熱度，或在人群中戴上面具。當能量未整合時，也可能過度追求被看見，或用玩笑掩蓋真正感受。",
+        "action": "今天做一個不完美的表達，可以是說、寫或分享。重點不是表現完美，而是讓真實被看見。",
+        "keywords": ["表達", "創造", "交流", "喜悅", "分享", "綻放"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["藍綠色"],
+        "relationship": "關係中重視樂趣、讚美與美感，也需要練習在熱鬧之外說出真實感受。",
+        "money": "適合透過口才、美感、內容、社群、銷售或創作讓資源流動。",
+        "spiritual": "成長方向是把表達從表演感帶回真實感，讓靈感有穩定落地的管道。",
+        "affirmation": "我允許自己被看見。",
+        "energyCorrespondence": "文殊菩薩；大天使約菲爾；喉輪；天堂鳥。",
+        "bodyNotes": "嘴巴、耳朵；延伸留意喉嚨、聲帶、皮膚與口腔。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": null, "conflicts": ["Drive 顏色與 App 發布色需人工核對"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-004",
+      "domain": "number-topic",
+      "matchKey": { "number": 4 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 6, "pageRefs": "p20-p21", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的築基",
+        "theme": "結構、規劃、界線、安全感",
+        "observation": "數字 4 常與理性、結構、秩序、安全感、傳承、實踐與穩定有關。這個頻率較明顯時，個體通常需要透過規劃、責任、紀律與具體成果來建立安全感。",
+        "mature": "能規劃、能執行，重視實質結果與長期累積。成熟時能建立制度、守護資源，也能成為讓團體穩定下來的人。",
+        "imbalance": "可能過度謹慎、情緒壓抑，或因追求安定而吹毛求疵。當能量卡住時，也可能出現拖延、混亂或缺乏秩序。",
+        "action": "今天完成一件整理或規劃的小行動。練習建立秩序、支持自己，並觀察是否因為害怕不穩而過度控制。",
+        "keywords": ["結構", "穩定", "秩序", "界線", "規劃", "基礎"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["金黃色"],
+        "relationship": "關係中重視空間、穩定承諾與共同規劃。",
+        "money": "適合系統化、專業證照、長期累積、資產保存與可複製商業模式。",
+        "spiritual": "成長方向是在不穩定中建立穩定，並讓穩定服務於生命。",
+        "affirmation": "我為自己建立穩定。",
+        "energyCorrespondence": "地藏王菩薩；大天使薩基爾；海底輪；金盞花。",
+        "bodyNotes": "腸胃、身體、骨骼、婦科器官。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，分類已確認，待人工抽查", "notes": null, "conflicts": ["分類已確認不等同 Canonical 發布核准"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-005",
+      "domain": "number-topic",
+      "matchKey": { "number": 5 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 7, "pageRefs": "p22-p23", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的流動",
+        "theme": "改變、冒險、突破、彈性",
+        "observation": "數字 5 常與變革、自由、探索、感官、適應力與幽默感有關。這個頻率較明顯時，個體通常會透過移動、變化、體驗與突破來感受生命力。",
+        "mature": "具備機靈聰明與隨機應變的天分，能快速感受環境變化，也容易成為引領變革的先鋒。成熟時能把流動力轉成行動力。",
+        "imbalance": "可能坐立難安、情緒暴躁，或因過度追求刺激而失去中心。當心打結、情緒打結時，萬事容易失去興趣。",
+        "action": "今天嘗試一件不同於平常的小改變。當想立刻起身出發時，先確認自己是在回應靈感，還是在逃避不安。",
+        "keywords": ["改變", "自由", "突破", "冒險", "彈性", "行動"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["深紅色"],
+        "relationship": "關係中重視新鮮感、刺激與不受限的獨立空間，也需要學習專一。",
+        "money": "與傳播媒介、跨國貿易、高流動性工作和資源擴張有關。",
+        "spiritual": "成長方向是內觀自心，在變動中找到中軸，把逃避轉化為自由與覺醒。",
+        "affirmation": "我信任改變的流動。",
+        "energyCorrespondence": "關公；大天使卡麥爾；心輪；鳳凰花。",
+        "bodyNotes": "心臟、心血管、免疫系統。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": null, "conflicts": ["Drive 顏色與 App 發布色差異明顯，需人工核對"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-006",
+      "domain": "number-topic",
+      "matchKey": { "number": 6 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 8, "pageRefs": "p24-p25", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的守護",
+        "theme": "愛、責任、照顧、接收",
+        "observation": "數字 6 常與愛、責任、守護、承接、和諧與服務有關。這個頻率較明顯時，個體通常會透過照顧、承擔與關係中的付出來感受生命價值。",
+        "mature": "具備敏感與分別心。成熟時能在愛與界線中保持平衡，穩定陪伴他人，也能照顧自己。",
+        "imbalance": "可能帶著拯救者情結過度犧牲奉獻，或因被照顧者未能回應期待而感到受傷。若能量未整合，也容易因過度付出造成身心耗損。",
+        "action": "今天允許自己接收一份支持或關心。練習辨認付出是否出於愛，還是出於責任壓力。",
+        "keywords": ["愛", "關係", "守護", "責任", "照顧", "接收"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["玫瑰粉色"],
+        "relationship": "關係中常需要被需要、被肯定與家庭溫馨感，也需要學習接收支持。",
+        "money": "適合美感產業與療癒服務，物質主題與服務性資糧有關。",
+        "spiritual": "成長方向是先愛自己、放下完美執著，從成全他人走向謙虛優雅。",
+        "affirmation": "我值得被愛與承接。",
+        "energyCorrespondence": "觀世音菩薩；大天使麥可；心輪到海底輪；玫瑰。",
+        "bodyNotes": "心、肺、乳房、喉嚨。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": null, "conflicts": ["部分成熟描述含偏好與消費語句，發布前需語氣審核"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-007",
+      "domain": "number-topic",
+      "matchKey": { "number": 7 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 9, "pageRefs": "p26-p27", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的透析",
+        "theme": "真理、內省、洞察、精神性",
+        "observation": "數字 7 常與分析、洞見、真理、靈性、邏輯、獨處與福報有關。這個頻率較明顯時，個體通常會透過觀察、思考、研究與內在連結來理解世界。",
+        "mature": "具備第六感與研究求證精神，能看見事物背後的規律。成熟時能成為洞見型導師，將知識轉化為智慧。",
+        "imbalance": "可能顯得孤僻、疑神疑鬼、憤世嫉俗，或因過度思考產生精神焦慮。若未整合，也可能有高傲感、吹毛求疵與現實脫節。",
+        "action": "今天給自己 10 分鐘安靜獨處或書寫。練習信任內在聲音，同時避免過度思考與封閉自己。",
+        "keywords": ["智慧", "探索", "內省", "真理", "洞察", "覺醒"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["橄欖綠"],
+        "relationship": "關係中重視精神契合、隱私與獨處空間，也需要學習不把查證與猜疑當成安全感來源。",
+        "money": "適合專業技術、研究顧問、法律、資訊科技與深度鑽研領域。",
+        "spiritual": "成長方向是學習信任與內觀，從知識進化到智慧。",
+        "affirmation": "我信任內在的聲音。",
+        "energyCorrespondence": "基督之光；大天使漢尼爾；眉心輪到頂輪；橄欖枝。",
+        "bodyNotes": "頭部、脊椎；延伸留意大腦、松果體、耳、眉心輪。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": null, "conflicts": ["部分陰影語句標籤性較高，正式發布前需改寫"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-008",
+      "domain": "number-topic",
+      "matchKey": { "number": 8 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 10, "pageRefs": "p28-p29", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的顯化",
+        "theme": "權力、資源、金錢、顯化",
+        "observation": "數字 8 常與權威、權力、豐盛、力量、控制、因果、顯化與商業頭腦有關。這個頻率較明顯時，個體通常會透過資源、責任、目標與現實成果來建立影響力。",
+        "mature": "具備進取心與慎密能力，能穩定發展為有影響力的領導者或資源整合者。成熟時能讓力量與價值形成良性流動。",
+        "imbalance": "可能因重視成果與掌控而變得強硬、過度控制，或因害怕失去權力而產生不安全感。若未整合，也可能出現貪婪、重利或過度追求成功的狀態。",
+        "action": "今天做一件支持價值或金錢流動的行動。練習確認自己的力量，也觀察是否因金錢或權力而不安。",
+        "keywords": ["資源", "顯化", "豐盛", "力量", "實踐", "成長"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["綠色"],
+        "relationship": "關係中重視尊重、忠誠、共同成就與務實承諾。",
+        "money": "適合大規模運作、團隊整合、財務經營與長期事業。",
+        "spiritual": "成長方向是學習權力的謙卑，把控制轉化為價值管理。",
+        "affirmation": "我允許豐盛流動。",
+        "energyCorrespondence": "豐盛之光；大天使拉斐爾；意志輪到太陽神經叢；百合花。",
+        "bodyNotes": "腹部；延伸留意心臟、循環系統、骨骼、牙齒。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，主題庫為正式版本，閱讀版已同步", "notes": null, "conflicts": ["來源文字含正式版本字樣，但缺少 Canonical 審核紀錄，仍維持 Candidate"], "approvedBy": null, "approvalRecord": null }
+    },
+    {
+      "id": "NUM-009",
+      "domain": "number-topic",
+      "matchKey": { "number": 9 },
+      "reviewStatus": "Candidate",
+      "version": "1.0.0",
+      "lastReviewedAt": null,
+      "sourceRefs": [{ "sourceId": "SRC-001", "sourceType": "google-sheet", "location": "https://docs.google.com/spreadsheets/d/10qEkd8M1BCT16ozjO1lT-MZAOwwl9dZdtfGl82NsHKo/edit", "sheetName": "Sheet1", "row": 11, "pageRefs": "p30-p31", "modifiedAt": "2026-07-04T18:22:48.524Z" }],
+      "content": {
+        "title": "曼荼羅的回歸",
+        "theme": "釋放、慈悲、完成、服務",
+        "observation": "數字 9 常與完成、奉獻、大愛、智慧、整合、回歸與靈魂合一有關。這個頻率較明顯時，個體通常會透過服務、理解、放下與整合來學習生命的圓滿。",
+        "mature": "溫文有質、無為而治。成熟時能以智慧與慈悲服務他人，也能完成生命經驗的整合。",
+        "imbalance": "可能容易相信別人而受騙，或因過度奉獻、放不下、執著與大愛失衡而耗竭。若未整合，也可能出現不圓滿感與關係邊界模糊。",
+        "action": "今天放下一件不再適合你的事物或期待。練習完成、整合與釋放。",
+        "keywords": ["完成", "釋放", "慈悲", "服務", "整合", "圓滿"]
+      },
+      "applications": {
+        "geometry": null,
+        "colors": ["寶藍色"],
+        "relationship": "關係中重視理解、包容與共同的精神方向，需要學習不把大愛變成無邊界承擔。",
+        "money": "與跨國事業、社會企業、教育、公益、出版、文化與服務整合有關。",
+        "spiritual": "成長方向是學習放下的智慧，從拯救者意識進入服務者意識。",
+        "affirmation": "我允許完成與釋放。",
+        "energyCorrespondence": "智慧女神雅典娜；大天使麥達昶；宇宙之窗；曇花。",
+        "bodyNotes": "免疫系統、神經系統、全身能量整合。"
+      },
+      "governance": { "sourceStatus": "已校稿 V1.1，待人工抽查", "notes": null, "conflicts": ["部分成熟與陰影語句需要去標籤化審核"], "approvedBy": null, "approvalRecord": null }
+    }
+  ]
+}
