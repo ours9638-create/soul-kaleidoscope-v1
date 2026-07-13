@@ -40,6 +40,17 @@
       "diffReport": null,
       "reviewStatus": "Canonical",
       "autoPublish": false
+    },
+    {
+      "id": "context-rule",
+      "domain": "context-rule",
+      "source": null,
+      "mapping": null,
+      "candidate": "data/knowledge/candidates/context-rules.phase6.v0.1.json",
+      "published": null,
+      "diffReport": null,
+      "reviewStatus": "Candidate",
+      "autoPublish": false
     }
   ]
 }
