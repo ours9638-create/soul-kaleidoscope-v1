@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4B3B73" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
   <title>靈魂萬花筒｜個案報告</title>
-  <link rel="stylesheet" href="report.css?v=2.5.0" />
+  <link rel="stylesheet" href="report.css?v=2.6.0" />
 </head>
 <body data-report-mode="full">
   <div class="report-shell">
@@ -41,10 +41,11 @@
         <fieldset class="section-toggles">
           <legend>報告段落</legend>
           <label><input type="checkbox" data-section-toggle="basic" checked />基本資料</label>
-          <label><input type="checkbox" data-section-toggle="summary" checked />數字摘要</label>
-          <label><input type="checkbox" data-section-toggle="interpretations" checked />頻率解讀</label>
-          <label><input type="checkbox" data-section-toggle="stages" checked />五階段數字</label>
-          <label><input type="checkbox" data-section-toggle="structure" checked />數字結構</label>
+          <label><input type="checkbox" data-section-toggle="summary" checked />靈魂數字摘要</label>
+          <label><input type="checkbox" data-section-toggle="interpretations" checked />靈魂數字解讀</label>
+          <label><input type="checkbox" data-section-toggle="annual" checked />流年位格解讀</label>
+          <label><input type="checkbox" data-section-toggle="stages" checked />五階段靈魂數字</label>
+          <label><input type="checkbox" data-section-toggle="structure" checked />靈魂數字結構</label>
           <label><input type="checkbox" data-section-toggle="notes" checked />個案補充</label>
         </fieldset>
       </div>
@@ -108,8 +109,8 @@
           <div class="section-heading">
             <span></span>
             <div>
-              <h2>國曆與農曆數字摘要</h2>
-              <p>保留完整數字鏈、流年、今年位格、流月與流日。</p>
+              <h2>雙曆靈魂數字摘要</h2>
+              <p>保留完整主命數鏈、流年、今年位格、流月與流日。</p>
             </div>
           </div>
           <div class="table-wrap">
@@ -133,18 +134,29 @@
           <div class="section-heading">
             <span></span>
             <div>
-              <h2>SNGL 頻率解讀</h2>
+              <h2>靈魂數字頻率解讀</h2>
               <p>目前包含國曆主命數、農曆主命數、國曆流年與農曆流年。</p>
             </div>
           </div>
           <div id="reportSections" class="interpretation-list"></div>
         </section>
 
+        <section id="reportAnnualSection" class="report-section" data-report-section="annual">
+          <div class="section-heading">
+            <span></span>
+            <div>
+              <h2>流年位格解讀</h2>
+              <p>分別解讀國曆與農曆今年位格、流年與位格整合，以及雙曆年度能量總結。</p>
+            </div>
+          </div>
+          <div id="annualSections" class="interpretation-list"></div>
+        </section>
+
         <section id="reportStagesSection" class="report-section" data-report-section="stages">
           <div class="section-heading">
             <span></span>
             <div>
-              <h2>五階段數字</h2>
+              <h2>五階段靈魂數字</h2>
               <p>呈現年、月、日、時、分依序累加後的完整數字鏈與靈魂等級。</p>
             </div>
           </div>
@@ -164,8 +176,8 @@
           <div class="section-heading">
             <span></span>
             <div>
-              <h2>數字結構參考</h2>
-              <p>貴人數、日座、日月綻放與四個木馬。</p>
+              <h2>靈魂數字結構參考</h2>
+              <p>包含貴人數、日座、國曆日月綻放、陰曆日月綻放與四個木馬。</p>
             </div>
           </div>
           <div id="horseCards" class="horse-grid"></div>
@@ -192,7 +204,7 @@
   </div>
 
   <div id="reportToast" class="report-toast" role="status" aria-live="polite"></div>
-  <script src="report-model.js?v=2.5.0"></script>
-  <script src="report.js?v=2.5.0"></script>
+  <script src="report-model.js?v=2.6.0"></script>
+  <script src="report.js?v=2.6.0"></script>
 </body>
 </html>
