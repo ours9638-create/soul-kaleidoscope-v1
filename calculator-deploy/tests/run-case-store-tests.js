@@ -16,7 +16,7 @@ function expectError(name, fn) {
 }
 function profile(name, solarBirth = "1989-05-28") {
   return {
-    meta: { engineVersion: "2.2.0" },
+    meta: { engineVersion: "2.2.1" },
     subject: { name },
     source: {
       solarBirthDate: solarBirth,
@@ -36,7 +36,7 @@ function memoryStorage() {
   };
 }
 
-const empty = Store.createEmptyDatabase({ appVersion: "2.3.0", exportedAt: "2026-07-12T00:00:00.000Z" });
+const empty = Store.createEmptyDatabase({ appVersion: "2.7.0", exportedAt: "2026-07-12T00:00:00.000Z" });
 check("空資料庫初始化", empty.records.length, 0);
 check("空資料庫 schema", empty.schemaVersion, 1);
 
@@ -67,39 +67,39 @@ check("覆寫更新 modifiedAt", updatedA.modifiedAt, "2026-07-12T03:00:00.000Z"
 db = Store.deleteRecord(db, "case-b");
 check("刪除指定 ID", db.records.map((record) => record.id), ["case-a"]);
 
-const recordC = Store.recordFromProfile(profile("Joanna", "1991-09-23"), {
+const recordC = Store.recordFromProfile(profile("範例個案 C", "1991-09-23"), {
   id: "case-c",
   timestamp: "2026-07-12T04:00:00.000Z"
 });
 db = Store.addRecord(db, recordC);
-check("搜尋姓名", Store.searchRecords(db.records, "joa").map((record) => record.id), ["case-c"]);
+check("搜尋姓名", Store.searchRecords(db.records, "範例個案").map((record) => record.id), ["case-c"]);
 check("搜尋生日", Store.searchRecords(db.records, "1991-09").map((record) => record.id), ["case-c"]);
 check("修改時間排序", Store.sortRecords(db.records).map((record) => record.id), ["case-c", "case-a"]);
 
-const exported = Store.exportDatabase(db, { appVersion: "2.3.0", exportedAt: "2026-07-12T05:00:00.000Z" });
-const importedReplace = Store.importDatabase(Store.createEmptyDatabase({ appVersion: "2.3.0" }), exported, { mode: "replace", appVersion: "2.3.0" });
+const exported = Store.exportDatabase(db, { appVersion: "2.7.0", exportedAt: "2026-07-12T05:00:00.000Z" });
+const importedReplace = Store.importDatabase(Store.createEmptyDatabase({ appVersion: "2.7.0" }), exported, { mode: "replace", appVersion: "2.7.0" });
 check("匯出再匯入筆數一致", importedReplace.database.records.length, db.records.length);
 check("匯出再匯入資料一致", importedReplace.database.records, Store.sortRecords(db.records));
 
 expectError("無效 JSON 被拒絕", () => Store.importDatabase(db, "{not-json", { mode: "merge" }));
 expectError("不支援 schema 被拒絕", () => Store.importDatabase(db, { schemaVersion: 99, records: [] }, { mode: "merge" }));
-expectError("缺少 records 陣列被拒絕", () => Store.importDatabase(db, { schemaVersion: 1, appVersion: "2.3.0" }, { mode: "merge" }));
+expectError("缺少 records 陣列被拒絕", () => Store.importDatabase(db, { schemaVersion: 1, appVersion: "2.7.0" }, { mode: "merge" }));
 expectError("無效日曆日期被拒絕", () => Store.addRecord(empty, { ...recordA, id: "invalid-date", solarBirth: "2026-02-30" }));
 expectError("查詢日早於生日被拒絕", () => Store.addRecord(empty, { ...recordA, id: "invalid-order", solarBirth: "2026-07-06", queryDate: "2026-07-05" }));
 
 const storage = memoryStorage();
-const browserStore = Store.createStore({ storage, appVersion: "2.3.0" });
+const browserStore = Store.createStore({ storage, appVersion: "2.7.0" });
 browserStore.save(db);
 const beforeFailedImport = storage.snapshot();
 expectError("匯入失敗會拋錯", () => browserStore.importText("{broken"));
 check("匯入失敗不改變原資料", storage.snapshot(), beforeFailedImport);
 
 const oldVersionStorage = memoryStorage();
-oldVersionStorage.setItem(Store.STORE_KEY, JSON.stringify({ ...db, appVersion: "2.2.0" }));
-const upgradedStore = Store.createStore({ storage: oldVersionStorage, appVersion: "2.3.0" });
-check("本機資料庫 appVersion 自動升級", upgradedStore.load().appVersion, "2.3.0");
+oldVersionStorage.setItem(Store.STORE_KEY, JSON.stringify({ ...db, appVersion: "2.3.0" }));
+const upgradedStore = Store.createStore({ storage: oldVersionStorage, appVersion: "2.7.0" });
+check("本機資料庫 appVersion 自動升級", upgradedStore.load().appVersion, "2.7.0");
 
-let hundred = Store.createEmptyDatabase({ appVersion: "2.3.0" });
+let hundred = Store.createEmptyDatabase({ appVersion: "2.7.0" });
 for (let index = 0; index < 100; index += 1) {
   const item = Store.recordFromProfile(profile(`個案 ${index}`, `1991-09-${String((index % 28) + 1).padStart(2, "0")}`), {
     id: `bulk-${index}`,
@@ -125,7 +125,7 @@ const legacy = {
     modifiedAt: "2026-07-01T00:00:00.000Z"
   }]
 };
-const migrated = Store.migrateDatabase(legacy, { appVersion: "2.3.0" });
+const migrated = Store.migrateDatabase(legacy, { appVersion: "2.7.0" });
 check("舊 schema 遷移", migrated.schemaVersion, 1);
 check("舊欄位 solarBirthDate 遷移", migrated.records[0].solarBirth, "1989-05-28");
 
