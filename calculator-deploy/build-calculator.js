@@ -11,8 +11,10 @@ const requiredFiles = [
   "public/style.css",
   "public/layout-fix.css",
   "public/case-manager.css",
+  "public/brand-theme.css",
   "public/report.html",
   "public/report.css",
+  "public/report-model.js",
   "public/report.js",
   "public/report-preview.js",
   "public/core.js",
@@ -25,10 +27,12 @@ const requiredFiles = [
   "public/manifest.webmanifest",
   "public/icon.svg",
   "data/sngl/numbers.v1.json",
+  "data/sngl/positions.v1.json",
   "schemas/soul-profile.schema.json",
   "tests/fixtures/regression-cases.json",
   "tests/run-regression-tests.js",
-  "tests/run-case-store-tests.js"
+  "tests/run-case-store-tests.js",
+  "tests/run-report-model-tests.js"
 ];
 
 for (const file of requiredFiles) {
@@ -52,14 +56,20 @@ const lunarOutput = [
 writeFileSync("public/lunar-data.js", lunarOutput, "utf8");
 
 const snglData = JSON.parse(readFileSync("data/sngl/numbers.v1.json", "utf8"));
+const positionData = JSON.parse(readFileSync("data/sngl/positions.v1.json", "utf8"));
 const expectedNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+const expectedPositions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 if (JSON.stringify(Object.keys(snglData.numbers || {}).sort()) !== JSON.stringify(expectedNumbers)) {
   throw new Error("SNGL number database must contain exactly 0 through 9");
 }
+if (JSON.stringify(Object.keys(positionData.positions || {}).sort()) !== JSON.stringify(expectedPositions)) {
+  throw new Error("SNGL position database must contain exactly 1 through 9");
+}
 const snglOutput = [
-  "/* Generated from data/sngl/numbers.v1.json during Cloudflare build. */",
+  "/* Generated from data/sngl/numbers.v1.json and positions.v1.json during Cloudflare build. */",
   `globalThis.SNGL_DATA = ${JSON.stringify(snglData)};`,
-  "if (typeof module !== \"undefined\" && module.exports) module.exports = globalThis.SNGL_DATA;",
+  `globalThis.POSITION_DATA = ${JSON.stringify(positionData)};`,
+  "if (typeof module !== \"undefined\" && module.exports) module.exports = { SNGL_DATA: globalThis.SNGL_DATA, POSITION_DATA: globalThis.POSITION_DATA };",
   ""
 ].join("\n");
 writeFileSync("public/sngl-data.js", snglOutput, "utf8");
@@ -69,6 +79,7 @@ const reportHtml = readFileSync("public/report.html", "utf8");
 const scriptText = readFileSync("public/script.js", "utf8");
 const profileText = readFileSync("public/profile-model.js", "utf8");
 const reportEngineText = readFileSync("public/sngl-report.js", "utf8");
+const reportModelText = readFileSync("public/report-model.js", "utf8");
 const caseStoreText = readFileSync("public/case-store.js", "utf8");
 const caseUiText = readFileSync("public/case-ui.js", "utf8");
 const reportPreviewText = readFileSync("public/report-preview.js", "utf8");
@@ -82,6 +93,12 @@ const sourceChecks = [
   [indexHtml.includes(`name="app-version" content="${APP_VERSION}"`), "index.html app-version metadata is inconsistent"],
   [indexHtml.includes(`layout-fix.css?v=${UI_VERSION}`), "index.html layout stylesheet version is inconsistent"],
   [indexHtml.includes(`case-manager.css?v=${UI_VERSION}`), "case manager stylesheet version is inconsistent"],
+  [indexHtml.includes(`brand-theme.css?v=${UI_VERSION}`), "brand theme stylesheet version is inconsistent"],
+  [indexHtml.includes("靈魂數字"), "canonical term 靈魂數字 is missing"],
+  [indexHtml.includes("國曆日月綻放"), "canonical term 國曆日月綻放 is missing"],
+  [indexHtml.includes("陰曆日月綻放"), "canonical term 陰曆日月綻放 is missing"],
+  [!indexHtml.includes("生命數字"), "deprecated term 生命數字 must not appear in the app"],
+  [!indexHtml.includes("內頻"), "deprecated term 內頻 must not appear in the app"],
   [!indexHtml.includes('id="summaryBirthdayStatus"'), "birthday status card must remain removed"],
   [!indexHtml.includes('id="summarySolarBirthdayDate"'), "annual Gregorian birthday card must remain removed"],
   [!indexHtml.includes('id="summaryLunarBirthdayDate"'), "annual lunar birthday card must remain removed"],
@@ -100,12 +117,26 @@ const sourceChecks = [
   [indexHtml.includes('<script src="case-ui.js"></script>'), "case UI script is missing from index.html"],
   [indexHtml.includes(`report-preview.js?v=${UI_VERSION}`), "report preview script is missing from index.html"],
   [reportHtml.includes('id="reportApp"'), "report page root is missing"],
+  [reportHtml.includes('id="reportModeSelect"'), "report mode selector is missing"],
+  [reportHtml.includes('data-section-toggle="annual"'), "annual interpretation toggle is missing"],
+  [reportHtml.includes('id="annualSections"'), "annual interpretation output is missing"],
+  [reportHtml.includes("流年位格解讀"), "annual interpretation heading is missing"],
+  [reportHtml.includes("靈魂數字頻率解讀"), "canonical report interpretation heading is missing"],
   [reportHtml.includes('id="printReportBtn"'), "report print action is missing"],
+  [reportHtml.includes('id="copyReportBtn"'), "report copy action is missing"],
+  [reportHtml.includes('id="saveReportDraftBtn"'), "report draft save action is missing"],
   [reportHtml.includes('id="clearReportBtn"'), "report clear action is missing"],
   [reportHtml.includes(`report.css?v=${UI_VERSION}`), "report stylesheet version is inconsistent"],
+  [reportHtml.includes(`report-model.js?v=${UI_VERSION}`), "report model version is inconsistent"],
   [reportHtml.includes(`report.js?v=${UI_VERSION}`), "report script version is inconsistent"],
   [scriptText.includes("SoulKaleidoscopeProfile"), "script.js does not use canonical profile model"],
   [scriptText.includes("SoulKaleidoscopeReport"), "script.js does not use SNGL report engine"],
+  [scriptText.includes("POSITION_DATA"), "script.js does not load annual position data"],
+  [reportEngineText.includes("annualSections"), "SNGL report engine does not generate annual sections"],
+  [reportEngineText.includes("annualSummary"), "SNGL report engine does not generate dual annual summary"],
+  [reportModelText.includes('"annual"'), "report view model does not expose annual visibility"],
+  [reportModelText.includes("陰曆日月綻放"), "report view model does not use canonical lunar day-moon label"],
+  [reportPageText.includes('$("annualSections")'), "report page does not render annual interpretations"],
   [caseStoreText.includes('soul-kaleidoscope.case-store'), "case store key is inconsistent"],
   [caseStoreText.includes("SCHEMA_VERSION = 1"), "case store schema version is inconsistent"],
   [caseUiText.includes("addFromProfile"), "case UI does not save canonical profiles"],
@@ -117,11 +148,13 @@ const sourceChecks = [
   [reportPageText.includes("window.print"), "report page print action is missing"],
   [reportPageText.includes("localStorage.removeItem"), "report page clear action is missing"],
   [swText.includes(`soul-kaleidoscope-v${UI_VERSION}`), "service worker cache version is inconsistent"],
+  [swText.includes('"./brand-theme.css"'), "service worker does not cache brand theme"],
   [swText.includes('"./case-manager.css"'), "service worker does not cache case manager styles"],
   [swText.includes('"./case-store.js"'), "service worker does not cache case store"],
   [swText.includes('"./case-ui.js"'), "service worker does not cache case UI"],
   [swText.includes('"./report.html"'), "service worker does not cache report page"],
   [swText.includes('"./report.css"'), "service worker does not cache report styles"],
+  [swText.includes('"./report-model.js"'), "service worker does not cache report model"],
   [swText.includes('"./report.js"'), "service worker does not cache report renderer"],
   [swText.includes('"./report-preview.js"'), "service worker does not cache report preview bridge"]
 ];
@@ -132,14 +165,17 @@ if (failedSourceChecks.length) throw new Error(`Static source validation failed:
 new Function(scriptText);
 new Function(profileText);
 new Function(reportEngineText);
+new Function(reportModelText);
 new Function(caseStoreText);
 new Function(caseUiText);
 new Function(reportPreviewText);
 new Function(reportPageText);
 runInThisContext(lunarOutput, { filename: "generated-lunar-data.js" });
+runInThisContext(snglOutput, { filename: "generated-sngl-data.js" });
 runInThisContext(readFileSync("public/core.js", "utf8"), { filename: "public/core.js" });
 runInThisContext(profileText, { filename: "public/profile-model.js" });
 runInThisContext(reportEngineText, { filename: "public/sngl-report.js" });
+runInThisContext(reportModelText, { filename: "public/report-model.js" });
 const engine = globalThis.SoulKaleidoscopeCore.createEngine(globalThis.LUNAR_DATA);
 const regression = engine.runSelfTests();
 
@@ -153,7 +189,7 @@ if (!regression.ok) {
 }
 
 console.log(`Generated public/lunar-data.js with ${rows.length} rows.`);
-console.log(`Generated public/sngl-data.js version ${snglData.version}.`);
+console.log(`Generated public/sngl-data.js with number data ${snglData.version} and position data ${positionData.version}.`);
 console.log(`Static source validation passed ${sourceChecks.length}/${sourceChecks.length}.`);
 console.log(`Formula regression passed ${regression.passed}/${regression.total}.`);
 console.log(`Prepared Soul Kaleidoscope app v${APP_VERSION} (engine ${ENGINE_VERSION}).`);
