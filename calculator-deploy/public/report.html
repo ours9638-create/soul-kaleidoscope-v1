@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#080717" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
   <title>靈魂萬花筒｜個案報告</title>
-  <link rel="stylesheet" href="report.css?v=2.6.0" />
-  <link rel="stylesheet" href="report-brand.css?v=2.6.0" />
+  <link rel="stylesheet" href="report.css?v=2.7.0" />
+  <link rel="stylesheet" href="report-brand.css?v=2.7.0" />
 </head>
 <body data-report-mode="full">
   <div class="report-shell">
@@ -52,18 +52,9 @@
       </div>
 
       <div class="notes-editor">
-        <label>
-          <span>整體觀察</span>
-          <textarea id="reportOverviewInput" rows="4" placeholder="整理個案目前的整體狀態、核心主題與重要脈絡。"></textarea>
-        </label>
-        <label>
-          <span>當期重點</span>
-          <textarea id="reportFocusInput" rows="4" placeholder="記錄本次查詢期間需要特別留意的流年、關係或行動焦點。"></textarea>
-        </label>
-        <label>
-          <span>補充建議</span>
-          <textarea id="reportRecommendationsInput" rows="4" placeholder="加入實際可執行的練習、提醒或後續追蹤方向。"></textarea>
-        </label>
+        <label><span>整體觀察</span><textarea id="reportOverviewInput" rows="4" placeholder="整理個案目前的整體狀態、核心主題與重要脈絡。"></textarea></label>
+        <label><span>當期重點</span><textarea id="reportFocusInput" rows="4" placeholder="記錄本次查詢期間需要特別留意的流年、關係或行動焦點。"></textarea></label>
+        <label><span>補充建議</span><textarea id="reportRecommendationsInput" rows="4" placeholder="加入實際可執行的練習、提醒或後續追蹤方向。"></textarea></label>
       </div>
 
       <div class="editor-actions">
@@ -73,11 +64,7 @@
     </section>
 
     <main id="reportApp" class="report-document" aria-live="polite">
-      <section id="reportLoading" class="report-state">
-        <h1>載入個案報告</h1>
-        <p>正在讀取此裝置中的報告資料。</p>
-      </section>
-
+      <section id="reportLoading" class="report-state"><h1>載入個案報告</h1><p>正在讀取此裝置中的報告資料。</p></section>
       <section id="reportError" class="report-state report-state--error" hidden>
         <h1>無法顯示報告</h1>
         <p id="reportErrorText">報告資料不存在、已過期或格式不正確。</p>
@@ -96,102 +83,45 @@
         <aside id="reportWarnings" class="report-warning" hidden></aside>
 
         <section id="reportBasicSection" class="report-section" data-report-section="basic">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>基本資料</h2>
-              <p>本頁依計算器產生的 Soul Profile 顯示，不在報告頁重新計算。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>基本資料</h2><p>本頁依計算器產生的 Soul Profile 顯示，不在報告頁重新計算。</p></div></div>
           <dl id="basicInfo" class="info-grid"></dl>
         </section>
 
         <section id="reportSummarySection" class="report-section" data-report-section="summary">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>雙曆靈魂數字摘要</h2>
-              <p>保留完整主命數鏈、流年、今年位格、流月與流日。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>雙曆靈魂數字摘要</h2><p>保留完整主命數鏈、流年、今年位格、流月與流日。</p></div></div>
           <div class="table-wrap">
             <table class="summary-table">
-              <thead>
-                <tr>
-                  <th>曆別</th>
-                  <th>主命數</th>
-                  <th>流年</th>
-                  <th>今年位格</th>
-                  <th>流月</th>
-                  <th>流日</th>
-                </tr>
-              </thead>
+              <thead><tr><th>曆別</th><th>主命數</th><th>流年</th><th>今年位格</th><th>流月</th><th>流日</th></tr></thead>
               <tbody id="numerologySummary"></tbody>
             </table>
           </div>
         </section>
 
         <section id="reportInterpretationsSection" class="report-section" data-report-section="interpretations">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>靈魂數字頻率解讀</h2>
-              <p>目前包含國曆主命數、農曆主命數、國曆流年與農曆流年。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>靈魂數字頻率解讀</h2><p>目前包含國曆主命數、農曆主命數、國曆流年與農曆流年。</p></div></div>
           <div id="reportSections" class="interpretation-list"></div>
         </section>
 
         <section id="reportAnnualSection" class="report-section" data-report-section="annual">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>流年位格解讀</h2>
-              <p>分別解讀國曆與農曆今年位格、流年與位格整合，以及雙曆年度能量總結。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>流年位格解讀</h2><p>分別解讀國曆與農曆今年位格、流年與位格整合，以及雙曆年度能量總結。</p></div></div>
           <div id="annualSections" class="interpretation-list"></div>
         </section>
 
         <section id="reportStagesSection" class="report-section" data-report-section="stages">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>五階段靈魂數字</h2>
-              <p>呈現年、月、日、時、分依序累加後的完整數字鏈與靈魂等級。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>五階段靈魂數字</h2><p>呈現年、月、日、時、分依序累加後的完整數字鏈與靈魂等級。</p></div></div>
           <div class="stage-grid">
-            <article class="stage-card">
-              <h3>國曆五階段</h3>
-              <div class="table-wrap"><table class="stage-table"><thead><tr><th>階段</th><th>輸入值</th><th>完整鏈</th><th>靈魂等級</th></tr></thead><tbody id="solarStages"></tbody></table></div>
-            </article>
-            <article class="stage-card">
-              <h3>農曆五階段</h3>
-              <div class="table-wrap"><table class="stage-table"><thead><tr><th>階段</th><th>輸入值</th><th>完整鏈</th><th>靈魂等級</th></tr></thead><tbody id="lunarStages"></tbody></table></div>
-            </article>
+            <article class="stage-card"><h3>國曆五階段</h3><div class="table-wrap"><table class="stage-table"><thead><tr><th>階段</th><th>輸入值</th><th>完整鏈</th><th>靈魂等級</th></tr></thead><tbody id="solarStages"></tbody></table></div></article>
+            <article class="stage-card"><h3>農曆五階段</h3><div class="table-wrap"><table class="stage-table"><thead><tr><th>階段</th><th>輸入值</th><th>完整鏈</th><th>靈魂等級</th></tr></thead><tbody id="lunarStages"></tbody></table></div></article>
           </div>
         </section>
 
         <section id="reportStructureSection" class="report-section report-section--compact" data-report-section="structure">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>靈魂數字結構參考</h2>
-              <p>包含貴人數、日座、國曆日月綻放、陰曆日月綻放與四個木馬。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>靈魂數字結構參考</h2><p>包含貴人數、日座、國曆日月綻放、陰曆日月綻放與四個木馬。</p></div></div>
           <div id="horseCards" class="horse-grid"></div>
         </section>
 
         <section id="reportNotesSection" class="report-section" data-report-section="notes">
-          <div class="section-heading">
-            <span></span>
-            <div>
-              <h2>個案補充</h2>
-              <p>由報告工作區加入的整體觀察、當期重點與可執行建議。</p>
-            </div>
-          </div>
+          <div class="section-heading"><span></span><div><h2>個案補充</h2><p>由報告工作區加入的整體觀察、當期重點與可執行建議。</p></div></div>
           <div class="notes-output">
             <article><h3>整體觀察</h3><p id="noteOverviewOutput">—</p></article>
             <article><h3>當期重點</h3><p id="noteFocusOutput">—</p></article>
@@ -205,7 +135,7 @@
   </div>
 
   <div id="reportToast" class="report-toast" role="status" aria-live="polite"></div>
-  <script src="report-model.js?v=2.6.0"></script>
-  <script src="report.js?v=2.6.0"></script>
+  <script src="report-model.js?v=2.7.0"></script>
+  <script src="report.js?v=2.7.0"></script>
 </body>
 </html>
