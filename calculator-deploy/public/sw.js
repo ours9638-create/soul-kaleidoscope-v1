@@ -8,6 +8,7 @@ const ASSETS = [
   "./brand-theme.css",
   "./report.html",
   "./report.css",
+  "./report-brand.css",
   "./report-model.js",
   "./report.js",
   "./report-preview.js",
