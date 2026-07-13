@@ -61,7 +61,7 @@ const full = ReportModel.build(profile, {
   mode: "full",
   notes: { overview: "整體觀察", focus: "當期重點", recommendations: "補充建議" }
 });
-check("報告模型版本", ReportModel.VERSION, "1.1.0");
+check("報告模型版本", ReportModel.VERSION, "1.1.1");
 check("完整版模式", full.mode, "full");
 check("完整版標籤", full.modeLabel, "完整版");
 check("基本資料六欄", full.basicInfo.length, 6);
@@ -75,6 +75,8 @@ check("國曆結構七欄", full.structures.solar.length, 7);
 check("農曆結構七欄", full.structures.lunar.length, 7);
 check("國曆日月綻放正式名稱", full.structures.solar[2].label, "國曆日月綻放");
 check("陰曆日月綻放正式名稱", full.structures.lunar[2].label, "陰曆日月綻放");
+check("國曆日月綻放完整鏈", full.structures.solar[2].value, "33/6");
+check("陰曆日月綻放完整鏈", full.structures.lunar[2].value, "28/10/1");
 check("完整版顯示流年位格", full.visibility.annual, true);
 check("完整版顯示五階段", full.visibility.stages, true);
 check("完整版顯示結構", full.visibility.structure, true);
@@ -105,13 +107,13 @@ const fullText = ReportModel.plainText(full);
 check("完整版文字包含靈魂數字標題", fullText.includes("【靈魂數字頻率解讀】"), true);
 check("完整版文字包含五階段", fullText.includes("【五階段靈魂數字】"), true);
 check("完整版文字包含筆記", fullText.includes("整體觀察：整體觀察"), true);
-check("完整版文字包含國曆日月綻放", fullText.includes("國曆日月綻放"), true);
-check("完整版文字包含陰曆日月綻放", fullText.includes("陰曆日月綻放"), true);
+check("完整版文字包含國曆日月綻放鏈", fullText.includes("國曆日月綻放 33/6"), true);
+check("完整版文字包含陰曆日月綻放鏈", fullText.includes("陰曆日月綻放 28/10/1"), true);
 
 const teacherText = ReportModel.plainText(teacher);
 check("老師版包含技術資料", teacherText.includes("技術資料：SNGL.NUMBER."), true);
 check("老師版包含位格技術資料", teacherText.includes("SNGL.POSITION."), true);
-check("老師版包含版本", teacherText.includes("Report View 1.1.0"), true);
+check("老師版包含版本", teacherText.includes("Report View 1.1.1"), true);
 
 expectError("缺少 Profile 被拒絕", () => ReportModel.build(null));
 expectError("缺少 SNGL 報告被拒絕", () => ReportModel.build({ ...profile, outputs: { report: null } }));
