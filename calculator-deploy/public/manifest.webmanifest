@@ -1,12 +1,12 @@
 {
-  "name": "靈魂萬花筒計算器",
-  "short_name": "萬花筒計算器",
+  "name": "靈魂萬花筒｜Soul Kaleidoscope",
+  "short_name": "靈魂萬花筒",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f8f5ef",
-  "theme_color": "#4B3B73",
-  "description": "iPhone 可用的靈魂萬花筒個案數字計算器 v2.1.0",
+  "background_color": "#070612",
+  "theme_color": "#080717",
+  "description": "雙曆靈魂數字、流年位格、個案管理與報告工作區 v2.6.0",
   "icons": [
     {
       "src": "icon.svg",
