@@ -1,7 +1,7 @@
 {
   "name": "soul-kaleidoscope-calculator-deploy",
   "version": "2.7.0",
-  "engineVersion": "2.2.0",
+  "engineVersion": "2.2.1",
   "private": true,
   "type": "module",
   "scripts": {
