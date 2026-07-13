@@ -8,12 +8,20 @@
   const statusNode = $("systemStatus");
   const statusDetailNode = $("systemStatusDetail");
 
-  if (!C || !Profile || !ReportEngine || !Array.isArray(window.LUNAR_DATA) || window.LUNAR_DATA.length === 0 || !window.SNGL_DATA?.numbers) {
+  if (
+    !C ||
+    !Profile ||
+    !ReportEngine ||
+    !Array.isArray(window.LUNAR_DATA) ||
+    window.LUNAR_DATA.length === 0 ||
+    !window.SNGL_DATA?.numbers ||
+    !window.POSITION_DATA?.positions
+  ) {
     if (statusNode) {
       statusNode.textContent = "引擎載入失敗";
       statusNode.classList.add("status-pill--error");
     }
-    if (statusDetailNode) statusDetailNode.textContent = "核心程式、統一資料模型、SNGL 資料或農曆資料未正確載入，請重新整理或查看部署紀錄。";
+    if (statusDetailNode) statusDetailNode.textContent = "核心程式、統一資料模型、SNGL 數字資料、位格資料或農曆資料未正確載入，請重新整理或查看部署紀錄。";
     return;
   }
 
@@ -120,7 +128,7 @@
       <thead><tr><th></th>${rows.map((row) => `<th>${row.label}</th>`).join("")}</tr></thead>
       <tbody>
         <tr><th>輸入值</th>${rows.map((row) => `<td>${row.source}</td>`).join("")}</tr>
-        <tr><th>主數</th>${rows.map((row) => `<td>${row.chain}</td>`).join("")}</tr>
+        <tr><th>靈魂數字</th>${rows.map((row) => `<td>${row.chain}</td>`).join("")}</tr>
         <tr><th>靈魂等級</th>${rows.map((row) => `<td>${row.level}</td>`).join("")}</tr>
       </tbody>`;
   }
@@ -175,8 +183,9 @@
     if (full) {
       lines.push(`國曆靈魂數字：${solar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
       lines.push(`農曆靈魂數字：${lunar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
+      lines.push(`國曆日月綻放：${solar.horse.dayMoon}｜陰曆日月綻放：${lunar.horse.dayMoon}`);
       lines.push(`時間：${el.summaryTimeRule.textContent}`);
-      lines.push(`資料版本：模型 ${profile.meta.schemaVersion}｜引擎 ${profile.meta.engineVersion}｜SNGL ${profile.outputs.report.version}`);
+      lines.push(`資料版本：模型 ${profile.meta.schemaVersion}｜引擎 ${profile.meta.engineVersion}｜SNGL ${profile.outputs.report.version}｜位格資料 ${profile.outputs.report.positionDataVersion}`);
     }
     return lines.join("\n");
   }
@@ -206,11 +215,11 @@
       const profile = Profile.build({ input, result, engineVersion: C.VERSION });
       const validation = Profile.validate(profile);
       if (!validation.ok) throw new Error(`統一資料模型驗證失敗：${validation.errors.join("、")}`);
-      profile.outputs.report = ReportEngine.generate(profile, window.SNGL_DATA);
+      profile.outputs.report = ReportEngine.generate(profile, window.SNGL_DATA, window.POSITION_DATA);
       lastProfile = profile;
       window.__SOUL_PROFILE__ = profile;
       render(profile);
-      notice("計算完成。統一資料模型與 SNGL 報告已同步建立。");
+      notice("計算完成。統一資料模型、靈魂數字報告與流年位格解讀已同步建立。");
       toast("計算完成");
     } catch (error) {
       notice(error.message, true);
@@ -222,7 +231,7 @@
     el.calcForm.reset();
     lastProfile = null;
     delete window.__SOUL_PROFILE__;
-    document.querySelectorAll("#results strong, #results td").forEach((node) => {
+    document.querySelectorAll("#resultPanel strong, #resultPanel td").forEach((node) => {
       if (!node.closest("table[id]")) node.textContent = "—";
     });
     [el.solarDetailTable, el.lunarDetailTable, el.solarHorseTable, el.lunarHorseTable].forEach((table) => { table.innerHTML = ""; });
@@ -235,7 +244,7 @@
   el.systemStatus.textContent = test.ok ? `引擎自檢通過 ${test.passed}/${test.total}` : `引擎自檢失敗 ${test.passed}/${test.total}`;
   el.systemStatus.classList.toggle("status-pill--error", !test.ok);
   el.systemStatusDetail.textContent = test.ok
-    ? `核心規則 ${test.passed}/${test.total} 通過；統一模型 ${Profile.SCHEMA_VERSION}、SNGL 報告 ${ReportEngine.VERSION} 已載入。`
+    ? `核心規則 ${test.passed}/${test.total} 通過；統一模型 ${Profile.SCHEMA_VERSION}、SNGL 報告 ${ReportEngine.VERSION}、位格資料 ${window.POSITION_DATA.version} 已載入。`
     : test.failed.map((item) => item.name).join("、");
 
   if ("serviceWorker" in navigator) {
