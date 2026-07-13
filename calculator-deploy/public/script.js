@@ -125,8 +125,8 @@
       </tbody>`;
   }
 
-  function renderHorse(table, value) {
-    const labels = ["貴人數","日座數","日月數","第一木馬","第二木馬","第三木馬","第四木馬"];
+  function renderHorse(table, value, dayMoonLabel) {
+    const labels = ["貴人數","日座數",dayMoonLabel,"第一木馬","第二木馬","第三木馬","第四木馬"];
     const values = [value.noble,value.daySeat,value.dayMoon,value.first,value.second,value.third,value.fourth];
     table.innerHTML = `<thead><tr>${labels.map((label) => `<th>${label}</th>`).join("")}</tr></thead><tbody><tr>${values.map((item) => `<td>${item}</td>`).join("")}</tr></tbody>`;
   }
@@ -157,8 +157,8 @@
 
     renderDetail(el.solarDetailTable, solar.soulStages);
     renderDetail(el.lunarDetailTable, lunar.soulStages);
-    renderHorse(el.solarHorseTable, solar.horse);
-    renderHorse(el.lunarHorseTable, lunar.horse);
+    renderHorse(el.solarHorseTable, solar.horse, "國曆日月綻放");
+    renderHorse(el.lunarHorseTable, lunar.horse, "陰曆日月綻放");
   }
 
   function resultText(full = false) {
@@ -173,8 +173,8 @@
       `農曆：流年 ${lunar.flow.flowYear || "—"}｜位格 ${lunar.flow.position ?? "—"}｜流月 ${lunar.flow.flowMonth || "—"}｜流日 ${lunar.flow.flowDay || "—"}`
     ];
     if (full) {
-      lines.push(`國曆主數：${solar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
-      lines.push(`農曆主數：${lunar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
+      lines.push(`國曆靈魂數字：${solar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
+      lines.push(`農曆靈魂數字：${lunar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
       lines.push(`時間：${el.summaryTimeRule.textContent}`);
       lines.push(`資料版本：模型 ${profile.meta.schemaVersion}｜引擎 ${profile.meta.engineVersion}｜SNGL ${profile.outputs.report.version}`);
     }
@@ -222,7 +222,7 @@
     el.calcForm.reset();
     lastProfile = null;
     delete window.__SOUL_PROFILE__;
-    document.querySelectorAll("#resultPanel strong, #resultPanel td").forEach((node) => {
+    document.querySelectorAll("#results strong, #results td").forEach((node) => {
       if (!node.closest("table[id]")) node.textContent = "—";
     });
     [el.solarDetailTable, el.lunarDetailTable, el.solarHorseTable, el.lunarHorseTable].forEach((table) => { table.innerHTML = ""; });
