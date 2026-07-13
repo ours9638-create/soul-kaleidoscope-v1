@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#080717" />
   <meta name="description" content="靈魂萬花筒：整合靈魂數字、雙曆排盤、流年位格、個案管理與報告工作區" />
-  <meta name="app-version" content="2.6.0" />
+  <meta name="app-version" content="2.7.0" />
   <title>靈魂萬花筒｜Soul Kaleidoscope</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="layout-fix.css?v=2.6.0" />
-  <link rel="stylesheet" href="case-manager.css?v=2.6.0" />
-  <link rel="stylesheet" href="brand-theme.css?v=2.6.0" />
+  <link rel="stylesheet" href="layout-fix.css?v=2.7.0" />
+  <link rel="stylesheet" href="case-manager.css?v=2.7.0" />
+  <link rel="stylesheet" href="brand-theme.css?v=2.7.0" />
+  <link rel="stylesheet" href="results-ui.css?v=2.7.0" />
 </head>
 <body>
   <div class="app-shell">
@@ -22,7 +23,7 @@
       <p>以雙曆靈魂數字、年度能量與個案報告，整理你此刻所處的生命節奏。</p>
       <div class="hero__meta">
         <span id="systemStatus" class="status-pill">引擎自檢中</span>
-        <span class="version-pill">v2.6.0</span>
+        <span class="version-pill">v2.7.0</span>
       </div>
       <p id="systemStatusDetail" class="hero__status-detail"></p>
       <div class="hero__actions">
@@ -38,40 +39,28 @@
             <p class="dashboard-kicker">Explore Your Frequency</p>
             <h2 id="dashboard-title">個人分析入口</h2>
           </div>
-          <p>先完成排盤，再進入年度解讀、個案報告與後續靈魂萬花圖。</p>
+          <p>先完成排盤，再進入年度解讀、個案報告與靈魂萬花圖核對。</p>
         </div>
 
         <div class="feature-grid">
           <a class="feature-card" href="#input">
             <span class="feature-card__orb">01</span>
-            <div>
-              <h3>靈魂數字</h3>
-              <p>國曆與農曆五階段、主命數、靈魂等級與完整數字鏈。</p>
-            </div>
+            <div><h3>靈魂數字</h3><p>國曆與農曆五階段、主命數、靈魂等級與完整數字鏈。</p></div>
             <span class="feature-card__arrow" aria-hidden="true">›</span>
           </a>
-          <a class="feature-card" href="#results">
+          <a class="feature-card" href="#results" data-open-result-tab="annual">
             <span class="feature-card__orb">02</span>
-            <div>
-              <h3>流年與位格</h3>
-              <p>查看年度主題、目前運作階段，以及雙曆流年位格整合解讀。</p>
-            </div>
+            <div><h3>流年與位格</h3><p>查看年度主題、目前運作階段，以及雙曆流年位格整合解讀。</p></div>
             <span class="feature-card__arrow" aria-hidden="true">›</span>
           </a>
-          <a class="feature-card" href="#results">
+          <a class="feature-card" href="#results" data-open-result-tab="kaleidoscope">
             <span class="feature-card__orb">03</span>
-            <div>
-              <h3>靈魂萬花圖</h3>
-              <p>依主核心頻率、年度外圈與固定位置規則建立個人光頻圖。</p>
-            </div>
+            <div><h3>靈魂萬花圖</h3><p>先核對主核心、木馬、貴人、流年與今年位格的固定位置。</p></div>
             <span class="feature-card__arrow" aria-hidden="true">›</span>
           </a>
-          <a class="feature-card" href="#results">
+          <a class="feature-card" href="#results" data-open-result-tab="overview">
             <span class="feature-card__orb">04</span>
-            <div>
-              <h3>個案報告</h3>
-              <p>計算完成後，在新分頁開啟快速版、完整版或老師版報告。</p>
-            </div>
+            <div><h3>個案報告</h3><p>計算完成後，在新分頁開啟快速版、完整版或老師版報告。</p></div>
             <span class="feature-card__arrow" aria-hidden="true">›</span>
           </a>
         </div>
@@ -80,49 +69,21 @@
       <section id="input" class="panel input-panel" aria-labelledby="input-title">
         <div class="section-title">
           <span class="section-title__mark"></span>
-          <div>
-            <h2 id="input-title">輸入資料</h2>
-            <p>欄位不預填。國曆生日可自動帶出農曆；閏月由系統辨識並顯示計算月。</p>
-          </div>
+          <div><h2 id="input-title">輸入資料</h2><p>欄位不預填。國曆生日可自動帶出農曆；閏月由系統辨識並顯示計算月。</p></div>
         </div>
 
         <form id="calcForm" class="form-grid" novalidate>
-          <label class="field field--wide">
-            <span>姓名</span>
-            <input id="name" type="text" placeholder="請輸入姓名" autocomplete="name" />
-          </label>
-
-          <label class="field">
-            <span>國曆生日</span>
-            <input id="solarBirth" type="date" required />
-          </label>
-
-          <label class="field">
-            <span>出生時間</span>
-            <input id="birthTime" type="time" required />
-            <small>凌晨 12 點請輸入 00:xx，計算結果會顯示並使用 24。</small>
-          </label>
-
-          <label class="field">
-            <span>查詢日期</span>
-            <input id="queryDate" type="date" required />
-          </label>
+          <label class="field field--wide"><span>姓名</span><input id="name" type="text" placeholder="請輸入姓名" autocomplete="name" /></label>
+          <label class="field"><span>國曆生日</span><input id="solarBirth" type="date" required /></label>
+          <label class="field"><span>出生時間</span><input id="birthTime" type="time" required /><small>凌晨 12 點請輸入 00:xx，計算結果會顯示並使用 24。</small></label>
+          <label class="field"><span>查詢日期</span><input id="queryDate" type="date" required /></label>
 
           <div class="lunar-box field--wide">
             <div class="mini-title">農曆生日</div>
             <div class="lunar-grid">
-              <label>
-                <span>年</span>
-                <input id="lunarYear" type="number" inputmode="numeric" placeholder="年" min="1939" max="2035" />
-              </label>
-              <label>
-                <span>月</span>
-                <input id="lunarMonth" type="number" inputmode="numeric" placeholder="月" min="1" max="12" />
-              </label>
-              <label>
-                <span>日</span>
-                <input id="lunarDay" type="number" inputmode="numeric" placeholder="日" min="1" max="30" />
-              </label>
+              <label><span>年</span><input id="lunarYear" type="number" inputmode="numeric" placeholder="年" min="1939" max="2035" /></label>
+              <label><span>月</span><input id="lunarMonth" type="number" inputmode="numeric" placeholder="月" min="1" max="12" /></label>
+              <label><span>日</span><input id="lunarDay" type="number" inputmode="numeric" placeholder="日" min="1" max="30" /></label>
             </div>
             <input id="lunarLeap" type="checkbox" hidden aria-hidden="true" />
             <div id="lunarAdjustNote" class="lunar-adjust-note">閏月判斷：—</div>
@@ -133,7 +94,6 @@
             <button id="calculateBtn" class="primary-button" type="submit">開始計算</button>
             <button id="resetBtn" class="secondary-button" type="button">清除重算</button>
           </div>
-
           <p id="lookupNotice" class="notice field--wide" role="status"></p>
         </form>
       </section>
@@ -141,26 +101,17 @@
       <section id="cases" class="panel case-panel" aria-labelledby="case-title">
         <div class="section-title">
           <span class="section-title__mark"></span>
-          <div>
-            <h2 id="case-title">個案管理（僅此裝置）</h2>
-            <p>儲存輸入資料並於載入時重新計算。個案不會自動上傳至雲端。</p>
-          </div>
+          <div><h2 id="case-title">個案管理（僅此裝置）</h2><p>儲存輸入資料並於載入時重新計算。個案不會自動上傳至雲端。</p></div>
         </div>
-
         <div class="case-toolbar">
-          <label class="field">
-            <span>搜尋姓名或國曆生日</span>
-            <input id="caseSearch" type="search" placeholder="例如：Joanna 或 1991-09" autocomplete="off" />
-          </label>
+          <label class="field"><span>搜尋姓名或國曆生日</span><input id="caseSearch" type="search" placeholder="例如：個案 A 或 1991-09" autocomplete="off" /></label>
           <div class="case-meta" aria-live="polite">
             <strong id="caseCount">本機 0 筆</strong>
             <span id="currentCaseText">目前未載入個案</span>
             <span id="lastBackupText">尚未匯出備份</span>
           </div>
         </div>
-
         <div id="caseList" class="case-list" role="list" aria-label="本機個案列表"></div>
-
         <div class="button-row case-actions">
           <button id="saveNewCaseBtn" class="primary-button" type="button">儲存為新個案</button>
           <button id="overwriteCaseBtn" class="secondary-button" type="button" disabled>覆寫目前個案</button>
@@ -169,21 +120,24 @@
           <button id="importCasesBtn" class="secondary-button" type="button">匯入並合併</button>
           <input id="importCasesInput" type="file" accept="application/json,.json" hidden />
         </div>
-
         <p id="caseNotice" class="case-notice" role="status"></p>
         <p class="case-privacy">備份檔為明文，包含姓名、生日與出生時間。清除 Safari 網站資料或移除 App 前，請先匯出備份；私密瀏覽模式不保證長期保存。</p>
       </section>
 
       <section id="results" class="result-stack" aria-live="polite">
-        <section class="panel quick-panel">
+        <nav class="result-tabs" role="tablist" aria-label="分析結果分頁">
+          <button class="result-tab is-active" type="button" role="tab" aria-selected="true" data-result-tab="overview">總覽</button>
+          <button class="result-tab" type="button" role="tab" aria-selected="false" data-result-tab="solar">國曆</button>
+          <button class="result-tab" type="button" role="tab" aria-selected="false" data-result-tab="lunar">農曆</button>
+          <button class="result-tab" type="button" role="tab" aria-selected="false" data-result-tab="annual">年度能量</button>
+          <button class="result-tab" type="button" role="tab" aria-selected="false" data-result-tab="kaleidoscope">萬花圖核對</button>
+        </nav>
+
+        <section class="panel quick-panel" data-result-view="overview">
           <div class="section-title section-title--compact">
             <span class="section-title__mark"></span>
-            <div>
-              <h2>快速閱覽結果</h2>
-              <p id="queryLunarText">當日農曆日期：—</p>
-            </div>
+            <div><h2>快速閱覽結果</h2><p id="queryLunarText">當日農曆日期：—</p></div>
           </div>
-
           <div class="summary-strip">
             <div><span>姓名</span><strong id="summaryName">—</strong></div>
             <div><span>查詢日期</span><strong id="summaryQueryDate">—</strong></div>
@@ -191,23 +145,15 @@
             <div><span>個案農曆調整</span><strong id="summaryLunarAdjustment">—</strong></div>
             <div><span>時間計算</span><strong id="summaryTimeRule">—</strong></div>
           </div>
-
           <div class="table-scroll">
             <table class="data-table data-table--quick">
-              <thead>
-                <tr><th>曆別</th><th>生日</th><th>流年</th><th>今年位格</th><th>流月</th><th>流日</th></tr>
-              </thead>
+              <thead><tr><th>曆別</th><th>生日</th><th>流年</th><th>今年位格</th><th>流月</th><th>流日</th></tr></thead>
               <tbody>
-                <tr>
-                  <th>國曆</th><td id="solarBirthdayCell">—</td><td id="solarFlowYear">—</td><td id="solarPosition">—</td><td id="solarFlowMonth">—</td><td id="solarFlowDay">—</td>
-                </tr>
-                <tr>
-                  <th>農曆</th><td id="lunarBirthdayCell">—</td><td id="lunarFlowYear">—</td><td id="lunarPosition">—</td><td id="lunarFlowMonth">—</td><td id="lunarFlowDay">—</td>
-                </tr>
+                <tr><th>國曆</th><td id="solarBirthdayCell">—</td><td id="solarFlowYear">—</td><td id="solarPosition">—</td><td id="solarFlowMonth">—</td><td id="solarFlowDay">—</td></tr>
+                <tr><th>農曆</th><td id="lunarBirthdayCell">—</td><td id="lunarFlowYear">—</td><td id="lunarPosition">—</td><td id="lunarFlowMonth">—</td><td id="lunarFlowDay">—</td></tr>
               </tbody>
             </table>
           </div>
-
           <div class="button-row button-row--result">
             <button id="copyQuickBtn" class="secondary-button" type="button">複製快速結果</button>
             <button id="copyFullBtn" class="secondary-button" type="button">複製完整結果</button>
@@ -215,53 +161,57 @@
           </div>
         </section>
 
-        <section class="panel">
-          <div class="section-title section-title--compact">
-            <span class="section-title__mark"></span>
-            <div><h2>國曆靈魂數字詳細結果</h2><p>年、月、日、時、分依序累加；完整保留 10、11、12 等中間鏈條。</p></div>
-          </div>
+        <section class="panel" data-result-view="solar" hidden>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>國曆靈魂數字詳細結果</h2><p>年、月、日、時、分依序累加；完整保留 10、11、12 等中間鏈條。</p></div></div>
           <div class="table-scroll"><table class="data-table" id="solarDetailTable"></table></div>
         </section>
-
-        <section class="panel">
-          <div class="section-title section-title--compact">
-            <span class="section-title__mark"></span>
-            <div><h2>國曆｜日座／國曆日月綻放／木馬</h2><p>貴人數與木馬數依縮減後年月日計算。</p></div>
-          </div>
+        <section class="panel" data-result-view="solar" hidden>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>國曆｜日座／國曆日月綻放／木馬</h2><p>貴人數與木馬數依縮減後年月日計算。</p></div></div>
           <div class="table-scroll"><table class="data-table data-table--compact" id="solarHorseTable"></table></div>
         </section>
 
-        <section class="panel">
-          <div class="section-title section-title--compact">
-            <span class="section-title__mark"></span>
-            <div><h2>農曆靈魂數字詳細結果</h2><p>農曆生日可由國曆生日自動帶出，也可手動校正。</p></div>
-          </div>
+        <section class="panel" data-result-view="lunar" hidden>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>農曆靈魂數字詳細結果</h2><p>農曆生日可由國曆生日自動帶出，也可手動校正。</p></div></div>
           <div class="table-scroll"><table class="data-table" id="lunarDetailTable"></table></div>
         </section>
-
-        <section class="panel">
-          <div class="section-title section-title--compact">
-            <span class="section-title__mark"></span>
-            <div><h2>農曆｜日座／陰曆日月綻放／木馬</h2><p>閏月個案使用顯示出的「計算月」進行數字計算。</p></div>
-          </div>
+        <section class="panel" data-result-view="lunar" hidden>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>農曆｜日座／陰曆日月綻放／木馬</h2><p>閏月個案使用顯示出的「計算月」進行數字計算。</p></div></div>
           <div class="table-scroll"><table class="data-table data-table--compact" id="lunarHorseTable"></table></div>
         </section>
 
-        <details class="panel rule-panel">
+        <section class="panel" data-result-view="annual" hidden>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>年度能量｜流年與位格</h2><p>國曆呈現外在行動節奏，農曆呈現內在感受與整合節奏。</p></div></div>
+          <p id="annualInterpretationStatus" class="result-empty">完成計算後顯示國曆、農曆與雙曆年度整合解讀。</p>
+          <div id="annualInterpretationList" class="annual-grid"></div>
+        </section>
+
+        <section class="panel" data-result-view="kaleidoscope" hidden>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>靈魂萬花圖｜資料核對</h2><p>圖像生成前先核對固定位置；中心主頻與年度外圈不得互相覆蓋。</p></div></div>
+          <div class="kaleidoscope-intro">
+            <div><h3>固定位置規則</h3><p>中心為主命數；左側代表陰曆、右側代表陽曆；木馬（二／一）在左上／右上，木馬（三／四）在左下／右下；流年在下方，今年位格在最外圈。</p></div>
+            <div class="yin-yang-guide"><span>左｜陰曆</span><span>右｜陽曆</span></div>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table kaleidoscope-table">
+              <thead><tr><th>位置</th><th>欄位</th><th>數值</th><th>來源</th></tr></thead>
+              <tbody id="kaleidoscopeRows"></tbody>
+            </table>
+          </div>
+          <div class="button-row kaleidoscope-actions"><button id="copyKaleidoscopeBtn" class="secondary-button" type="button" disabled>複製位置核對表</button></div>
+          <p id="kaleidoscopeStatus" class="kaleidoscope-status">完成計算後建立固定位置核對表。</p>
+        </section>
+
+        <details class="panel rule-panel" data-result-view="overview">
           <summary>公式版本與已知限制</summary>
           <div class="rule-panel__body">
-            <p><strong>農曆生日狀態：</strong>先取得查詢日所屬的農曆年份，再找該農曆年份的個案生日所對應的國曆日期。國曆與農曆分別判定，不讓其中一方直接跟隨另一方。</p>
+            <p><strong>農曆生日狀態：</strong>先取得查詢日所屬的農曆年份，再找該農曆年份的個案生日所對應的國曆日期。國曆與農曆分別判定。</p>
             <p><strong>凌晨 12 點：</strong>輸入 00:xx，顯示與計算時數為 24；分鐘維持原值。</p>
             <p><strong>閏月：</strong>自動辨識；依目前確認規則，計算月為原閏月月份 +1。</p>
             <p><strong>靈魂等級：</strong>37/10/1 依已確認案例顯示 5級。第 4／5 級邊界仍列為待擴充案例校準項目。</p>
-            <p><strong>農曆資料範圍：</strong>1940/01/01 至 2035/12/31；超出範圍會要求人工確認，不會自行猜測。</p>
+            <p><strong>農曆資料範圍：</strong>1940/01/01 至 2035/12/31；超出範圍會要求人工確認。</p>
           </div>
         </details>
-
-        <section class="panel install-panel">
-          <h2>iPhone 使用方式</h2>
-          <p>部署到 HTTPS 網址後，用 Safari 開啟，點分享按鈕，選「加入主畫面」。之後可像 App 一樣開啟。</p>
-        </section>
+        <section class="panel install-panel" data-result-view="overview"><h2>iPhone 使用方式</h2><p>部署到 HTTPS 網址後，用 Safari 開啟，點分享按鈕，選「加入主畫面」。之後可像 App 一樣開啟。</p></section>
       </section>
     </main>
   </div>
@@ -269,21 +219,22 @@
   <nav class="bottom-nav" aria-label="主要導覽">
     <a href="#home" data-icon="✦">首頁</a>
     <a href="#input" data-icon="◇">排盤</a>
-    <a href="#results" data-icon="◉">分析</a>
+    <a href="#results" data-icon="◉" data-open-result-tab="overview">分析</a>
     <a href="#cases" data-icon="▤">個案</a>
-    <a href="#results" data-icon="▧">報告</a>
+    <a href="#results" data-icon="▧" data-open-result-tab="overview">報告</a>
   </nav>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
   <script src="lunar-data.js"></script>
   <script src="core.js"></script>
   <script src="profile-model.js"></script>
   <script src="sngl-data.js"></script>
   <script src="sngl-report.js"></script>
   <script src="case-store.js"></script>
+  <script src="kaleidoscope-model.js?v=2.7.0"></script>
   <script src="script.js"></script>
   <script src="case-ui.js"></script>
-  <script src="report-preview.js?v=2.6.0"></script>
+  <script src="results-ui.js?v=2.7.0"></script>
+  <script src="report-preview.js?v=2.7.0"></script>
 </body>
 </html>
