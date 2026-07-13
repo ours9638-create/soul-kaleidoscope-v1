@@ -2,9 +2,11 @@ import { readFileSync } from "node:fs";
 
 const datasetPath = "data/knowledge/candidates/context-rules.phase6.v0.1.json";
 const schemaPath = "schemas/context-rule.schema.json";
+const manifestPath = "data/knowledge/manifest.v1.json";
 
 const dataset = JSON.parse(readFileSync(datasetPath, "utf8"));
 const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
 const checks = [];
 function check(name, actual, expected) {
@@ -44,6 +46,18 @@ const expectedValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const generatedMatchKeys = expectedValues.flatMap((annual) =>
   expectedValues.map((position) => `annual:${annual}|position:${position}`)
 );
+const manifestEntry = manifest.datasets.find((item) => item.id === "context-rule");
+
+check("Manifest platform", manifest.platform, "soul-kaleidoscope-knowledge");
+check("Manifest runtime does not read Drive", manifest.sourceOfTruth.runtimeReadsGoogleDrive, false);
+check("Manifest publication status gate", manifest.governance.publishableStatuses, ["Canonical"]);
+check("Manifest requires manual approval", manifest.governance.manualApprovalRequired, true);
+checkTrue("Manifest contains Phase 6 context-rule dataset", Boolean(manifestEntry));
+check("Manifest context-rule domain", manifestEntry?.domain, "context-rule");
+check("Manifest context-rule candidate path", manifestEntry?.candidate, datasetPath);
+check("Manifest context-rule published target", manifestEntry?.published, null);
+check("Manifest context-rule review status", manifestEntry?.reviewStatus, "Candidate");
+check("Manifest context-rule auto publish disabled", manifestEntry?.autoPublish, false);
 
 check("Schema draft", schema.$schema, "https://json-schema.org/draft/2020-12/schema");
 check("Schema dataset title", schema.title, "Soul Kaleidoscope Phase 6 Context Rule Dataset");
