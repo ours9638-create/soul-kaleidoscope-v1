@@ -135,7 +135,7 @@
 
   function renderHorse(table, value, dayMoonLabel) {
     const labels = ["貴人數","日座數",dayMoonLabel,"第一木馬","第二木馬","第三木馬","第四木馬"];
-    const values = [value.noble,value.daySeat,value.dayMoon,value.first,value.second,value.third,value.fourth];
+    const values = [value.noble,value.daySeat,value.dayMoonChain || value.dayMoon,value.first,value.second,value.third,value.fourth];
     table.innerHTML = `<thead><tr>${labels.map((label) => `<th>${label}</th>`).join("")}</tr></thead><tbody><tr>${values.map((item) => `<td>${item}</td>`).join("")}</tr></tbody>`;
   }
 
@@ -183,7 +183,7 @@
     if (full) {
       lines.push(`國曆靈魂數字：${solar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
       lines.push(`農曆靈魂數字：${lunar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
-      lines.push(`國曆日月綻放：${solar.horse.dayMoon}｜陰曆日月綻放：${lunar.horse.dayMoon}`);
+      lines.push(`國曆日月綻放：${solar.horse.dayMoonChain || solar.horse.dayMoon}｜陰曆日月綻放：${lunar.horse.dayMoonChain || lunar.horse.dayMoon}`);
       lines.push(`時間：${el.summaryTimeRule.textContent}`);
       lines.push(`資料版本：模型 ${profile.meta.schemaVersion}｜引擎 ${profile.meta.engineVersion}｜SNGL ${profile.outputs.report.version}｜位格資料 ${profile.outputs.report.positionDataVersion}`);
     }
