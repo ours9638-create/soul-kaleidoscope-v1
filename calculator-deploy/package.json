@@ -1,6 +1,6 @@
 {
   "name": "soul-kaleidoscope-calculator-deploy",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "engineVersion": "2.2.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,8 @@
     "test:core": "node tests/run-regression-tests.js",
     "test:cases": "node tests/run-case-store-tests.js",
     "test:report": "node tests/run-report-model-tests.js",
-    "test": "npm run test:core && npm run test:cases && npm run test:report",
+    "test:kaleidoscope": "node tests/run-kaleidoscope-model-tests.js",
+    "test": "npm run test:core && npm run test:cases && npm run test:report && npm run test:kaleidoscope",
     "check": "npm test && node build-calculator.js",
     "build": "npm test && node build-calculator.js",
     "deploy": "npm run build && wrangler deploy"
