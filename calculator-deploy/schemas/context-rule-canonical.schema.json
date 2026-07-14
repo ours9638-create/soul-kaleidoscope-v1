@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soul-kaleidoscope.local/schemas/context-rule-canonical.schema.json",
+  "title": "Soul Kaleidoscope Phase 6 Canonical Context Rule Dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "phase", "datasetId", "lifecycleStatus", "reviewStatus", "capturedAt", "approvedAt", "approvalRecord", "records", "annualPositionMatrix", "blockedScopes", "changeSet", "governance"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "phase": { "const": "Phase 6" },
+    "datasetId": { "const": "context-rules" },
+    "lifecycleStatus": { "const": "CanonicalDraft" },
+    "reviewStatus": { "const": "Canonical" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "approvedAt": { "type": "string", "format": "date-time" },
+    "approvalRecord": { "type": "string", "pattern": "^data/knowledge/approvals/.+\\.json$" },
+    "records": { "type": "array", "minItems": 14, "maxItems": 14, "items": { "$ref": "#/$defs/contextRule" } },
+    "annualPositionMatrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewStatus", "annualValues", "positionValues", "matchKeyFormat", "recordCount", "interpretations", "autoGenerateInterpretations", "runtimePublishable"],
+      "properties": {
+        "reviewStatus": { "const": "Canonical" },
+        "annualValues": { "const": [1,2,3,4,5,6,7,8,9] },
+        "positionValues": { "const": [1,2,3,4,5,6,7,8,9] },
+        "matchKeyFormat": { "const": "annual:<annual>|position:<position>" },
+        "recordCount": { "const": 81 },
+        "interpretations": { "type": "null" },
+        "autoGenerateInterpretations": { "const": false },
+        "runtimePublishable": { "const": false }
+      }
+    },
+    "blockedScopes": { "type": "array", "minItems": 6, "maxItems": 6, "items": { "$ref": "#/$defs/blockedScope" } },
+    "changeSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateVersion", "canonicalVersion", "unchangedRuleIds", "changedRuleIds", "addedRuleIds", "removedRuleIds"],
+      "properties": {
+        "candidateVersion": { "const": "0.1.0" },
+        "canonicalVersion": { "const": "1.0.0" },
+        "unchangedRuleIds": { "type": "array", "minItems": 10, "maxItems": 10, "items": { "type": "string", "pattern": "^CTX-\\d{3}$" } },
+        "changedRuleIds": { "const": ["CTX-002", "CTX-004", "CTX-011", "CTX-014"] },
+        "addedRuleIds": { "const": [] },
+        "removedRuleIds": { "const": [] }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manualApprovalRequired", "autoPublish", "runtimePublishable", "mergeApproved", "runtimePublicationApproved", "publishedTarget", "candidateSource", "reviewRecord", "approvalRecord", "approvedBy", "notes"],
+      "properties": {
+        "manualApprovalRequired": { "const": true },
+        "autoPublish": { "const": false },
+        "runtimePublishable": { "const": false },
+        "mergeApproved": { "const": false },
+        "runtimePublicationApproved": { "const": false },
+        "publishedTarget": { "type": "null" },
+        "candidateSource": { "const": "data/knowledge/candidates/context-rules.phase6.v0.1.json" },
+        "reviewRecord": { "const": "data/knowledge/reviews/context-rules.phase6.review-template.json" },
+        "approvalRecord": { "const": "data/knowledge/approvals/context-rules.phase6.approval.2026-07-14.json" },
+        "approvedBy": { "const": "ours9638-create" },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "sourceType", "location", "section"],
+      "properties": {
+        "sourceId": { "type": "string", "minLength": 1 },
+        "sourceType": { "enum": ["github-candidate", "approval-record", "github", "project-document", "project-decision", "user-confirmed-rule", "course-material", "formula-workbook"] },
+        "location": { "type": "string", "minLength": 1 },
+        "section": { "type": "string", "minLength": 1 }
+      }
+    },
+    "contextRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "domain", "contextType", "title", "matchKey", "reviewStatus", "version", "lastReviewedAt", "dependsOn", "rule", "sourceRefs", "governance"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^CTX-\\d{3}$" },
+        "domain": { "const": "context-rule" },
+        "contextType": { "enum": ["number-chain", "calendar-role", "position-role", "annual-cycle", "birthday-switch", "weighting", "innate-frequency", "conditional-combination", "soul-level-link"] },
+        "title": { "type": "string", "minLength": 1 },
+        "matchKey": { "type": "object", "additionalProperties": false, "required": ["type", "key"], "properties": { "type": { "type": "string", "minLength": 1 }, "key": { "type": "string", "minLength": 1 } } },
+        "reviewStatus": { "const": "Canonical" },
+        "version": { "const": "1.0.0" },
+        "lastReviewedAt": { "type": "string", "format": "date-time" },
+        "dependsOn": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["summary", "inputs", "outputs", "constraints", "interpretationBoundary"],
+          "properties": {
+            "summary": { "type": "string", "minLength": 1 },
+            "inputs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+            "outputs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+            "constraints": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+            "interpretationBoundary": { "type": "string", "minLength": 1 }
+          }
+        },
+        "sourceRefs": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/sourceRef" } },
+        "governance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approvedBy", "approvalRecord", "decision", "notes"],
+          "properties": {
+            "approvedBy": { "const": "ours9638-create" },
+            "approvalRecord": { "const": "data/knowledge/approvals/context-rules.phase6.approval.2026-07-14.json" },
+            "decision": { "enum": ["Adopt", "AdoptWithChanges"] },
+            "notes": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "blockedScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "scope", "reason"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^P6-BLOCK-\\d{3}$" },
+        "scope": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
