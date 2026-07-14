@@ -4,11 +4,13 @@ const datasetPath = "data/knowledge/candidates/context-rules.phase6.v0.1.json";
 const schemaPath = "schemas/context-rule.schema.json";
 const manifestPath = "data/knowledge/manifest.v1.json";
 const reviewTemplatePath = "data/knowledge/reviews/context-rules.phase6.review-template.json";
+const approvalPath = "data/knowledge/approvals/context-rules.phase6.approval.2026-07-14.json";
 
 const dataset = JSON.parse(readFileSync(datasetPath, "utf8"));
 const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 const reviewTemplate = JSON.parse(readFileSync(reviewTemplatePath, "utf8"));
+const approvalRecord = JSON.parse(readFileSync(approvalPath, "utf8"));
 
 const checks = [];
 function check(name, actual, expected) {
@@ -46,6 +48,8 @@ const expectedDecisions = ["Adopt", "AdoptWithChanges", "KeepCandidate", "Confli
 const expectedRecordIds = Array.from({ length: 14 }, (_, index) => `CTX-${String(index + 1).padStart(3, "0")}`);
 const expectedBlockedIds = Array.from({ length: 6 }, (_, index) => `P6-BLOCK-${String(index + 1).padStart(3, "0")}`);
 const expectedValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const adoptedRuleIds = ["CTX-001", "CTX-003", "CTX-005", "CTX-006", "CTX-007", "CTX-008", "CTX-009", "CTX-010", "CTX-012", "CTX-013"];
+const changedRuleIds = ["CTX-002", "CTX-004", "CTX-011", "CTX-014"];
 const generatedMatchKeys = expectedValues.flatMap((annual) =>
   expectedValues.map((position) => `annual:${annual}|position:${position}`)
 );
@@ -62,22 +66,37 @@ check("Manifest context-rule published target", manifestEntry?.published, null);
 check("Manifest context-rule review status", manifestEntry?.reviewStatus, "Candidate");
 check("Manifest context-rule auto publish disabled", manifestEntry?.autoPublish, false);
 
-check("Review template version", reviewTemplate.version, "0.1.0");
-check("Review template dataset id", reviewTemplate.datasetId, "context-rules");
-check("Review template candidate version", reviewTemplate.candidateVersion, dataset.version);
-check("Review template status", reviewTemplate.reviewStatus, "Pending");
-check("Review template decisions", reviewTemplate.allowedDecisions, expectedDecisions);
-check("Review template rule IDs", reviewTemplate.records.map((record) => record.id), expectedRecordIds);
-checkTrue("Review template decisions remain empty", reviewTemplate.records.every((record) => record.decision === null));
-checkTrue("Review template source checks remain Pending", reviewTemplate.records.every((record) => record.sourceCheck === "Pending"));
-checkTrue("Review template required changes are arrays", reviewTemplate.records.every((record) => Array.isArray(record.requiredChanges)));
-check("Review template reviewer remains empty", reviewTemplate.reviewer, null);
-check("Review template reviewedAt remains empty", reviewTemplate.reviewedAt, null);
-check("Review template approval remains closed", reviewTemplate.approval, {
-  approved: false,
-  approvalRecord: null,
-  canonicalVersion: null
-});
+check("Review record version", reviewTemplate.version, "0.2.0");
+check("Review record dataset id", reviewTemplate.datasetId, "context-rules");
+check("Review record candidate version", reviewTemplate.candidateVersion, dataset.version);
+check("Review record status", reviewTemplate.reviewStatus, "Approved");
+check("Review allowed decisions", reviewTemplate.allowedDecisions, expectedDecisions);
+check("Review rule IDs", reviewTemplate.records.map((record) => record.id), expectedRecordIds);
+check("Review decision count", reviewTemplate.records.filter((record) => Boolean(record.decision)).length, 14);
+check("Review Adopt IDs", reviewTemplate.records.filter((record) => record.decision === "Adopt").map((record) => record.id), adoptedRuleIds);
+check("Review AdoptWithChanges IDs", reviewTemplate.records.filter((record) => record.decision === "AdoptWithChanges").map((record) => record.id), changedRuleIds);
+checkTrue("Review source checks verified", reviewTemplate.records.every((record) => record.sourceCheck === "Verified"));
+checkTrue("Review required changes are arrays", reviewTemplate.records.every((record) => Array.isArray(record.requiredChanges)));
+checkTrue("Changed rules contain required changes", reviewTemplate.records.filter((record) => changedRuleIds.includes(record.id)).every((record) => record.requiredChanges.length > 0));
+check("Review reviewer", reviewTemplate.reviewer, "ours9638-create");
+checkTrue("Review timestamp is valid", Number.isFinite(Date.parse(reviewTemplate.reviewedAt)), reviewTemplate.reviewedAt);
+check("Review approval record path", reviewTemplate.approval.approvalRecord, approvalPath);
+check("Review canonical draft target", reviewTemplate.approval.canonicalVersion, "1.0.0-draft");
+check("Review approval flag", reviewTemplate.approval.approved, true);
+
+check("Approval dataset id", approvalRecord.datasetId, "context-rules");
+check("Approval candidate version", approvalRecord.candidateVersion, "0.1.0");
+check("Approval canonical draft version", approvalRecord.canonicalVersion, "1.0.0-draft");
+check("Approval reviewer", approvalRecord.reviewer, "ours9638-create");
+checkTrue("Approval timestamp is valid", Number.isFinite(Date.parse(approvalRecord.reviewedAt)), approvalRecord.reviewedAt);
+check("Approval Adopt IDs", approvalRecord.decisionSummary.adoptedRuleIds, adoptedRuleIds);
+check("Approval changed IDs", approvalRecord.decisionSummary.changedRuleIds, changedRuleIds);
+check("Approval kept candidate IDs", approvalRecord.decisionSummary.keptCandidateRuleIds, []);
+check("Approval conflict IDs", approvalRecord.decisionSummary.conflictRuleIds, []);
+check("Approval rejected IDs", approvalRecord.decisionSummary.rejectedRuleIds, []);
+check("Approval runtime publication remains closed", approvalRecord.runtimePublicationApproved, false);
+check("Approval merge remains closed", approvalRecord.mergeApproved, false);
+check("Approval blocked scopes remain closed", approvalRecord.blockedScopesRemainClosed, true);
 
 check("Schema draft", schema.$schema, "https://json-schema.org/draft/2020-12/schema");
 check("Schema dataset title", schema.title, "Soul Kaleidoscope Phase 6 Context Rule Dataset");
@@ -107,7 +126,7 @@ checkTrue("All context types are allowed", dataset.records.every((record) => all
 checkTrue("All context rules remain Candidate", dataset.records.every((record) => record.reviewStatus === "Candidate"));
 checkTrue("All context rule statuses are valid", dataset.records.every((record) => allowedStatuses.has(record.reviewStatus)));
 checkTrue("All context rule versions are 0.1.0", dataset.records.every((record) => record.version === "0.1.0"));
-checkTrue("No context rule has been reviewed", dataset.records.every((record) => record.lastReviewedAt === null));
+checkTrue("Candidate rules remain unmodified by approval", dataset.records.every((record) => record.lastReviewedAt === null));
 checkTrue("Every context rule has a title", dataset.records.every((record) => typeof record.title === "string" && record.title.trim().length > 0));
 checkTrue("Every context rule has a stable match key", dataset.records.every((record) =>
   record.matchKey && typeof record.matchKey.type === "string" && record.matchKey.type.trim().length > 0 &&
@@ -128,7 +147,7 @@ checkTrue("Every source reference is traceable", dataset.records.every((record) 
   typeof source.location === "string" && source.location.trim().length > 0 &&
   typeof source.section === "string" && source.section.trim().length > 0
 )));
-checkTrue("No context rule is approved", dataset.records.every((record) =>
+checkTrue("Candidate records remain without embedded approval", dataset.records.every((record) =>
   record.governance?.approvedBy === null && record.governance?.approvalRecord === null
 ));
 checkTrue("Every context rule contains governance notes", dataset.records.every((record) =>
@@ -157,7 +176,7 @@ checkTrue("Every blocked scope has a scope and reason", dataset.blockedScopes.ev
 check("Manual approval is required", dataset.governance.manualApprovalRequired, true);
 check("Automatic publication is disabled", dataset.governance.autoPublish, false);
 check("Published target remains empty", dataset.governance.publishedTarget, null);
-check("Approval record remains empty", dataset.governance.approvalRecord, null);
+check("Candidate approval record remains empty", dataset.governance.approvalRecord, null);
 checkTrue("Candidate dataset is not publishable", dataset.reviewStatus !== "Canonical" && dataset.governance.autoPublish === false);
 
 const failed = checks.filter((item) => !item.pass);
@@ -171,5 +190,5 @@ if (failed.length) {
 }
 
 console.log(`Phase 6 context rule tests passed ${checks.length}/${checks.length}.`);
-console.log(`Validated ${dataset.records.length} candidate rules, ${generatedMatchKeys.length} annual-position match keys, ${dataset.blockedScopes.length} blocked scopes, and ${reviewTemplate.records.length} pending review records.`);
-console.log("Publication gate remains closed until manual approval and a Canonical dataset are recorded.");
+console.log(`Validated ${dataset.records.length} candidate rules, ${generatedMatchKeys.length} annual-position match keys, ${dataset.blockedScopes.length} blocked scopes, ${reviewTemplate.records.length} approved review decisions, and approval record ${approvalRecord.approvalId}.`);
+console.log("Publication gate remains closed until a separately reviewed Canonical dataset is created and Runtime publication is approved.");
