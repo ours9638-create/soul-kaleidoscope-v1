@@ -9,6 +9,9 @@
   "governance": {
     "sourcePriorityDocument": "Google Drive / SOURCE_PRIORITY.md",
     "databaseStructureDocument": "Google Drive / DATABASE_STRUCTURE.md",
+    "lifecyclePolicy": "docs/KNOWLEDGE_LIFECYCLE_POLICY.md",
+    "sourceTrustPolicy": "docs/SOURCE_TRUST_POLICY.md",
+    "releasePipeline": "docs/KNOWLEDGE_RELEASE_PIPELINE.md",
     "publishableStatuses": ["Canonical"],
     "recordsFolder": "Google Drive / 靈魂萬花筒 / Records",
     "manualApprovalRequired": true
@@ -47,9 +50,12 @@
       "source": null,
       "mapping": null,
       "candidate": "data/knowledge/candidates/context-rules.phase6.v0.1.json",
+      "canonicalDraft": "data/knowledge/canonical/context-rules.phase6.v1.0.0.json",
       "published": null,
-      "diffReport": null,
-      "reviewStatus": "Candidate",
+      "diffReport": "data/knowledge/reports/context-rules.phase6.diff.generated.json",
+      "reviewStatus": "Canonical",
+      "lifecycleStatus": "CanonicalDraft",
+      "runtimePublicationApproved": false,
       "autoPublish": false
     }
   ]
