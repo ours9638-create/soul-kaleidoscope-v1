@@ -1,8 +1,8 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "datasetId": "context-rules",
   "candidateVersion": "0.1.0",
-  "reviewStatus": "Pending",
+  "reviewStatus": "Approved",
   "allowedDecisions": [
     "Adopt",
     "AdoptWithChanges",
@@ -10,27 +10,27 @@
     "Conflict",
     "Rejected"
   ],
-  "reviewer": null,
-  "reviewedAt": null,
+  "reviewer": "ours9638-create",
+  "reviewedAt": "2026-07-14T00:00:00.000Z",
   "records": [
-    { "id": "CTX-001", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-002", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-003", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-004", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-005", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-006", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-007", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-008", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-009", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-010", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-011", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-012", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-013", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" },
-    { "id": "CTX-014", "decision": null, "sourceCheck": "Pending", "requiredChanges": [], "notes": "" }
+    { "id": "CTX-001", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "完整鏈式與最後主數雙層保存。" },
+    { "id": "CTX-002", "decision": "AdoptWithChanges", "sourceCheck": "Verified", "requiredChanges": ["未經獨立來源核對及人工核准的複合數意義維持 Pending。", "未來正式複合數資料庫須使用獨立版本、來源與審核流程。"], "notes": "核准分層引用，不永久禁止未來經審核的複合數資料。" },
+    { "id": "CTX-003", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "國曆與農曆分開保存。" },
+    { "id": "CTX-004", "decision": "AdoptWithChanges", "sourceCheck": "Verified", "requiredChanges": ["輸出欄位固定包含 daySeatFinal、dayMoonFullChain、dayMoonFinal、calendarType、sourceMonth、sourceDay、baseNumberRef。", "日座數與日月綻放分離，國曆與農曆各自保存。"], "notes": "日月綻放是位置角色，不等同主命數或日座數。" },
+    { "id": "CTX-005", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "木馬一至四依正式期間分工，結果 0 保留。" },
+    { "id": "CTX-006", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "國曆與農曆貴人分開保存。" },
+    { "id": "CTX-007", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "流年描述年度行動主題，不作必然事件預言。" },
+    { "id": "CTX-008", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "今年位格描述年度運作位置。" },
+    { "id": "CTX-009", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "雙曆各自判斷生日切換；閏月與多義結果保留 needsReview。" },
+    { "id": "CTX-010", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "81 組只建立結構鍵，不自動生成文案。" },
+    { "id": "CTX-011", "decision": "AdoptWithChanges", "sourceCheck": "Verified", "requiredChanges": ["優先序固定為：已核准的專屬先天數次數語句 > 通用重複權重語句 > 中性缺口提示。", "通用權重只能說明頻率較突出，不得自行產生新的性格、事件或療癒結論。"], "notes": "核准重複權重規則與專屬次數語句優先序。" },
+    { "id": "CTX-012", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "只開放有來源且已核准的 24 筆 1～3 次內容；數字 0、4 維持其他模型。" },
+    { "id": "CTX-013", "decision": "Adopt", "sourceCheck": "Verified", "requiredChanges": [], "notes": "條件型組合維持待審。" },
+    { "id": "CTX-014", "decision": "AdoptWithChanges", "sourceCheck": "Verified", "requiredChanges": ["正式回歸案例固定為 37/10/1 = 5級。", "完整鏈式中的所有後天過程數依 Engine 2.2.1 納入判斷，不得只讀第一段 37。"], "notes": "靈魂等級只引用計算引擎正式結果。" }
   ],
   "approval": {
-    "approved": false,
-    "approvalRecord": null,
-    "canonicalVersion": null
+    "approved": true,
+    "approvalRecord": "data/knowledge/approvals/context-rules.phase6.approval.2026-07-14.json",
+    "canonicalVersion": "1.0.0-draft"
   }
 }
