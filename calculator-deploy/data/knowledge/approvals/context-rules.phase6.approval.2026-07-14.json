@@ -1,0 +1,70 @@
+{
+  "approvalId": "APPROVAL-PHASE6-CONTEXT-RULES-2026-07-14",
+  "datasetId": "context-rules",
+  "candidateVersion": "0.1.0",
+  "canonicalVersion": "1.0.0-draft",
+  "reviewer": "ours9638-create",
+  "reviewedAt": "2026-07-14T00:00:00.000Z",
+  "decisionSummary": {
+    "adoptedRuleIds": [
+      "CTX-001",
+      "CTX-003",
+      "CTX-005",
+      "CTX-006",
+      "CTX-007",
+      "CTX-008",
+      "CTX-009",
+      "CTX-010",
+      "CTX-012",
+      "CTX-013"
+    ],
+    "changedRuleIds": [
+      "CTX-002",
+      "CTX-004",
+      "CTX-011",
+      "CTX-014"
+    ],
+    "keptCandidateRuleIds": [],
+    "conflictRuleIds": [],
+    "rejectedRuleIds": []
+  },
+  "approvedChanges": {
+    "CTX-002": [
+      "未經獨立來源核對及人工核准的複合數意義維持 Pending。",
+      "未來正式複合數資料庫須使用獨立版本、來源與審核流程。"
+    ],
+    "CTX-004": [
+      "輸出欄位固定包含 daySeatFinal、dayMoonFullChain、dayMoonFinal、calendarType、sourceMonth、sourceDay、baseNumberRef。",
+      "日座數與日月綻放分離，國曆與農曆各自保存。"
+    ],
+    "CTX-011": [
+      "優先序固定為：已核准的專屬先天數次數語句 > 通用重複權重語句 > 中性缺口提示。",
+      "通用權重只能說明頻率較突出，不得自行產生新的性格、事件或療癒結論。"
+    ],
+    "CTX-014": [
+      "固定回歸案例為 37/10/1 = 5級。",
+      "完整鏈式中的所有後天過程數依 Engine 2.2.1 納入判斷。"
+    ]
+  },
+  "sourceSnapshot": {
+    "pullRequest": 9,
+    "branch": "phase6-context-rules-20260713",
+    "candidatePath": "data/knowledge/candidates/context-rules.phase6.v0.1.json",
+    "reviewRecommendation": "docs/PHASE6_REVIEW_RECOMMENDATION_2026-07-13.md",
+    "lifeStageDecision": "第三階段正式定義為終其一生的主軸（日柱），非排他年齡區間。",
+    "engineVersion": "2.2.1"
+  },
+  "testSummary": {
+    "lastConfirmedWorkflowRun": 100,
+    "workflowConclusion": "success",
+    "requiredCommands": [
+      "npm run test:context",
+      "npm test",
+      "node build-calculator.js"
+    ]
+  },
+  "approvalStatement": "使用者已正式核准 Phase 6 的 14 條 Context Rules，其中 10 條 Adopt、4 條 AdoptWithChanges；核准內容僅授權建立 Canonical v1.0.0 草案，不代表允許 Candidate 或草案直接進入 App Runtime。",
+  "runtimePublicationApproved": false,
+  "mergeApproved": false,
+  "blockedScopesRemainClosed": true
+}
