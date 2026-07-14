@@ -57,10 +57,22 @@ jobs:
       - name: Run knowledge data tests
         run: npm run test:knowledge
 
-      - name: Run Phase 6 context rule tests
-        run: npm run test:context
+      - name: Validate Phase 6 Candidate evidence
+        run: npm run test:context:candidate
 
-      - name: Upload knowledge diff summary
+      - name: Validate Phase 6 CanonicalDraft
+        run: npm run test:context:canonical
+
+      - name: Validate Candidate to CanonicalDraft diff
+        run: npm run test:context:diff
+
+      - name: Validate runtime isolation
+        run: npm run test:runtime
+
+      - name: Validate knowledge governance
+        run: npm run test:governance
+
+      - name: Upload number-topic diff summary
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -68,6 +80,15 @@ jobs:
           path: calculator-deploy/data/knowledge/reports/number-topic-diff.generated.json
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Upload Phase 6 context diff summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-context-rule-diff
+          path: calculator-deploy/data/knowledge/reports/context-rules.phase6.diff.generated.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Validate production build
         run: node build-calculator.js
