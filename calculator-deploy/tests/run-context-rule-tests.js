@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 const datasetPath = "data/knowledge/candidates/context-rules.phase6.v0.1.json";
+const canonicalPath = "data/knowledge/canonical/context-rules.phase6.v1.0.0.json";
 const schemaPath = "schemas/context-rule.schema.json";
 const manifestPath = "data/knowledge/manifest.v1.json";
 const reviewTemplatePath = "data/knowledge/reviews/context-rules.phase6.review-template.json";
@@ -14,35 +15,16 @@ const approvalRecord = JSON.parse(readFileSync(approvalPath, "utf8"));
 
 const checks = [];
 function check(name, actual, expected) {
-  checks.push({
-    name,
-    actual,
-    expected,
-    pass: JSON.stringify(actual) === JSON.stringify(expected)
-  });
+  checks.push({ name, actual, expected, pass: JSON.stringify(actual) === JSON.stringify(expected) });
 }
-
 function checkTrue(name, condition, details = null) {
-  checks.push({
-    name,
-    actual: Boolean(condition),
-    expected: true,
-    details,
-    pass: Boolean(condition)
-  });
+  checks.push({ name, actual: Boolean(condition), expected: true, details, pass: Boolean(condition) });
 }
 
 const allowedStatuses = new Set(["Pending", "Candidate", "Reviewed", "Rejected", "Conflict", "Canonical"]);
 const allowedContextTypes = new Set([
-  "number-chain",
-  "calendar-role",
-  "position-role",
-  "annual-cycle",
-  "birthday-switch",
-  "weighting",
-  "innate-frequency",
-  "conditional-combination",
-  "soul-level-link"
+  "number-chain", "calendar-role", "position-role", "annual-cycle", "birthday-switch",
+  "weighting", "innate-frequency", "conditional-combination", "soul-level-link"
 ]);
 const expectedDecisions = ["Adopt", "AdoptWithChanges", "KeepCandidate", "Conflict", "Rejected"];
 const expectedRecordIds = Array.from({ length: 14 }, (_, index) => `CTX-${String(index + 1).padStart(3, "0")}`);
@@ -50,9 +32,7 @@ const expectedBlockedIds = Array.from({ length: 6 }, (_, index) => `P6-BLOCK-${S
 const expectedValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const adoptedRuleIds = ["CTX-001", "CTX-003", "CTX-005", "CTX-006", "CTX-007", "CTX-008", "CTX-009", "CTX-010", "CTX-012", "CTX-013"];
 const changedRuleIds = ["CTX-002", "CTX-004", "CTX-011", "CTX-014"];
-const generatedMatchKeys = expectedValues.flatMap((annual) =>
-  expectedValues.map((position) => `annual:${annual}|position:${position}`)
-);
+const generatedMatchKeys = expectedValues.flatMap((annual) => expectedValues.map((position) => `annual:${annual}|position:${position}`));
 const manifestEntry = manifest.datasets.find((item) => item.id === "context-rule");
 
 check("Manifest platform", manifest.platform, "soul-kaleidoscope-knowledge");
@@ -62,8 +42,11 @@ check("Manifest requires manual approval", manifest.governance.manualApprovalReq
 checkTrue("Manifest contains Phase 6 context-rule dataset", Boolean(manifestEntry));
 check("Manifest context-rule domain", manifestEntry?.domain, "context-rule");
 check("Manifest context-rule candidate path", manifestEntry?.candidate, datasetPath);
+check("Manifest context-rule CanonicalDraft path", manifestEntry?.canonicalDraft, canonicalPath);
 check("Manifest context-rule published target", manifestEntry?.published, null);
-check("Manifest context-rule review status", manifestEntry?.reviewStatus, "Candidate");
+check("Manifest context-rule review status", manifestEntry?.reviewStatus, "Canonical");
+check("Manifest context-rule lifecycle status", manifestEntry?.lifecycleStatus, "CanonicalDraft");
+check("Manifest context-rule runtime approval", manifestEntry?.runtimePublicationApproved, false);
 check("Manifest context-rule auto publish disabled", manifestEntry?.autoPublish, false);
 
 check("Review record version", reviewTemplate.version, "0.2.0");
@@ -101,17 +84,7 @@ check("Approval blocked scopes remain closed", approvalRecord.blockedScopesRemai
 check("Schema draft", schema.$schema, "https://json-schema.org/draft/2020-12/schema");
 check("Schema dataset title", schema.title, "Soul Kaleidoscope Phase 6 Context Rule Dataset");
 checkTrue("Schema forbids unknown top-level fields", schema.additionalProperties === false);
-checkTrue("Schema includes required Phase 6 fields", [
-  "version",
-  "phase",
-  "datasetId",
-  "reviewStatus",
-  "capturedAt",
-  "records",
-  "annualPositionMatrix",
-  "blockedScopes",
-  "governance"
-].every((field) => schema.required.includes(field)));
+checkTrue("Schema includes required Phase 6 fields", ["version", "phase", "datasetId", "reviewStatus", "capturedAt", "records", "annualPositionMatrix", "blockedScopes", "governance"].every((field) => schema.required.includes(field)));
 
 check("Dataset version", dataset.version, "0.1.0");
 check("Dataset phase", dataset.phase, "Phase 6");
@@ -128,31 +101,17 @@ checkTrue("All context rule statuses are valid", dataset.records.every((record) 
 checkTrue("All context rule versions are 0.1.0", dataset.records.every((record) => record.version === "0.1.0"));
 checkTrue("Candidate rules remain unmodified by approval", dataset.records.every((record) => record.lastReviewedAt === null));
 checkTrue("Every context rule has a title", dataset.records.every((record) => typeof record.title === "string" && record.title.trim().length > 0));
-checkTrue("Every context rule has a stable match key", dataset.records.every((record) =>
-  record.matchKey && typeof record.matchKey.type === "string" && record.matchKey.type.trim().length > 0 &&
-  typeof record.matchKey.key === "string" && record.matchKey.key.trim().length > 0
-));
+checkTrue("Every context rule has a stable match key", dataset.records.every((record) => record.matchKey?.type?.trim() && record.matchKey?.key?.trim()));
 checkTrue("Context rule match keys are unique", new Set(dataset.records.map((record) => `${record.matchKey.type}:${record.matchKey.key}`)).size === dataset.records.length);
 checkTrue("Every context rule declares dependencies", dataset.records.every((record) => Array.isArray(record.dependsOn) && record.dependsOn.length > 0));
 checkTrue("Every context rule declares inputs", dataset.records.every((record) => Array.isArray(record.rule?.inputs) && record.rule.inputs.length > 0));
 checkTrue("Every context rule declares outputs", dataset.records.every((record) => Array.isArray(record.rule?.outputs) && record.rule.outputs.length > 0));
 checkTrue("Every context rule declares constraints", dataset.records.every((record) => Array.isArray(record.rule?.constraints) && record.rule.constraints.length > 0));
-checkTrue("Every context rule defines an interpretation boundary", dataset.records.every((record) =>
-  typeof record.rule?.interpretationBoundary === "string" && record.rule.interpretationBoundary.trim().length > 0
-));
+checkTrue("Every context rule defines an interpretation boundary", dataset.records.every((record) => record.rule?.interpretationBoundary?.trim()));
 checkTrue("Every context rule has source references", dataset.records.every((record) => Array.isArray(record.sourceRefs) && record.sourceRefs.length > 0));
-checkTrue("Every source reference is traceable", dataset.records.every((record) => record.sourceRefs.every((source) =>
-  typeof source.sourceId === "string" && source.sourceId.trim().length > 0 &&
-  typeof source.sourceType === "string" && source.sourceType.trim().length > 0 &&
-  typeof source.location === "string" && source.location.trim().length > 0 &&
-  typeof source.section === "string" && source.section.trim().length > 0
-)));
-checkTrue("Candidate records remain without embedded approval", dataset.records.every((record) =>
-  record.governance?.approvedBy === null && record.governance?.approvalRecord === null
-));
-checkTrue("Every context rule contains governance notes", dataset.records.every((record) =>
-  typeof record.governance?.notes === "string" && record.governance.notes.trim().length > 0
-));
+checkTrue("Every source reference is traceable", dataset.records.every((record) => record.sourceRefs.every((source) => source.sourceId?.trim() && source.sourceType?.trim() && source.location?.trim() && source.section?.trim())));
+checkTrue("Candidate records remain without embedded approval", dataset.records.every((record) => record.governance?.approvedBy === null && record.governance?.approvalRecord === null));
+checkTrue("Every context rule contains governance notes", dataset.records.every((record) => record.governance?.notes?.trim()));
 
 check("Annual values cover 1 through 9", dataset.annualPositionMatrix.annualValues, expectedValues);
 check("Position values cover 1 through 9", dataset.annualPositionMatrix.positionValues, expectedValues);
@@ -160,23 +119,20 @@ check("Annual-position match key format", dataset.annualPositionMatrix.matchKeyF
 check("Annual-position matrix record count", dataset.annualPositionMatrix.recordCount, 81);
 check("Generated annual-position key count", generatedMatchKeys.length, 81);
 checkTrue("Generated annual-position keys are unique", new Set(generatedMatchKeys).size === 81);
-checkTrue("Generated annual-position keys match the required format", generatedMatchKeys.every((key) => /^annual:[1-9]\|position:[1-9]$/.test(key)));
+checkTrue("Generated annual-position keys match format", generatedMatchKeys.every((key) => /^annual:[1-9]\|position:[1-9]$/.test(key)));
 check("Annual-position interpretations remain empty", dataset.annualPositionMatrix.interpretations, null);
-check("Annual-position automatic interpretation generation is disabled", dataset.annualPositionMatrix.autoGenerateInterpretations, false);
-checkTrue("Annual-position matrix is not Canonical", dataset.annualPositionMatrix.reviewStatus !== "Canonical");
+check("Annual-position automatic generation disabled", dataset.annualPositionMatrix.autoGenerateInterpretations, false);
+checkTrue("Candidate annual-position matrix is not Canonical", dataset.annualPositionMatrix.reviewStatus !== "Canonical");
 
 check("Blocked scope count", dataset.blockedScopes.length, 6);
-check("Stable sequential blocked scope IDs", dataset.blockedScopes.map((item) => item.id), expectedBlockedIds);
-checkTrue("Blocked scope IDs are unique", new Set(dataset.blockedScopes.map((item) => item.id)).size === dataset.blockedScopes.length);
-checkTrue("Every blocked scope has a scope and reason", dataset.blockedScopes.every((item) =>
-  typeof item.scope === "string" && item.scope.trim().length > 0 &&
-  typeof item.reason === "string" && item.reason.trim().length > 0
-));
+check("Stable blocked scope IDs", dataset.blockedScopes.map((item) => item.id), expectedBlockedIds);
+checkTrue("Blocked scope IDs unique", new Set(dataset.blockedScopes.map((item) => item.id)).size === dataset.blockedScopes.length);
+checkTrue("Blocked scopes have scope and reason", dataset.blockedScopes.every((item) => item.scope?.trim() && item.reason?.trim()));
 
-check("Manual approval is required", dataset.governance.manualApprovalRequired, true);
-check("Automatic publication is disabled", dataset.governance.autoPublish, false);
-check("Published target remains empty", dataset.governance.publishedTarget, null);
-check("Candidate approval record remains empty", dataset.governance.approvalRecord, null);
+check("Manual approval required", dataset.governance.manualApprovalRequired, true);
+check("Automatic publication disabled", dataset.governance.autoPublish, false);
+check("Published target empty", dataset.governance.publishedTarget, null);
+check("Candidate approval record empty", dataset.governance.approvalRecord, null);
 checkTrue("Candidate dataset is not publishable", dataset.reviewStatus !== "Canonical" && dataset.governance.autoPublish === false);
 
 const failed = checks.filter((item) => !item.pass);
@@ -190,5 +146,5 @@ if (failed.length) {
 }
 
 console.log(`Phase 6 context rule tests passed ${checks.length}/${checks.length}.`);
-console.log(`Validated ${dataset.records.length} candidate rules, ${generatedMatchKeys.length} annual-position match keys, ${dataset.blockedScopes.length} blocked scopes, ${reviewTemplate.records.length} approved review decisions, and approval record ${approvalRecord.approvalId}.`);
-console.log("Publication gate remains closed until a separately reviewed Canonical dataset is created and Runtime publication is approved.");
+console.log(`Validated ${dataset.records.length} immutable Candidate rules, ${generatedMatchKeys.length} structural annual-position keys, ${dataset.blockedScopes.length} blocked scopes, and ${reviewTemplate.records.length} approved decisions.`);
+console.log("Manifest now registers a non-published CanonicalDraft; Runtime publication remains closed.");
