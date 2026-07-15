@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { compareCodePoint, getSourceDateEpoch } from './reproducible-build-utils.js';
 
 const ROOT = process.cwd();
 const SOURCE_DIR = path.join(ROOT, 'dist/static-site');
@@ -28,16 +29,17 @@ function crc32(buffer) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-function dosDateTime(date) {
-  const year = Math.max(date.getFullYear(), 1980);
-  const dosTime = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
-  const dosDate = ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
+function dosDateTime(sourceDateEpoch) {
+  const date = new Date(sourceDateEpoch * 1000);
+  const year = Math.max(date.getUTCFullYear(), 1980);
+  const dosTime = (date.getUTCHours() << 11) | (date.getUTCMinutes() << 5) | Math.floor(date.getUTCSeconds() / 2);
+  const dosDate = ((year - 1980) << 9) | ((date.getUTCMonth() + 1) << 5) | date.getUTCDate();
   return { dosDate, dosTime };
 }
 
 function listFiles(dir, prefix = '') {
   return fs.readdirSync(dir, { withFileTypes: true })
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => compareCodePoint(a.name, b.name))
     .flatMap((entry) => {
       const absolutePath = path.join(dir, entry.name);
       const relativePath = path.posix.join(prefix, entry.name);
@@ -101,18 +103,19 @@ function endOfCentralDirectory(fileCount, centralSize, centralOffset) {
 const localParts = [];
 const centralParts = [];
 const files = listFiles(SOURCE_DIR);
+const sourceDateEpoch = getSourceDateEpoch({ cwd: ROOT });
+const deterministicTimestamp = dosDateTime(sourceDateEpoch);
 let offset = 0;
 
 for (const file of files) {
   const content = fs.readFileSync(file.absolutePath);
   const name = Buffer.from(file.relativePath, 'utf8');
-  const stat = fs.statSync(file.absolutePath);
   const entry = {
     name,
     size: content.length,
     crc: crc32(content),
     offset,
-    ...dosDateTime(stat.mtime)
+    ...deterministicTimestamp
   };
   const header = localHeader(entry);
   localParts.push(header, name, content);
@@ -134,3 +137,4 @@ console.log('# static zip ok');
 console.log(`- 輸出檔案：${path.relative(ROOT, ZIP_PATH)}`);
 console.log(`- 檔案數：${files.length}`);
 console.log(`- 大小 bytes：${output.length}`);
+console.log(`- SOURCE_DATE_EPOCH：${sourceDateEpoch}`);
