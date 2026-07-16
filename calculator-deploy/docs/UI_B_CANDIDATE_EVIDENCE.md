@@ -9,10 +9,11 @@
 
 ## Collaboration state
 
-- Draft PR: `#10` — `UI-B: integrate Soul Kaleidoscope 2.8.0 brand experience`
+- PR: `#10` — `UI-B: integrate Soul Kaleidoscope 2.8.0 brand experience`
 - Base: `r3-runtime-foundation-closeout`
 - Head: `feature/ui-b-integration`
-- State: open Draft PR; unmerged; undeployed
+- State: merged on 2026-07-16; undeployed
+- Merge commit: `3b56ead1bf594945e88d85a37b7aea51b614feb4`
 
 ## Verification after UI integration
 
@@ -50,6 +51,8 @@ The first pass found three P2 issues: near-white hero title, text-symbol navigat
 
 ## Release blockers
 
-- Obtain separate authorization before merge or Cloudflare deployment.
+- Complete G1 physical-device, installed-PWA, offline-cache and PDF-save checks.
+- Review the promotion diff against `calculator-deploy-setup`.
+- Obtain separate authorization before promotion merge or Cloudflare deployment.
 
 Local QA used Node.js 24.14.0 and npm 11.9.0. The declared release-toolchain gate was completed separately by the successful GitHub Actions Calculator CI run above.

@@ -2,7 +2,13 @@
 
 ## Status
 
-`2.8.0` is an integration candidate published to Draft PR #10. It has not been merged or deployed.
+`2.8.0` completed UI-B integration in PR #10 and was merged into
+`r3-runtime-foundation-closeout` on 2026-07-16. It has not been promoted to the
+Cloudflare production branch or deployed.
+
+- PR: `#10` — merged
+- Merge commit: `3b56ead1bf594945e88d85a37b7aea51b614feb4`
+- Release-readiness branch: `feature/release-2.8.0-readiness`
 
 ## Baseline
 
@@ -34,4 +40,9 @@
 
 ## Required before release
 
-- Independent approval for merge and Cloudflare deployment.
+- Complete the G1 release-readiness checklist in `RELEASE_2.8.0_READINESS.md`.
+- Complete iPhone Safari, installed PWA, offline-cache and PDF-save checks.
+- Review promotion from `r3-runtime-foundation-closeout` to the configured
+  Cloudflare production branch `calculator-deploy-setup`.
+- Obtain separate authorization for the promotion PR, merge and Cloudflare
+  deployment.
