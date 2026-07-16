@@ -55,7 +55,7 @@
 ## Open questions
 
 - Visual direction was approved by the user on 2026-07-16, including the instruction to collapse technical information.
-- The exact release-toolchain build under Node.js 24.16.0 and npm 11.13.0 remains a release gate, not a Design QA blocker.
+- The exact release-toolchain build passed in GitHub Actions Calculator CI run `29490443538` under Node.js 24.16.0 and npm 11.13.0.
 
 ## Implementation checklist
 

@@ -29,9 +29,9 @@
 - Application-origin browser Console review: PASS.
 - Mobile labelling, alt text, 44 px target size and horizontal-overflow review: PASS.
 - Desktop/mobile system-status disclosure and failure-state safeguard: PASS.
+- Declared Node.js 24.16.0 / npm 11.13.0 build: PASS — GitHub Actions Calculator CI `29490443538`.
 - Design QA: `design-qa.md` — `final result: passed`.
 
 ## Required before release
 
-- Build with declared Node.js 24.16.0 and npm 11.13.0.
 - Independent approval for merge and Cloudflare deployment.

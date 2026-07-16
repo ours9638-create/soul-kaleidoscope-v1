@@ -29,6 +29,7 @@
 | Runtime Foundation correction | PASS — 33/33 |
 | Static source validation | PASS — 110/110 |
 | Production build | PASS — App 2.8.0 / Engine 2.2.1 |
+| Declared release toolchain | PASS — GitHub Actions Calculator CI `29490443538`; Node.js 24.16.0 / npm 11.13.0 |
 | Local preview asset health | PASS — app, CSS, both optimized WebP assets and six Tabler SVG assets loaded; preview service healthy |
 | Desktop browser rendering | PASS — normalized 1365 × 768 comparison |
 | Mobile browser rendering | PASS — exact 390 × 844 layout viewport; no horizontal overflow |
@@ -49,7 +50,6 @@ The first pass found three P2 issues: near-white hero title, text-symbol navigat
 
 ## Release blockers
 
-- Repeat release build with Node.js 24.16.0 and npm 11.13.0.
 - Obtain separate authorization before merge or Cloudflare deployment.
 
-Current QA environment used Node.js 24.14.0 and npm 11.9.0; all listed checks passed, but this does not replace the declared release-toolchain build.
+Local QA used Node.js 24.14.0 and npm 11.9.0. The declared release-toolchain gate was completed separately by the successful GitHub Actions Calculator CI run above.
