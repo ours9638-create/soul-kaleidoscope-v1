@@ -10,6 +10,7 @@
     "npm": "11.13.0"
   },
   "scripts": {
+    "dev": "node scripts/preview-static.js",
     "test:core": "node tests/run-regression-tests.js",
     "test:cases": "node tests/run-case-store-tests.js",
     "test:report": "node tests/run-report-model-tests.js",

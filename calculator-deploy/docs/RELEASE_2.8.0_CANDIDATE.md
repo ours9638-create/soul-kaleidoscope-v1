@@ -2,7 +2,7 @@
 
 ## Status
 
-`2.8.0` is an integration candidate. It has not been pushed, merged, or deployed.
+`2.8.0` is an integration candidate published to Draft PR #10. It has not been merged or deployed.
 
 ## Baseline
 
@@ -16,15 +16,21 @@
 - Approved four-function information architecture.
 - Real cosmic and sacred-geometry source assets, optimized to WebP for delivery.
 - Birth-data purpose and privacy notice.
+- Attributed Tabler line icons for persistent navigation and card affordances.
+- Reproducible local static-preview command for browser QA.
 - PWA asset existence validation and offline cache registration.
 - App/PWA candidate version and cache namespace updated to `2.8.0`.
 
+## Completed candidate QA
+
+- Desktop 1365 × 768 and mobile 390 × 844 brand comparisons: PASS.
+- Core form, result tabs, annual interpretation, Kaleidoscope verification and report-open flows: PASS.
+- Application-origin browser Console review: PASS.
+- Mobile labelling, alt text, 44 px target size and horizontal-overflow review: PASS.
+- Design QA: `design-qa.md` — `final result: passed`.
+
 ## Required before release
 
-- Desktop 1365 × 768 visual comparison.
-- Mobile 390 × 844 visual comparison.
-- Core interaction and browser Console QA.
-- Accessibility review.
 - Build with declared Node.js 24.16.0 and npm 11.13.0.
 - User visual approval.
-- Independent approval for push, PR, merge, and Cloudflare deployment.
+- Independent approval for merge and Cloudflare deployment.

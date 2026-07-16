@@ -7,16 +7,12 @@
 - Candidate version: `2.8.0`
 - Engine version: `2.2.1` unchanged
 
-## Local commits
+## Collaboration state
 
-| Commit | Scope |
-| --- | --- |
-| `7cd2dad` | Baseline evidence and integration contract |
-| `0fb2b8f` | Guided brand entry, real visual assets, privacy context |
-| `4aca42d` | Build validation and Service Worker caching for brand assets |
-| `de91363` | App/PWA 2.8.0 candidate version |
-
-No commit has been pushed, merged, or deployed.
+- Draft PR: `#10` — `UI-B: integrate Soul Kaleidoscope 2.8.0 brand experience`
+- Base: `r3-runtime-foundation-closeout`
+- Head: `feature/ui-b-integration`
+- State: open Draft PR; unmerged; undeployed
 
 ## Verification after UI integration
 
@@ -31,9 +27,14 @@ No commit has been pushed, merged, or deployed.
 | Knowledge data | PASS — 28/28; auto-publish blocked as designed |
 | Runtime Foundation existing | PASS — 43/43 |
 | Runtime Foundation correction | PASS — 33/33 |
-| Static source validation | PASS — 100/100 |
+| Static source validation | PASS — 107/107 |
 | Production build | PASS — App 2.8.0 / Engine 2.2.1 |
-| Local HTTP asset health | PASS — index, CSS, both optimized WebP assets, manifest and Service Worker returned 200 |
+| Local preview asset health | PASS — app, CSS, both optimized WebP assets and six Tabler SVG assets loaded; preview service healthy |
+| Desktop browser rendering | PASS — normalized 1365 × 768 comparison |
+| Mobile browser rendering | PASS — exact 390 × 844 layout viewport; no horizontal overflow |
+| Core browser interactions | PASS — CTA/navigation, lunar conversion, calculation, result tabs, five annual cards, eleven Kaleidoscope rows and report-open flow |
+| Browser Console | PASS — no application-origin warnings or errors |
+| Accessibility checks | PASS — named controls, labelled fields, alt attributes and no visible target below 44 × 44 px |
 
 ## Runtime isolation
 
@@ -41,18 +42,14 @@ No changes were made to Runtime Loader, Trusted Dataset Registry, Runtime Manife
 
 ## Visual QA status
 
-Browser-rendered comparison remains **BLOCKED** in the current environment because the selected cloud browser does not allow the local preview URL. Static tests and HTTP health checks do not replace visual QA.
+Browser-rendered Design QA is **PASS**. See repository-root `design-qa.md` and the durable evidence under `calculator-deploy/docs/qa/`.
 
-Pending before push or PR:
-
-1. 1365 × 768 comparison against the approved style board.
-2. 390 × 844 mobile comparison.
-3. Form, result tabs, annual result, Kaleidoscope verification and report-open interaction checks.
-4. Browser Console and accessibility checks.
-5. User visual approval.
+The first pass found three P2 issues: near-white hero title, text-symbol navigation icons and 41–42 px mobile controls. They were corrected with the approved gold token, attributed Tabler library icons and 44 px minimum targets. The second comparison found no actionable P0/P1/P2 issue.
 
 ## Release blockers
 
 - Repeat release build with Node.js 24.16.0 and npm 11.13.0.
-- Complete browser Design QA.
-- Obtain separate authorization for push, PR, merge and Cloudflare deployment.
+- Obtain user visual approval.
+- Obtain separate authorization before merge or Cloudflare deployment.
+
+Current QA environment used Node.js 24.14.0 and npm 11.9.0; all listed checks passed, but this does not replace the declared release-toolchain build.

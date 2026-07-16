@@ -168,7 +168,7 @@ body::after {
 }
 
 .hero h1 {
-  color: #fffaf0;
+  color: var(--gold-light);
   font-family: "Noto Serif TC", "Songti TC", "STSong", serif;
   font-weight: 700;
   letter-spacing: .04em;
@@ -322,7 +322,12 @@ body::after {
   right: 17px;
   bottom: 15px;
   color: var(--gold-light);
-  font-size: 1.25rem;
+}
+
+.feature-card__arrow img {
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 
 .panel {
@@ -428,6 +433,10 @@ textarea:focus {
   color: var(--ink-light) !important;
 }
 
+.ghost-button {
+  min-height: 44px;
+}
+
 .case-danger {
   color: #ffb0bf !important;
   border-color: rgba(255,132,157,.28) !important;
@@ -494,12 +503,13 @@ textarea:focus {
   text-decoration: none;
   font-size: .7rem;
   font-weight: 750;
+  min-height: 52px;
 }
 
-.bottom-nav a::before {
-  content: attr(data-icon);
-  color: var(--gold-light);
-  font-size: 1rem;
+.bottom-nav a img {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 .bottom-nav a:hover,
