@@ -5,35 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#080717" />
   <meta name="description" content="靈魂萬花筒：整合靈魂數字、雙曆排盤、流年位格、個案管理與報告工作區" />
-  <meta name="app-version" content="2.7.0" />
+  <meta name="app-version" content="2.8.0" />
   <title>靈魂萬花筒｜Soul Kaleidoscope</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="layout-fix.css?v=2.7.0" />
-  <link rel="stylesheet" href="case-manager.css?v=2.7.0" />
-  <link rel="stylesheet" href="brand-theme.css?v=2.7.0" />
-  <link rel="stylesheet" href="results-ui.css?v=2.7.0" />
+  <link rel="stylesheet" href="layout-fix.css?v=2.8.0" />
+  <link rel="stylesheet" href="case-manager.css?v=2.8.0" />
+  <link rel="stylesheet" href="brand-theme.css?v=2.8.0" />
+  <link rel="stylesheet" href="results-ui.css?v=2.8.0" />
 </head>
 <body>
   <div class="app-shell">
     <header id="home" class="hero">
-      <div class="hero__topline">Soul Kaleidoscope</div>
-      <h1>靈魂萬花筒</h1>
-      <p>以雙曆靈魂數字、年度能量與個案報告，整理你此刻所處的生命節奏。</p>
-      <div class="hero__meta">
-        <span id="systemStatus" class="status-pill">引擎自檢中</span>
-        <span class="version-pill">v2.7.0</span>
+      <div class="hero__content">
+        <div class="hero__topline">Soul Kaleidoscope</div>
+        <h1>靈魂萬花筒</h1>
+        <p class="hero__lead">在宇宙的秩序中，照見真正的自己。以雙曆靈魂數字、年度能量與個案報告，整理你此刻所處的生命節奏。</p>
+        <div class="hero__meta">
+          <span id="systemStatus" class="status-pill">引擎自檢中</span>
+          <span class="version-pill">v2.8.0</span>
+        </div>
+        <p id="systemStatusDetail" class="hero__status-detail"></p>
+        <div class="hero__actions">
+          <a class="primary-button hero__cta" href="#input">開始探索</a>
+          <a class="secondary-button hero__cta" href="#features">先了解分析內容</a>
+        </div>
+        <p class="hero__trust">本機計算・個案資料不會自動上傳・結果保留來源與版本資訊</p>
       </div>
-      <p id="systemStatusDetail" class="hero__status-detail"></p>
-      <div class="hero__actions">
-        <a class="primary-button hero__cta" href="#input">開始探索</a>
-        <a class="secondary-button hero__cta" href="#cases">查看個案</a>
+      <div class="hero__visual" aria-hidden="true">
+        <img src="assets/sacred-geometry.webp" alt="" />
+        <span></span>
       </div>
     </header>
 
     <main>
-      <section class="dashboard-panel" aria-labelledby="dashboard-title">
+      <section id="features" class="dashboard-panel" aria-labelledby="dashboard-title">
         <div class="dashboard-heading">
           <div>
             <p class="dashboard-kicker">Explore Your Frequency</p>
@@ -71,6 +78,11 @@
           <span class="section-title__mark"></span>
           <div><h2 id="input-title">輸入資料</h2><p>欄位不預填。國曆生日可自動帶出農曆；閏月由系統辨識並顯示計算月。</p></div>
         </div>
+
+        <aside class="profile-privacy" aria-label="出生資料使用說明">
+          <strong>資料用途與隱私</strong>
+          <p>姓名、生日與出生時間只用於產生本次排盤及你主動儲存的本機個案；不會因計算而自動上傳。共用裝置使用完畢後，請清除表單與不需保留的個案。</p>
+        </aside>
 
         <form id="calcForm" class="form-grid" novalidate>
           <label class="field field--wide"><span>姓名</span><input id="name" type="text" placeholder="請輸入姓名" autocomplete="name" /></label>
@@ -231,10 +243,10 @@
   <script src="sngl-data.js"></script>
   <script src="sngl-report.js"></script>
   <script src="case-store.js"></script>
-  <script src="kaleidoscope-model.js?v=2.7.0"></script>
+  <script src="kaleidoscope-model.js?v=2.8.0"></script>
   <script src="script.js"></script>
   <script src="case-ui.js"></script>
-  <script src="results-ui.js?v=2.7.0"></script>
-  <script src="report-preview.js?v=2.7.0"></script>
+  <script src="results-ui.js?v=2.8.0"></script>
+  <script src="report-preview.js?v=2.8.0"></script>
 </body>
 </html>
