@@ -1,4 +1,4 @@
-const CACHE_NAME = "soul-kaleidoscope-v2.7.0";
+const CACHE_NAME = "soul-kaleidoscope-v2.8.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,14 @@ const ASSETS = [
   "./case-manager.css",
   "./brand-theme.css",
   "./results-ui.css",
+  "./assets/cosmic-background.webp",
+  "./assets/sacred-geometry.webp",
+  "./assets/icons/home.svg",
+  "./assets/icons/calculator.svg",
+  "./assets/icons/analysis.svg",
+  "./assets/icons/cases.svg",
+  "./assets/icons/report.svg",
+  "./assets/icons/chevron-right.svg",
   "./report.html",
   "./report.css",
   "./report-brand.css",
