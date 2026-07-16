@@ -1,6 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { runInThisContext } from "node:vm";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
+import { DEFAULT_FEATURE_FLAGS } from "./src/runtime/feature-flags.js";
+import { createRuntimeDatasetProvider } from "./src/runtime/runtime-manifest-loader.js";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const APP_VERSION = packageJson.version;
@@ -60,8 +62,35 @@ const lunarOutput = [
 ].join("\n");
 writeFileSync("public/lunar-data.js", lunarOutput, "utf8");
 
-const snglData = JSON.parse(readFileSync("data/sngl/numbers.v1.json", "utf8"));
-const positionData = JSON.parse(readFileSync("data/sngl/positions.v1.json", "utf8"));
+function loadLegacyPublishedDatasets() {
+  return {
+    manifestId: "legacy-approved-consumer-baseline",
+    schemaVersion: null,
+    datasets: {
+      "number-topic": {
+        data: JSON.parse(readFileSync("data/sngl/numbers.v1.json", "utf8")),
+        artifactPath: "data/sngl/numbers.v1.json",
+        hashValue: null,
+        approvalBaseline: "approved-consumer-baseline"
+      },
+      position: {
+        data: JSON.parse(readFileSync("data/sngl/positions.v1.json", "utf8")),
+        artifactPath: "data/sngl/positions.v1.json",
+        hashValue: null,
+        approvalBaseline: "approved-consumer-baseline"
+      }
+    }
+  };
+}
+
+const runtimeDatasetProvider = createRuntimeDatasetProvider({
+  rootDir: process.cwd(),
+  manifestPath: "data/runtime/manifest.v1.json",
+  legacyLoader: loadLegacyPublishedDatasets
+});
+const runtimeDatasetResolution = runtimeDatasetProvider.load(DEFAULT_FEATURE_FLAGS);
+const snglData = runtimeDatasetResolution.snapshot.datasets["number-topic"].data;
+const positionData = runtimeDatasetResolution.snapshot.datasets.position.data;
 const expectedNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const expectedPositions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 if (JSON.stringify(Object.keys(snglData.numbers || {}).sort()) !== JSON.stringify(expectedNumbers)) {

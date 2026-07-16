@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soul-kaleidoscope.local/schemas/runtime-manifest.schema.json",
+  "title": "Soul Kaleidoscope Runtime Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "manifestId", "generatedAt", "datasets"],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "manifestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/dataset"
+      }
+    }
+  },
+  "$defs": {
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "candidateWorkflow", "published"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "candidateWorkflow": {
+          "$ref": "#/$defs/candidateWorkflow"
+        },
+        "published": {
+          "$ref": "#/$defs/published"
+        }
+      }
+    },
+    "candidateWorkflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewStatus", "artifactPath", "runtimeReadable"],
+      "properties": {
+        "reviewStatus": {
+          "enum": ["Pending", "Candidate", "Reviewed", "Rejected", "Conflict", "Canonical", "NotApplicable"]
+        },
+        "artifactPath": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtimeReadable": {
+          "const": false
+        }
+      }
+    },
+    "published": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifactPath", "approval", "hash"],
+      "properties": {
+        "artifactPath": {
+          "type": "string",
+          "pattern": "^data/sngl/[A-Za-z0-9._/-]+$"
+        },
+        "approval": {
+          "$ref": "#/$defs/approval"
+        },
+        "hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "baselineId", "evidencePath"],
+      "properties": {
+        "status": {
+          "enum": ["approved", "pending", "revoked"]
+        },
+        "baselineId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidencePath": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactPath",
+        "sourceKind",
+        "fileCount",
+        "algorithm",
+        "hashValue",
+        "normalization",
+        "lineEndingRule",
+        "generatedAt",
+        "generationMethod"
+      ],
+      "properties": {
+        "artifactPath": {
+          "type": "string",
+          "pattern": "^data/sngl/[A-Za-z0-9._/-]+$"
+        },
+        "sourceKind": {
+          "const": "published-artifact"
+        },
+        "fileCount": {
+          "const": 1
+        },
+        "algorithm": {
+          "const": "SHA-256"
+        },
+        "hashValue": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "normalization": {
+          "const": "none"
+        },
+        "lineEndingRule": {
+          "const": "exact-raw-bytes-lf"
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "generationMethod": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

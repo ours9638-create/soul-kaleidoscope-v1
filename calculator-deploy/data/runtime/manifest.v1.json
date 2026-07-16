@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "manifestId": "soul-kaleidoscope-runtime-foundation-r3",
+  "generatedAt": "2026-07-16T04:36:41.491Z",
+  "datasets": [
+    {
+      "id": "number-topic",
+      "candidateWorkflow": {
+        "reviewStatus": "Candidate",
+        "artifactPath": "data/knowledge/candidates/number-topics.drive.v1.json",
+        "runtimeReadable": false
+      },
+      "published": {
+        "artifactPath": "data/sngl/numbers.v1.json",
+        "approval": {
+          "status": "approved",
+          "baselineId": "approved-consumer-baseline",
+          "evidencePath": "Records/consumer-baseline/r2/R2_FINAL_CLOSEOUT.md"
+        },
+        "hash": {
+          "artifactPath": "data/sngl/numbers.v1.json",
+          "sourceKind": "published-artifact",
+          "fileCount": 1,
+          "algorithm": "SHA-256",
+          "hashValue": "c6cea4f8a73888cf556fc0ebb8e259fa65df173154bf0c7401e17aeaab91693d",
+          "normalization": "none",
+          "lineEndingRule": "exact-raw-bytes-lf",
+          "generatedAt": "2026-07-16T04:36:41.491Z",
+          "generationMethod": "node:crypto SHA-256 over raw LF bytes; cross-checked to Git blob at 99de03fe4248a82b62dbbc08be0630be242323e7"
+        }
+      }
+    },
+    {
+      "id": "position",
+      "candidateWorkflow": {
+        "reviewStatus": "NotApplicable",
+        "artifactPath": null,
+        "runtimeReadable": false
+      },
+      "published": {
+        "artifactPath": "data/sngl/positions.v1.json",
+        "approval": {
+          "status": "approved",
+          "baselineId": "approved-consumer-baseline",
+          "evidencePath": "Records/consumer-baseline/r2/R2_FINAL_CLOSEOUT.md"
+        },
+        "hash": {
+          "artifactPath": "data/sngl/positions.v1.json",
+          "sourceKind": "published-artifact",
+          "fileCount": 1,
+          "algorithm": "SHA-256",
+          "hashValue": "35adc8af23bc9372580dc6d85e33758dde9e7951cfd9b3d72af7554bafaf61dc",
+          "normalization": "none",
+          "lineEndingRule": "exact-raw-bytes-lf",
+          "generatedAt": "2026-07-16T04:36:41.491Z",
+          "generationMethod": "node:crypto SHA-256 over raw LF bytes; cross-checked to Git blob at 99de03fe4248a82b62dbbc08be0630be242323e7"
+        }
+      }
+    }
+  ]
+}
