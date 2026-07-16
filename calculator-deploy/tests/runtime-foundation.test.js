@@ -69,6 +69,10 @@ test("runtime manifest schema fixes the Published and Candidate contract", () =>
   const schema = readJson(path.join(ROOT, "schemas/runtime-manifest.schema.json"));
   assert.equal(schema.additionalProperties, false);
   assert.equal(schema.properties.schemaVersion.const, "1.0.0");
+  assert.equal(schema.properties.datasets.minItems, 2);
+  assert.equal(schema.properties.datasets.maxItems, 2);
+  assert.equal(schema.properties.datasets.uniqueItems, true);
+  assert.deepEqual(schema.$defs.dataset.properties.id.enum, ["number-topic", "position"]);
   assert.equal(schema.$defs.dataset.additionalProperties, false);
   assert.deepEqual(schema.$defs.dataset.required, ["id", "candidateWorkflow", "published"]);
   assert.equal(schema.$defs.candidateWorkflow.properties.runtimeReadable.const, false);
@@ -217,20 +221,20 @@ test("unknown, pending and revoked Published approvals cannot authorize Runtime"
 
 test("Candidate, mapping, source, diff report and Drive paths are forbidden Runtime targets", async (t) => {
   const forbiddenPaths = [
-    "data/knowledge/candidates/number-topics.drive.v1.json",
-    "data/knowledge/mappings/number-topic.drive.v1.json",
-    "data/source/drive.json",
-    "data/knowledge/reports/number-topic-diff.generated.json",
-    "data/drive/source.json"
+    ["data/knowledge/candidates/number-topics.drive.v1.json", "FORBIDDEN_RUNTIME_TARGET"],
+    ["data/knowledge/mappings/number-topic.drive.v1.json", "UNTRUSTED_DATASET_PATH"],
+    ["data/source/drive.json", "UNTRUSTED_DATASET_PATH"],
+    ["data/knowledge/reports/number-topic-diff.generated.json", "UNTRUSTED_DATASET_PATH"],
+    ["data/drive/source.json", "UNTRUSTED_DATASET_PATH"]
   ];
-  for (const artifactPath of forbiddenPaths) {
+  for (const [artifactPath, errorCode] of forbiddenPaths) {
     await t.test(artifactPath, () => {
       const fixture = makeFixture(t);
       updateManifest(fixture, (manifest) => {
         manifest.datasets[0].published.artifactPath = artifactPath;
         manifest.datasets[0].published.hash.artifactPath = artifactPath;
       });
-      expectCode(() => loadPublishedDatasets({ rootDir: fixture }), "FORBIDDEN_RUNTIME_TARGET");
+      expectCode(() => loadPublishedDatasets({ rootDir: fixture }), errorCode);
     });
   }
 });

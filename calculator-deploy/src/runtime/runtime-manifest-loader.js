@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { DEFAULT_FEATURE_FLAGS, resolveFeatureFlags } from "./feature-flags.js";
+import { REQUIRED_DATASET_IDS, TRUSTED_DATASET_REGISTRY } from "./trusted-dataset-registry.js";
 
 const SUPPORTED_SCHEMA_VERSION = "1.0.0";
 const DEFAULT_MANIFEST_PATH = "data/runtime/manifest.v1.json";
@@ -15,7 +16,8 @@ const CANDIDATE_STATUSES = new Set([
   "Canonical",
   "NotApplicable"
 ]);
-const FORBIDDEN_TARGET_PATTERN = /(?:^|\/)(?:candidates?|mappings?|reports?|source|diffreports?|drive)(?:\/|$)/i;
+const REQUIRED_DATASET_ID_SET = new Set(REQUIRED_DATASET_IDS);
+const RFC3339_DATE_TIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)(\.[0-9]+)?(Z|([+-])([01]\d|2[0-3]):([0-5]\d))$/;
 
 export class RuntimeManifestError extends Error {
   constructor(code, message, details = {}, options = {}) {
@@ -62,11 +64,48 @@ function assertNonBlankString(value, context) {
   }
 }
 
-function assertIsoTimestamp(value, context) {
+function isLeapYear(year) {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+
+function assertRfc3339Timestamp(value, context) {
   assertNonBlankString(value, context);
-  const isoTimestampPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
-  if (!isoTimestampPattern.test(value) || Number.isNaN(Date.parse(value))) {
-    fail("MANIFEST_SCHEMA_INVALID", `${context} must be an ISO timestamp`, { context });
+  const match = RFC3339_DATE_TIME_PATTERN.exec(value);
+  if (!match) {
+    fail("MANIFEST_SCHEMA_INVALID", `${context} must be a strict RFC3339 date-time`, { context });
+  }
+
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, fraction, zone, sign, offsetHourText, offsetMinuteText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const second = Number(secondText);
+  const daysInMonth = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > daysInMonth[month - 1]) {
+    fail("MANIFEST_SCHEMA_INVALID", `${context} must contain an existing calendar date`, { context });
+  }
+
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) {
+    fail("MANIFEST_SCHEMA_INVALID", `${context} must be parseable as RFC3339`, { context });
+  }
+
+  const offsetMagnitude = zone === "Z" ? 0 : Number(offsetHourText) * 60 + Number(offsetMinuteText);
+  const offsetMinutes = sign === "-" ? -offsetMagnitude : offsetMagnitude;
+  const localRoundTrip = new Date(parsed + offsetMinutes * 60_000);
+  const milliseconds = Number(`${fraction?.slice(1) ?? ""}000`.slice(0, 3));
+  const componentsMatch =
+    localRoundTrip.getUTCFullYear() === year &&
+    localRoundTrip.getUTCMonth() + 1 === month &&
+    localRoundTrip.getUTCDate() === day &&
+    localRoundTrip.getUTCHours() === hour &&
+    localRoundTrip.getUTCMinutes() === minute &&
+    localRoundTrip.getUTCSeconds() === second &&
+    localRoundTrip.getUTCMilliseconds() === milliseconds;
+  if (!componentsMatch) {
+    fail("MANIFEST_SCHEMA_INVALID", `${context} failed RFC3339 semantic round-trip validation`, { context });
   }
 }
 
@@ -94,11 +133,6 @@ function assertSafePublishedPath(artifactPath) {
     artifactPath.split("/").some((segment) => segment === "" || segment === "." || segment === "..")
   ) {
     fail("PATH_ESCAPE", "Published artifact path is not a safe relative POSIX path", { artifactPath });
-  }
-  if (!artifactPath.startsWith("data/sngl/") || FORBIDDEN_TARGET_PATTERN.test(artifactPath)) {
-    fail("FORBIDDEN_RUNTIME_TARGET", "Runtime target is not an approved Published Artifact path", {
-      artifactPath
-    });
   }
 }
 
@@ -149,6 +183,117 @@ function deepFreeze(value, seen = new Set()) {
   return Object.freeze(value);
 }
 
+function assertRequiredDatasetSet(datasetIds) {
+  const missingDatasetIds = REQUIRED_DATASET_IDS.filter((datasetId) => !datasetIds.has(datasetId));
+  const unexpectedDatasetIds = [...datasetIds].filter((datasetId) => !REQUIRED_DATASET_ID_SET.has(datasetId));
+  if (missingDatasetIds.length || unexpectedDatasetIds.length || datasetIds.size !== REQUIRED_DATASET_IDS.length) {
+    fail("REQUIRED_DATASET_SET_INVALID", "Runtime manifest must contain the exact required Dataset set", {
+      requiredDatasetIds: REQUIRED_DATASET_IDS,
+      missingDatasetIds,
+      unexpectedDatasetIds
+    });
+  }
+}
+
+function assertTrustedDatasetDeclaration(dataset) {
+  const trusted = TRUSTED_DATASET_REGISTRY[dataset.id];
+  if (!trusted) {
+    fail("UNTRUSTED_DATASET_ID", "Dataset ID is not present in the trusted registry", {
+      datasetId: dataset.id
+    });
+  }
+  if (dataset.published.artifactPath !== trusted.approvedPath) {
+    fail("UNTRUSTED_DATASET_PATH", "Dataset path does not match the trusted approved path", {
+      datasetId: dataset.id,
+      artifactPath: dataset.published.artifactPath
+    });
+  }
+  if (
+    dataset.published.approval.baselineId !== trusted.approvedBaselineId ||
+    dataset.published.approval.evidencePath !== trusted.approvedEvidencePath
+  ) {
+    fail("UNTRUSTED_DATASET_APPROVAL", "Dataset approval metadata does not match the trusted registry", {
+      datasetId: dataset.id
+    });
+  }
+  return trusted;
+}
+
+function validateDatasetSchema(datasetId, data, contract) {
+  if (!isPlainObject(data)) {
+    fail("DATASET_SCHEMA_INVALID", "Published Dataset must be an object", { datasetId });
+  }
+  const requiredKeys = ["version", "language", "tone", contract.rootProperty];
+  const missingKeys = requiredKeys.filter((key) => !(key in data));
+  const unknownKeys = Object.keys(data).filter((key) => !requiredKeys.includes(key));
+  if (missingKeys.length || unknownKeys.length) {
+    fail("DATASET_SCHEMA_INVALID", "Published Dataset top-level fields are invalid", {
+      datasetId,
+      missingKeys,
+      unknownKeys
+    });
+  }
+  for (const key of ["version", "language", "tone"]) {
+    if (typeof data[key] !== "string" || data[key].trim() === "") {
+      fail("DATASET_SCHEMA_INVALID", `Published Dataset ${key} must be a non-blank string`, {
+        datasetId,
+        key
+      });
+    }
+  }
+  if (!isPlainObject(data[contract.rootProperty])) {
+    fail("DATASET_SCHEMA_INVALID", "Published Dataset record collection must be an object", {
+      datasetId,
+      rootProperty: contract.rootProperty
+    });
+  }
+}
+
+function validateConsumerContract(datasetId, data, contract) {
+  const records = data[contract.rootProperty];
+  const actualRecordIds = Object.keys(records).sort();
+  const requiredRecordIds = [...contract.requiredRecordIds].sort();
+  if (JSON.stringify(actualRecordIds) !== JSON.stringify(requiredRecordIds)) {
+    fail("CONSUMER_CONTRACT_INVALID", "Published Dataset record IDs do not match the Runtime consumer contract", {
+      datasetId,
+      requiredRecordIds,
+      actualRecordIds
+    });
+  }
+
+  for (const recordId of requiredRecordIds) {
+    const record = records[recordId];
+    if (!isPlainObject(record)) {
+      fail("CONSUMER_CONTRACT_INVALID", "Published Dataset record must be an object", {
+        datasetId,
+        recordId
+      });
+    }
+    for (const field of contract.requiredStringFields) {
+      if (typeof record[field] !== "string" || record[field].trim() === "") {
+        fail("CONSUMER_CONTRACT_INVALID", "Published Dataset record is missing required text", {
+          datasetId,
+          recordId,
+          field
+        });
+      }
+    }
+    for (const field of contract.requiredStringArrayFields) {
+      if (
+        !Array.isArray(record[field]) ||
+        record[field].length === 0 ||
+        record[field].some((item) => typeof item !== "string" || item.trim() === "")
+      ) {
+        fail("CONSUMER_CONTRACT_INVALID", "Published Dataset record is missing a required text array", {
+          datasetId,
+          recordId,
+          field
+        });
+      }
+    }
+  }
+}
+
 function validateRuntimeManifest(manifest) {
   assertExactKeys(
     manifest,
@@ -164,7 +309,7 @@ function validateRuntimeManifest(manifest) {
     });
   }
   assertNonBlankString(manifest.manifestId, "manifest.manifestId");
-  assertIsoTimestamp(manifest.generatedAt, "manifest.generatedAt");
+  assertRfc3339Timestamp(manifest.generatedAt, "manifest.generatedAt");
   if (!Array.isArray(manifest.datasets) || manifest.datasets.length === 0) {
     fail("MANIFEST_SCHEMA_INVALID", "manifest.datasets must be a non-empty array", {
       context: "manifest.datasets"
@@ -280,7 +425,7 @@ function validateRuntimeManifest(manifest) {
         datasetId: dataset.id
       });
     }
-    assertIsoTimestamp(hash.generatedAt, `${context}.published.hash.generatedAt`);
+    assertRfc3339Timestamp(hash.generatedAt, `${context}.published.hash.generatedAt`);
     assertNonBlankString(hash.generationMethod, `${context}.published.hash.generationMethod`);
 
     if (
@@ -292,6 +437,8 @@ function validateRuntimeManifest(manifest) {
       });
     }
   }
+
+  assertRequiredDatasetSet(datasetIds);
 
   return manifest;
 }
@@ -309,6 +456,7 @@ export function loadPublishedDatasets({
 
   const datasets = {};
   for (const dataset of manifest.datasets) {
+    const trusted = assertTrustedDatasetDeclaration(dataset);
     const artifactPath = dataset.published.artifactPath;
     const absoluteArtifactPath = resolvePublishedPath(rootDir, artifactPath);
     const artifactBytes = readBytes(readFile, absoluteArtifactPath, "ARTIFACT_MISSING", "Published Artifact");
@@ -331,6 +479,8 @@ export function loadPublishedDatasets({
       datasetId: dataset.id,
       artifactPath
     });
+    validateDatasetSchema(dataset.id, data, trusted.consumerContract);
+    validateConsumerContract(dataset.id, data, trusted.consumerContract);
     datasets[dataset.id] = {
       data,
       artifactPath,
