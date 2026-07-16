@@ -8,6 +8,8 @@
 - Mobile implementation screenshot: `calculator-deploy/docs/qa/mobile-390x844.jpg`
 - Desktop full-view comparison: `calculator-deploy/docs/qa/desktop-brand-comparison.jpg`
 - Mobile focused comparison: `calculator-deploy/docs/qa/mobile-brand-comparison.jpg`
+- Approved collapsed system-status desktop state: `calculator-deploy/docs/qa/system-status-collapsed-desktop.jpg`
+- Approved collapsed system-status mobile state: `calculator-deploy/docs/qa/system-status-collapsed-mobile.jpg`
 
 ## Viewports and states
 
@@ -18,12 +20,8 @@
 
 ## Findings
 
-- No actionable P0, P1 or P2 issue remains after the second comparison.
-- [P3] Technical engine detail is visually dense on the mobile hero.
-  Location: `.hero__status-detail`.
-  Evidence: the brand board keeps the first phone screen more atmospheric, while the implementation surfaces model and dataset versions before the first CTA.
-  Impact: the detail is readable and does not block the task, but a future consumer mode could reduce its prominence.
-  Follow-up: keep the current detail for traceability, or move it into an expandable system-status panel after user review.
+- No actionable P0, P1, P2 or P3 issue remains after the approved system-status refinement.
+- The previous P3 density concern is resolved: engine, model and Dataset versions remain available inside a native disclosure without competing with the primary CTA.
 
 ## Required fidelity surfaces
 
@@ -40,8 +38,9 @@
 - Calculation populated summary data, solar flow year `23/5`, lunar flow year `24/6`, five annual interpretation cards and eleven Kaleidoscope verification rows.
 - Annual and Kaleidoscope tabs changed the visible result region correctly.
 - `在新分頁開啟報告` opened a complete report for the Mock Data.
+- System status is collapsed by default after a successful 29/29 self-test, opens and closes through the native disclosure on desktop and mobile, and automatically opens when required application data is unavailable.
 - Browser Console: no warning or error from the local application origin on calculator, mobile or report pages. Browser-extension-only messages were excluded.
-- Accessibility checks: `zh-Hant`, one main landmark, named navigation, labelled form fields, named controls, alt attributes on all images, no horizontal overflow at 390 px, and no visible interactive target smaller than 44 × 44 px after fixes.
+- Accessibility checks: `zh-Hant`, one main landmark, named navigation, labelled form fields, named controls, native keyboard-operable disclosure, alt attributes on all images, no horizontal overflow at 390 px, and no visible interactive target smaller than 44 × 44 px after fixes.
 
 ## Comparison history
 
@@ -51,10 +50,11 @@
 | 1 | P2 — persistent navigation used text symbols instead of a coherent line-icon set | Replaced symbols and card arrows with attributed Tabler library SVG assets | Desktop and mobile final comparisons |
 | 1 | P2 — auto-lunar action and result tabs measured 41–42 px high on mobile | Added a 44 px minimum interactive height | Second accessibility pass: no undersized visible targets |
 | 2 | No P0/P1/P2 difference remained | No further blocking fix required | Final comparison images listed above |
+| 3 | User approved the visual direction and requested less technical density on the hero | Moved engine, version and Dataset detail into a native disclosure; kept failure auto-open behavior | Collapsed desktop/mobile screenshots and disclosure interaction checks |
 
 ## Open questions
 
-- User visual approval is still required before merge or deployment.
+- Visual direction was approved by the user on 2026-07-16, including the instruction to collapse technical information.
 - The exact release-toolchain build under Node.js 24.16.0 and npm 11.13.0 remains a release gate, not a Design QA blocker.
 
 ## Implementation checklist
@@ -68,9 +68,10 @@
 - [x] App-origin Console inspection
 - [x] Mobile accessibility and overflow checks
 - [x] P0/P1/P2 fixes and second comparison
+- [x] Collapsible system-status refinement and failure-state safeguard
 
 ## Follow-up polish
 
-- Consider a user-facing mode that collapses detailed engine/version status after visual approval.
+- None required for this approved refinement.
 
 final result: passed

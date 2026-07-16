@@ -16,6 +16,7 @@
 - Approved four-function information architecture.
 - Real cosmic and sacred-geometry source assets, optimized to WebP for delivery.
 - Birth-data purpose and privacy notice.
+- Collapsible system-status detail that opens automatically on application-data failure.
 - Attributed Tabler line icons for persistent navigation and card affordances.
 - Reproducible local static-preview command for browser QA.
 - PWA asset existence validation and offline cache registration.
@@ -27,10 +28,10 @@
 - Core form, result tabs, annual interpretation, Kaleidoscope verification and report-open flows: PASS.
 - Application-origin browser Console review: PASS.
 - Mobile labelling, alt text, 44 px target size and horizontal-overflow review: PASS.
+- Desktop/mobile system-status disclosure and failure-state safeguard: PASS.
 - Design QA: `design-qa.md` — `final result: passed`.
 
 ## Required before release
 
 - Build with declared Node.js 24.16.0 and npm 11.13.0.
-- User visual approval.
 - Independent approval for merge and Cloudflare deployment.

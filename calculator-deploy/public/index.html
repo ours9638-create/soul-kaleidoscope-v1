@@ -22,11 +22,21 @@
         <div class="hero__topline">Soul Kaleidoscope</div>
         <h1>靈魂萬花筒</h1>
         <p class="hero__lead">在宇宙的秩序中，照見真正的自己。以雙曆靈魂數字、年度能量與個案報告，整理你此刻所處的生命節奏。</p>
-        <div class="hero__meta">
-          <span id="systemStatus" class="status-pill">引擎自檢中</span>
-          <span class="version-pill">v2.8.0</span>
-        </div>
-        <p id="systemStatusDetail" class="hero__status-detail"></p>
+        <details id="systemDetails" class="hero__system">
+          <summary>
+            <span class="hero__system-summary">
+              <span class="hero__system-title">系統狀態</span>
+              <span class="hero__system-hint">需要時展開查看</span>
+            </span>
+          </summary>
+          <div class="hero__system-body" aria-live="polite">
+            <div class="hero__meta">
+              <span id="systemStatus" class="status-pill">引擎自檢中</span>
+              <span class="version-pill">v2.8.0</span>
+            </div>
+            <p id="systemStatusDetail" class="hero__status-detail"></p>
+          </div>
+        </details>
         <div class="hero__actions">
           <a class="primary-button hero__cta" href="#input">開始探索</a>
           <a class="secondary-button hero__cta" href="#features">先了解分析內容</a>

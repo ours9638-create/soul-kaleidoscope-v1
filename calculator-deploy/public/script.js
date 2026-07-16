@@ -7,6 +7,7 @@
   const ReportEngine = window.SoulKaleidoscopeReport;
   const statusNode = $("systemStatus");
   const statusDetailNode = $("systemStatusDetail");
+  const systemDetailsNode = $("systemDetails");
 
   if (
     !C || !Profile || !ReportEngine ||
@@ -18,6 +19,7 @@
       statusNode.classList.add("status-pill--error");
     }
     if (statusDetailNode) statusDetailNode.textContent = "核心程式、統一資料模型、SNGL 數字資料、位格資料或農曆資料未正確載入，請重新整理或查看部署紀錄。";
+    if (systemDetailsNode) systemDetailsNode.open = true;
     return;
   }
 
@@ -28,7 +30,7 @@
     "summaryQueryLunar","summaryLunarAdjustment","summaryTimeRule","solarBirthdayCell","lunarBirthdayCell",
     "solarFlowYear","solarPosition","solarFlowMonth","solarFlowDay","lunarFlowYear","lunarPosition",
     "lunarFlowMonth","lunarFlowDay","solarDetailTable","lunarDetailTable","solarHorseTable","lunarHorseTable",
-    "copyQuickBtn","copyFullBtn","systemStatus","systemStatusDetail","toast"
+    "copyQuickBtn","copyFullBtn","systemDetails","systemStatus","systemStatusDetail","toast"
   ];
   const el = Object.fromEntries(ids.map((id) => [id, $(id)]));
   let lastProfile = null;
@@ -248,6 +250,7 @@
   el.systemStatusDetail.textContent = test.ok
     ? `核心規則 ${test.passed}/${test.total} 通過；統一模型 ${Profile.SCHEMA_VERSION}、SNGL 報告 ${ReportEngine.VERSION}、位格資料 ${window.POSITION_DATA.version} 已載入。`
     : test.failed.map((item) => item.name).join("、");
+  if (!test.ok) el.systemDetails.open = true;
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
