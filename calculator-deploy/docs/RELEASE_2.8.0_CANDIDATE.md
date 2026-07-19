@@ -4,11 +4,15 @@
 
 `2.8.0` completed UI-B integration in PR #10 and was merged into
 `r3-runtime-foundation-closeout` on 2026-07-16. It has not been promoted to the
-Cloudflare production branch or deployed.
+Cloudflare production branch or deployed. Promotion Draft PR #11 is open against
+`calculator-deploy-setup`; the latest automatic CI is successful.
 
 - PR: `#10` — merged
 - Merge commit: `3b56ead1bf594945e88d85a37b7aea51b614feb4`
 - Release-readiness branch: `feature/release-2.8.0-readiness`
+- Promotion PR: `#11` — Open／Draft
+- Latest functional candidate: `30f2d230440f51de7c934e7f7bbfcc4b787ef495`
+- Latest promotion CI: Calculator CI `29691785605` — PASS
 
 ## Baseline
 
@@ -27,6 +31,8 @@ Cloudflare production branch or deployed.
 - Reproducible local static-preview command for browser QA.
 - PWA asset existence validation and offline cache registration.
 - App/PWA candidate version and cache namespace updated to `2.8.0`.
+- Report five-stage and Soul Number structure groups use full-width stacked
+  Gregorian／lunar cards, with the mobile value grid retained at two columns.
 
 ## Completed candidate QA
 
@@ -40,9 +46,10 @@ Cloudflare production branch or deployed.
 
 ## Required before release
 
-- Complete the G1 release-readiness checklist in `RELEASE_2.8.0_READINESS.md`.
-- Complete iPhone Safari, installed PWA, offline-cache and PDF-save checks.
-- Review promotion from `r3-runtime-foundation-closeout` to the configured
-  Cloudflare production branch `calculator-deploy-setup`.
-- Obtain separate authorization for the promotion PR, merge and Cloudflare
-  deployment.
+- Obtain an authorized non-production HTTPS candidate Target.
+- Complete `RELEASE_2.8.0_DEVICE_ACCEPTANCE.md`, including iPhone Safari,
+  installed PWA, offline-cache, PDF-save and Android smoke checks.
+- Update PR #11 evidence and fix the final reviewed Head SHA.
+- Obtain separate authorization to mark PR #11 Ready for Review.
+- Complete promotion review, then separately authorize merge and Cloudflare
+  production deployment.

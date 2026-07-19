@@ -191,4 +191,4 @@
 8. [ ] 完成品牌報告、頁碼、差異摘要與固定 PDF。
 9. [ ] 最後處理雲端同步與商店封裝。
 
-目前執行階段：G1 release-readiness 與第 2～4 項實機驗收。完成並取得獨立核准後，才建立 production promotion PR；部署仍為另一個核准點。
+目前執行階段：G1 實機驗收與 production promotion review 準備。Promotion Draft PR #11 已建立，Base 為 `calculator-deploy-setup`，最新自動 CI 通過；目前仍需候選版 HTTPS Target、iPhone／PWA／PDF／離線與 Android 實機證據。驗收完成並更新 PR 證據後，才可另行核准將 PR #11 標記 Ready、進行 promotion review 與 merge；部署仍為更後面的獨立核准點。

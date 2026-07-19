@@ -8,12 +8,15 @@
 - Merge commit：`3b56ead1bf594945e88d85a37b7aea51b614feb4`
 - 整合分支：`r3-runtime-foundation-closeout`
 - Release-readiness 分支：`feature/release-2.8.0-readiness`
+- Promotion PR：`#11`，Open／Draft，Base `calculator-deploy-setup`
+- 最新功能候選 Commit：`30f2d230440f51de7c934e7f7bbfcc4b787ef495`
+- Promotion CI：Calculator CI `29691785605`，`test-and-build` PASS
 - Cloudflare production branch：`calculator-deploy-setup`
 - 正式部署：尚未執行
 
-此階段只建立發布證據與完成可離線執行的驗收。Push、promotion PR、
-promotion merge、Cloudflare deployment、Runtime publication 與 Dataset
-publication 均為獨立核准點。
+Release-readiness 分支與 promotion Draft PR 已建立。現在的 Gate 是候選版 HTTPS
+實機驗收、驗收證據回填與 promotion review；promotion merge、Cloudflare
+deployment、Runtime publication 與 Dataset publication 仍是獨立核准點。
 
 ## 2. 發布內容
 
@@ -33,6 +36,7 @@ Kaleidoscope Model 或個案儲存語意變更。
 | Gate | 狀態 | 證據 |
 | --- | --- | --- |
 | PR CI release toolchain | PASS | Calculator CI `29490592334`; Node.js 24.16.0 / npm 11.13.0 |
+| Promotion PR latest CI | PASS | PR #11 Calculator CI `29691785605`; latest code candidate `30f2d23` |
 | Root suite | PASS | 131/131 |
 | Calculator regression | PASS | 86/86 |
 | Core self-tests | PASS | 29/29 |
@@ -61,6 +65,11 @@ Node.js 24.16.0／npm 11.13.0 工具鏈已由同一個 PR Head 的 GitHub Action
 Calculator CI `29490592334` 驗證成功。
 
 ## 5. 必須由實機完成的檢查
+
+操作步驟、裝置欄位與證據表統一記錄於
+`RELEASE_2.8.0_DEVICE_ACCEPTANCE.md`。沒有可在實機開啟的候選版 HTTPS 網址時，
+只能驗證一般頁面顯示，不能把安裝後 PWA、Service Worker、版本升級、快取或
+離線項目標示為 PASS。
 
 下列項目不能由桌面模擬取代，未完成時不得宣稱 2.8.0 已正式驗收：
 
@@ -109,6 +118,14 @@ promotion 不應直接部署 `r3-runtime-foundation-closeout`，而應：
 
 ## 8. 目前停止點
 
-完成 G1 本機證據後，停在以下核准點：
+目前已完成分支 Push 與 promotion Draft PR 建立。PR #11 為 Open／Draft、
+mergeable，最新 CI 通過，尚無 Review、Review Request 或未解決留言。
 
-> 核准推送 `feature/release-2.8.0-readiness` 並建立 promotion Draft PR；不合併、不部署。
+目前停在：
+
+1. 取得可供手機驗收的候選版 HTTPS Target；不得以 production deployment 代替。
+2. 完成 `RELEASE_2.8.0_DEVICE_ACCEPTANCE.md` 並留下日期、裝置與證據。
+3. 更新 PR #11 說明與固定最新 Head SHA。
+4. 另行取得將 PR #11 標記 Ready for Review 的核准。
+
+在上述事項完成前，不得合併 PR #11，也不得部署 Cloudflare production。
