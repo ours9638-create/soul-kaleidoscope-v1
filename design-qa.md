@@ -74,4 +74,16 @@
 
 - None required for this approved refinement.
 
+## Report stacked-layout refinement — 2026-07-16
+
+- Reference: user-supplied report screenshot requesting the Gregorian and lunar groups to change from side-by-side columns to full-width rows stacked vertically.
+- Desktop verification: cloud-browser report capture at 1363 CSS px with neutral QA data (`QA 測試`, 1991-09-23 11:17, query date 2026-07-16).
+- Mobile verification: same report state inside an exact 390 × 844 layout frame.
+- The two five-stage cards now render as 902 px full-width rows on desktop, with the Gregorian card above the lunar card. Both tables fit their desktop containers without an internal horizontal scrollbar.
+- The two Soul Number structure cards now render as 902 px full-width rows on desktop, with four value columns per row; the mobile breakpoint keeps two value columns for readability.
+- At 390 px, both card pairs remain vertically stacked and the page body has no horizontal overflow. The existing table-only horizontal scroll remains contained inside each five-stage table.
+- Browser Console: no application-origin warning or error. Browser-extension-only metadata messages were excluded.
+- No formula, Dataset, Runtime, report content or data-binding code changed.
+- No actionable P0, P1 or P2 visual difference remains for this requested refinement.
+
 final result: passed
