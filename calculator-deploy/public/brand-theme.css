@@ -444,26 +444,160 @@ textarea:focus {
 }
 
 .profile-privacy {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px 14px;
-  margin: 0 0 22px;
-  padding: 15px 17px;
+  display: block;
+  margin: 0 0 16px;
+  padding: 0;
   border: 1px solid rgba(199,204,214,.2);
   border-radius: 17px;
   background: linear-gradient(135deg, rgba(52,37,88,.55), rgba(12,10,31,.72));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
 }
 
-.profile-privacy strong {
+.profile-privacy summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 15px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.profile-privacy summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-privacy summary strong {
   color: var(--gold-light);
-  white-space: nowrap;
+  font-size: .86rem;
+}
+
+.profile-privacy summary span {
+  flex: 0 0 auto;
+  color: var(--silver);
+  font-size: .78rem;
+  font-weight: 750;
 }
 
 .profile-privacy p {
   margin: 0;
+  padding: 12px 15px 14px;
+  border-top: 1px solid rgba(199,204,214,.12);
   color: var(--muted-light);
   line-height: 1.65;
+}
+
+.input-panel .form-grid {
+  grid-template-columns: 1.12fr repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.input-panel .field--wide {
+  grid-column: 1 / -1;
+}
+
+.input-panel .field small {
+  color: #c8bfd8 !important;
+  font-size: .78rem;
+}
+
+.lunar-box {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.lunar-box > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 64px;
+  padding: 12px 15px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lunar-box > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lunar-box__summary-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lunar-box__summary-copy strong {
+  color: var(--ink-light);
+}
+
+.lunar-box__summary-copy span {
+  overflow: hidden;
+  color: #c8bfd8;
+  font-size: .84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lunar-box__action {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--line-dark);
+  border-radius: 999px;
+  color: var(--gold-light);
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.lunar-box__body {
+  padding: 14px;
+  border-top: 1px solid rgba(224,195,126,.14);
+}
+
+.input-panel .button-row #calculateBtn {
+  flex-grow: 1.85;
+}
+
+.input-panel .button-row #resetBtn {
+  flex-grow: 1;
+}
+
+.result-stack {
+  gap: 14px;
+}
+
+.result-core-panel {
+  border-color: rgba(244,220,154,.3) !important;
+}
+
+.result-core-panel.is-focused-calendar {
+  border-color: rgba(244,220,154,.72) !important;
+  box-shadow: 0 22px 60px rgba(0,0,0,.34), 0 0 30px rgba(216,181,106,.12) !important;
+}
+
+.quick-panel {
+  margin-top: 8px;
+}
+
+.case-panel__heading > strong {
+  color: var(--ink-light);
+}
+
+.case-panel__heading > small,
+.case-panel__intro,
+.case-panel__summary::after,
+.case-meta,
+.case-meta span {
+  color: #c8bfd8 !important;
+}
+
+.case-panel__body {
+  border-color: rgba(224,195,126,.14);
+}
+
+.case-panel .case-meta {
+  border-color: var(--line-violet);
+  background: rgba(44,28,74,.52);
 }
 
 .primary-button {
@@ -580,6 +714,7 @@ textarea:focus {
 
 @media (max-width: 900px) {
   .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .input-panel .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 720px) {
@@ -627,11 +762,19 @@ textarea:focus {
   }
 
   .profile-privacy {
-    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 14px;
   }
+
+  .lunar-box > summary { align-items: flex-start; }
+  .lunar-box__summary-copy span { white-space: normal; }
 }
 
 @media (max-width: 470px) {
+  .input-panel .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .profile-privacy summary { align-items: flex-start; }
+  .profile-privacy summary strong { line-height: 1.5; }
+  .lunar-box > summary { gap: 10px; }
+  .lunar-box__action { padding: 7px 10px; }
   .feature-grid { grid-template-columns: minmax(0, 1fr); }
   .feature-card { min-height: 132px; }
   .feature-card__orb { width: 46px; height: 46px; }

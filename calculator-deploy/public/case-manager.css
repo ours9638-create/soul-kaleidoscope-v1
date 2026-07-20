@@ -3,6 +3,58 @@
   overflow: hidden;
 }
 
+.case-panel__summary {
+  display: grid;
+  grid-template-columns: auto minmax(210px, 1fr) minmax(230px, auto);
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.case-panel__summary::-webkit-details-marker {
+  display: none;
+}
+
+.case-panel__summary::after {
+  content: "展開";
+  grid-column: 3;
+  justify-self: end;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.case-panel[open] > .case-panel__summary::after {
+  content: "收合";
+}
+
+.case-panel__heading {
+  display: grid;
+  gap: 4px;
+}
+
+.case-panel__heading > strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.case-panel__heading > small,
+.case-panel__intro {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.case-panel__body {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.case-panel__intro {
+  margin: 0 0 12px;
+}
+
 .case-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -22,6 +74,12 @@
   color: var(--muted);
   font-size: .82rem;
   font-weight: 700;
+}
+
+.case-panel__summary .case-meta {
+  grid-column: 3;
+  grid-row: 1;
+  padding-right: 58px;
 }
 
 .case-meta strong {
@@ -131,6 +189,23 @@
 }
 
 @media (max-width: 720px) {
+  .case-panel__summary {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .case-panel__summary .case-meta {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin-left: 19px;
+    padding-right: 58px;
+  }
+
+  .case-panel__summary::after {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+
   .case-toolbar {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -141,6 +216,10 @@
 }
 
 @media (max-width: 430px) {
+  .case-panel__heading > strong {
+    font-size: 1.1rem;
+  }
+
   .case-item {
     grid-template-columns: minmax(0, 1fr);
   }

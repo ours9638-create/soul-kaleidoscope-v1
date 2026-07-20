@@ -177,7 +177,7 @@
     }
 
     if (visibility.summary) {
-      lines.push("【雙曆靈魂數字摘要】");
+      lines.push("【國曆／農曆｜當期能量總覽】");
       for (const row of view.summaryRows) {
         lines.push(`${row.calendar}：主命數 ${row.primary}｜流年 ${row.flowYear}｜今年位格 ${row.position}｜流月 ${row.flowMonth}｜流日 ${row.flowDay}`);
       }

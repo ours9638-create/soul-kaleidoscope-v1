@@ -87,3 +87,15 @@
 - No actionable P0, P1 or P2 visual difference remains for this requested refinement.
 
 final result: passed
+
+## Layout hierarchy refinement — 2026-07-20
+
+- Source visual truth: user-supplied screenshots in `/workspace/scratch/5311b27488d3/upload/`, especially `955f6b90-710a-4192-b2b8-56ada0dd04a9.png`, `a7f37d27-bfd8-4e24-a7c1-97fa36c9201a.png`, `2dcc67e5-4859-4de3-8093-73ed17a364da.png`, `271a65fc-861f-4b74-840a-f7fac33e8e49.png`, `d1d87c6e-3376-4657-a3d0-2fd85f8e69cc.png`, and `ac3b44c2-3186-417b-b9be-f985a7f8bf77.png`.
+- Intended implementation state: completed calculation for 1991/09/23 11:17, Overview active, lunar editor and case manager collapsed.
+- Intended viewports: desktop 1440 px wide and mobile 390 px wide.
+- Implementation screenshot: unavailable. The approved cloud browser could not open the local preview surface, and the loopback URL was disallowed by browser policy.
+- Full-view and focused-region comparison: blocked because no browser-rendered implementation screenshot could be captured. Code-only review is not accepted as visual comparison evidence.
+- Automated evidence: regression 86/86, core self-tests 29/29, case store 24/24, report model 44/44, Kaleidoscope model 18/18, knowledge data 28/28, Runtime foundation 76/76, static source validation 110/110, formula regression 29/29.
+- Remaining P2 verification: visually confirm responsive wrapping, compact panel heights, bottom navigation clearance, quick-result position, and the collapsed case/lunar states at desktop and mobile widths.
+
+final result: blocked

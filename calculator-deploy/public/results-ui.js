@@ -4,6 +4,7 @@
   const VisualModel = window.SoulKaleidoscopeVisualModel;
   const tabs = [...document.querySelectorAll("[data-result-tab]")];
   const panels = [...document.querySelectorAll("[data-result-view]")];
+  const corePanels = [...document.querySelectorAll("[data-result-calendar]")];
   const annualList = document.getElementById("annualInterpretationList");
   const annualStatus = document.getElementById("annualInterpretationStatus");
   const kaleidoscopeBody = document.getElementById("kaleidoscopeRows");
@@ -19,8 +20,15 @@
       tab.classList.toggle("is-active", active);
       tab.tabIndex = active ? 0 : -1;
     }
-    for (const panel of panels) panel.hidden = panel.dataset.resultView !== target;
-    if (scroll) document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const calendarTarget = target === "solar" || target === "lunar";
+    for (const panel of panels) panel.hidden = calendarTarget || panel.dataset.resultView !== target;
+    for (const panel of corePanels) panel.classList.toggle("is-focused-calendar", calendarTarget && panel.dataset.resultCalendar === target);
+    if (scroll) {
+      const destination = calendarTarget
+        ? document.querySelector(`[data-result-calendar="${target}"]`)
+        : document.getElementById("results");
+      destination?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   function createAnnualCard(section, featured = false) {
@@ -113,7 +121,7 @@
   }
 
   for (const tab of tabs) {
-    tab.addEventListener("click", () => activateTab(tab.dataset.resultTab));
+    tab.addEventListener("click", () => activateTab(tab.dataset.resultTab, { scroll: ["solar", "lunar"].includes(tab.dataset.resultTab) }));
     tab.addEventListener("keydown", (event) => {
       if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
       event.preventDefault();

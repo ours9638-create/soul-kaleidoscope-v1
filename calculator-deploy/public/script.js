@@ -26,13 +26,15 @@
   const engine = C.createEngine(window.LUNAR_DATA);
   const ids = [
     "calcForm","name","solarBirth","birthTime","queryDate","lunarYear","lunarMonth","lunarDay","lunarLeap",
-    "lunarAdjustNote","autoLunarBtn","resetBtn","lookupNotice","queryLunarText","summaryName","summaryQueryDate",
+    "lunarAdjustNote","lunarSummary","lunarEditor","autoLunarBtn","resetBtn","lookupNotice","queryLunarText","summaryName","summaryQueryDate",
     "summaryQueryLunar","summaryLunarAdjustment","summaryTimeRule","solarBirthdayCell","lunarBirthdayCell",
     "solarFlowYear","solarPosition","solarFlowMonth","solarFlowDay","lunarFlowYear","lunarPosition",
     "lunarFlowMonth","lunarFlowDay","solarDetailTable","lunarDetailTable","solarHorseTable","lunarHorseTable",
     "copyQuickBtn","copyFullBtn","systemDetails","systemStatus","systemStatusDetail","toast"
   ];
   const el = Object.fromEntries(ids.map((id) => [id, $(id)]));
+  const coreEmptyNodes = [...document.querySelectorAll(".result-empty--core")];
+  const coreTableWraps = [...document.querySelectorAll(".result-core-panel .table-scroll")];
   let lastProfile = null;
 
   function toast(message) {
@@ -54,6 +56,7 @@
   function fillLunarFromSolar() {
     const lunar = engine.getLunarByGregorian(el.solarBirth.value);
     if (!lunar) {
+      el.lunarEditor.open = true;
       notice("此日期超出農曆資料範圍，請人工輸入並確認。", true);
       return false;
     }
@@ -79,18 +82,26 @@
 
   function updateLunarNote() {
     const leapInfo = detectLeap();
+    const year = Number(el.lunarYear.value || 0);
     const month = Number(el.lunarMonth.value || 0);
+    const day = Number(el.lunarDay.value || 0);
+    const lunarDate = year && month && day ? `${year}/${C.pad2(month)}/${C.pad2(day)}` : "—";
     if (!month) {
       el.lunarAdjustNote.textContent = "閏月判斷：—";
+      el.lunarSummary.textContent = `自動換算農曆：${lunarDate}｜閏月判斷：—`;
       return;
     }
     if (leapInfo.ambiguous) {
       el.lunarAdjustNote.textContent = "閏月判斷：同年月日有一般月與閏月，請以國曆生日重新帶入。";
+      el.lunarSummary.textContent = `自動換算農曆：${lunarDate}｜需確認是否閏月`;
       return;
     }
     el.lunarAdjustNote.textContent = leapInfo.leap
       ? `閏月判斷：閏${C.pad2(month)}月 → 計算${C.pad2(month + 1)}月`
       : "閏月判斷：未遇閏月";
+    el.lunarSummary.textContent = leapInfo.leap
+      ? `自動換算農曆：${lunarDate}｜閏${C.pad2(month)}月 → 計算${C.pad2(month + 1)}月`
+      : `自動換算農曆：${lunarDate}｜未遇閏月`;
   }
 
   function updateQueryLunar() {
@@ -169,6 +180,8 @@
     renderDetail(el.lunarDetailTable, lunar.soulStages);
     renderHorse(el.solarHorseTable, solar.horse, "國曆日月綻放");
     renderHorse(el.lunarHorseTable, lunar.horse, "陰曆日月綻放");
+    for (const node of coreEmptyNodes) node.hidden = true;
+    for (const node of coreTableWraps) node.hidden = false;
   }
 
   function resultText(full = false) {
@@ -222,7 +235,7 @@
       window.__SOUL_PROFILE__ = profile;
       render(profile);
       publishProfile(profile);
-      notice("計算完成。統一資料模型、靈魂數字報告、流年位格解讀與萬花圖核對資料已同步建立。");
+      notice("✓ 資料與計算引擎已就緒");
       toast("計算完成");
     } catch (error) {
       notice(error.message, true);
@@ -238,6 +251,8 @@
       if (!node.closest("table[id]")) node.textContent = "—";
     });
     [el.solarDetailTable, el.lunarDetailTable, el.solarHorseTable, el.lunarHorseTable].forEach((table) => { table.innerHTML = ""; });
+    for (const node of coreEmptyNodes) node.hidden = false;
+    for (const node of coreTableWraps) node.hidden = true;
     el.queryLunarText.textContent = "當日農曆日期：—";
     updateLunarNote();
     publishProfile(null);
