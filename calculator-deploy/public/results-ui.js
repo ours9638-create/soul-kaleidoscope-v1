@@ -93,7 +93,8 @@
       });
       kaleidoscopeBody?.replaceChildren(...rows);
       if (kaleidoscopeStatus) {
-        kaleidoscopeStatus.textContent = `${currentVisualModel.subjectName}｜${currentVisualModel.queryDate}｜${currentVisualModel.birthdayStatus}。圖像生成前請先核對所有位置。`;
+        const timeNote = currentVisualModel.birthTimeStatus === "unknown" ? "｜出生時間未知；本圖僅使用日期與年度資料" : "";
+        kaleidoscopeStatus.textContent = `${currentVisualModel.subjectName}｜${currentVisualModel.queryDate}｜${currentVisualModel.birthdayStatus}${timeNote}。圖像生成前請先核對所有位置。`;
       }
       if (copyButton) copyButton.disabled = false;
     } catch (error) {

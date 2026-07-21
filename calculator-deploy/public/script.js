@@ -25,12 +25,12 @@
 
   const engine = C.createEngine(window.LUNAR_DATA);
   const ids = [
-    "calcForm","name","solarBirth","birthTime","queryDate","lunarYear","lunarMonth","lunarDay","lunarLeap",
+    "calcForm","name","solarBirth","birthTimeField","birthTime","birthTimeUnknown","birthTimeHelp","queryDate","lunarYear","lunarMonth","lunarDay","lunarLeap",
     "lunarAdjustNote","lunarSummary","lunarEditor","autoLunarBtn","resetBtn","lookupNotice","queryLunarText","summaryName","summaryQueryDate",
     "summaryQueryLunar","summaryLunarAdjustment","summaryTimeRule","solarBirthdayCell","lunarBirthdayCell",
     "solarFlowYear","solarPosition","solarFlowMonth","solarFlowDay","lunarFlowYear","lunarPosition",
     "lunarFlowMonth","lunarFlowDay","solarDetailTable","lunarDetailTable","solarHorseTable","lunarHorseTable",
-    "copySummaryBtn","systemDetails","systemStatus","systemStatusDetail","toast"
+    "copySummaryBtn","birthTimeResultNote","systemDetails","systemStatus","systemStatusDetail","toast"
   ];
   const el = Object.fromEntries(ids.map((id) => [id, $(id)]));
   const coreEmptyNodes = [...document.querySelectorAll(".result-empty--core")];
@@ -51,6 +51,17 @@
 
   function publishProfile(profile) {
     window.dispatchEvent(new CustomEvent("soul-profile-updated", { detail: { profile } }));
+  }
+
+  function syncBirthTimeControl() {
+    const unknown = el.birthTimeUnknown.checked;
+    if (unknown) el.birthTime.value = "";
+    el.birthTime.disabled = unknown;
+    el.birthTime.required = !unknown;
+    el.birthTimeField.classList.toggle("is-unknown", unknown);
+    el.birthTimeHelp.textContent = unknown
+      ? "將保留日期與年度相關結果；時、分兩階段不計算，也不會以 00:00 代替。"
+      : "凌晨 12 點請輸入 00:xx，計算結果會顯示並使用 24。";
   }
 
   function fillLunarFromSolar() {
@@ -112,11 +123,13 @@
   }
 
   function readInput() {
-    if (!el.solarBirth.value || !el.birthTime.value || !el.queryDate.value) throw new Error("請完整輸入國曆生日、出生時間與查詢日期。");
+    const birthTimeUnknown = el.birthTimeUnknown.checked;
+    if (!el.solarBirth.value || !el.queryDate.value) throw new Error("請完整輸入國曆生日與查詢日期。");
+    if (!birthTimeUnknown && !el.birthTime.value) throw new Error("請輸入出生時間，或勾選「不知道出生時間」。");
     if (![el.lunarYear.value, el.lunarMonth.value, el.lunarDay.value].every(Boolean)) throw new Error("農曆生日資料不完整。");
     if (el.queryDate.value < el.solarBirth.value) throw new Error("查詢日期不可早於出生日期。");
 
-    const [hour, minute] = el.birthTime.value.split(":").map(Number);
+    const [hour, minute] = birthTimeUnknown ? [null, null] : el.birthTime.value.split(":").map(Number);
     const solarBirth = C.parseDateString(el.solarBirth.value);
     const query = C.parseDateString(el.queryDate.value);
     const leapInfo = detectLeap();
@@ -132,17 +145,24 @@
         year: Number(el.lunarYear.value), month: lunarMonth, day: Number(el.lunarDay.value),
         leap: leapInfo.leap, calculationMonth
       },
-      time: { inputHour: hour, calculationHour: C.normalizeHourForCalculation(hour), minute }
+      time: birthTimeUnknown
+        ? { status: "unknown", inputHour: null, calculationHour: null, minute: null }
+        : { status: "known", inputHour: hour, calculationHour: C.normalizeHourForCalculation(hour), minute }
     };
+  }
+
+  function stageValue(row, key) {
+    if (row.status === "unavailable") return key === "source" ? "未提供" : "—";
+    return row[key] ?? "—";
   }
 
   function renderDetail(table, rows) {
     table.innerHTML = `
       <thead><tr><th></th>${rows.map((row) => `<th>${row.label}</th>`).join("")}</tr></thead>
       <tbody>
-        <tr><th>輸入值</th>${rows.map((row) => `<td>${row.source}</td>`).join("")}</tr>
-        <tr><th>靈魂數字</th>${rows.map((row) => `<td>${row.chain}</td>`).join("")}</tr>
-        <tr><th>靈魂等級</th>${rows.map((row) => `<td>${row.level}</td>`).join("")}</tr>
+        <tr><th>輸入值</th>${rows.map((row) => `<td>${stageValue(row, "source")}</td>`).join("")}</tr>
+        <tr><th>靈魂數字</th>${rows.map((row) => `<td>${stageValue(row, "chain")}</td>`).join("")}</tr>
+        <tr><th>靈魂等級</th>${rows.map((row) => `<td>${stageValue(row, "level")}</td>`).join("")}</tr>
       </tbody>`;
   }
 
@@ -163,7 +183,10 @@
     el.summaryQueryDate.textContent = C.formatDateSlash(source.queryDate);
     el.summaryQueryLunar.textContent = C.formatLunarDate(profile.calendar.queryLunar);
     el.summaryLunarAdjustment.textContent = lunarBirth.leap ? `閏${C.pad2(lunarBirth.month)}月 → 計算${C.pad2(lunarBirth.calculationMonth)}月` : "未遇閏月";
-    el.summaryTimeRule.textContent = source.calculationHour === 24 ? `輸入 ${source.birthTime}，計算時數 24` : source.birthTime;
+    el.summaryTimeRule.textContent = source.birthTimeStatus === "unknown"
+      ? "未知｜時、分不計算"
+      : source.calculationHour === 24 ? `輸入 ${source.birthTime}，計算時數 24` : source.birthTime;
+    el.birthTimeResultNote.hidden = source.birthTimeStatus !== "unknown";
 
     el.solarBirthdayCell.textContent = C.formatDateSlash(source.solarBirthDate);
     el.lunarBirthdayCell.textContent = lunarBirthText;
@@ -192,6 +215,7 @@
     const lines = [
       `姓名：${profile.subject.name}`,
       `查詢日期：${C.formatDateSlash(profile.source.queryDate)}（農曆 ${C.formatLunarDate(profile.calendar.queryLunar)}）`,
+      `出生時間：${profile.source.birthTimeStatus === "unknown" ? "未知（時、分不計算）" : profile.source.birthTime}`,
       `國曆：流年 ${solar.flow.flowYear}｜位格 ${solar.flow.position}｜流月 ${solar.flow.flowMonth}｜流日 ${solar.flow.flowDay}`,
       `農曆：流年 ${lunar.flow.flowYear || "—"}｜位格 ${lunar.flow.position ?? "—"}｜流月 ${lunar.flow.flowMonth || "—"}｜流日 ${lunar.flow.flowDay || "—"}`
     ];
@@ -209,6 +233,7 @@
   }
 
   el.solarBirth.addEventListener("change", fillLunarFromSolar);
+  el.birthTimeUnknown.addEventListener("change", syncBirthTimeControl);
   [el.lunarYear, el.lunarMonth, el.lunarDay].forEach((node) => node.addEventListener("input", updateLunarNote));
   el.queryDate.addEventListener("change", updateQueryLunar);
   el.autoLunarBtn.addEventListener("click", fillLunarFromSolar);
@@ -227,8 +252,8 @@
       window.__SOUL_PROFILE__ = profile;
       render(profile);
       publishProfile(profile);
-      notice("✓ 資料與計算引擎已就緒");
-      toast("計算完成");
+      notice(input.time.status === "unknown" ? "✓ 部分計算完成；時、分未納入" : "✓ 資料與計算引擎已就緒");
+      toast(input.time.status === "unknown" ? "部分計算完成" : "計算完成");
     } catch (error) {
       notice(error.message, true);
       toast(error.message);
@@ -237,6 +262,7 @@
 
   el.resetBtn.addEventListener("click", () => {
     el.calcForm.reset();
+    syncBirthTimeControl();
     lastProfile = null;
     delete window.__SOUL_PROFILE__;
     document.querySelectorAll("#results strong, #results td").forEach((node) => {
@@ -245,11 +271,14 @@
     [el.solarDetailTable, el.lunarDetailTable, el.solarHorseTable, el.lunarHorseTable].forEach((table) => { table.innerHTML = ""; });
     for (const node of coreEmptyNodes) node.hidden = false;
     for (const node of coreTableWraps) node.hidden = true;
+    el.birthTimeResultNote.hidden = true;
     el.queryLunarText.textContent = "當日農曆日期：—";
     updateLunarNote();
     publishProfile(null);
     notice("");
   });
+
+  syncBirthTimeControl();
 
   const test = engine.runSelfTests();
   el.systemStatus.textContent = test.ok ? `引擎自檢通過 ${test.passed}/${test.total}` : `引擎自檢失敗 ${test.passed}/${test.total}`;

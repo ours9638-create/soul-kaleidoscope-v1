@@ -37,6 +37,7 @@ function makeInput(source) {
     query: C.parseDateString(source.queryDate),
     lunarBirth: { ...source.lunarBirth },
     time: {
+      status: "known",
       inputHour: hour,
       calculationHour: C.normalizeHourForCalculation(hour),
       minute
@@ -46,7 +47,7 @@ function makeInput(source) {
 
 const coreSelfTest = engine.runSelfTests();
 check("核心內建自檢通過", coreSelfTest.ok, true);
-check("核心內建自檢數量", coreSelfTest.total, 29);
+check("核心內建自檢數量", coreSelfTest.total, 32);
 
 for (const fixture of fixtures.cases) {
   const input = makeInput(fixture.input);
@@ -103,9 +104,36 @@ check("需人工確認時略過農曆流年位格整合", reviewReport.annualSec
 check("需人工確認報告保留標記", reviewReport.needsReview, true);
 check("需人工確認仍保留雙曆年度總結", Boolean(reviewReport.annualSummary), true);
 
+const unknownSource = fixtures.cases.find((item) => item.id === "case-1991-09-23").input;
+const unknownInput = {
+  name: unknownSource.name,
+  solarBirth: C.parseDateString(unknownSource.solarBirthDate),
+  queryDate: unknownSource.queryDate,
+  query: C.parseDateString(unknownSource.queryDate),
+  lunarBirth: { ...unknownSource.lunarBirth },
+  time: { status: "unknown", inputHour: null, calculationHour: null, minute: null }
+};
+const unknownResult = engine.calculateAll(unknownInput);
+const unknownProfile = Profile.build({
+  input: unknownInput,
+  result: unknownResult,
+  engineVersion: C.VERSION,
+  generatedAt: "2026-07-12T00:00:00.000Z"
+});
+const unknownValidation = Profile.validate(unknownProfile);
+const unknownReport = Report.generate(unknownProfile, snglData, positionData);
+check("未知時間 Profile 驗證", unknownValidation.ok, true);
+check("未知時間狀態", unknownProfile.source.birthTimeStatus, "unknown");
+check("未知時間不冒充午夜", unknownProfile.source.birthTime, null);
+check("未知時間不設定計算時數", unknownProfile.source.calculationHour, null);
+check("未知時間保留國曆主命數", unknownProfile.numerology.solar.soulStages[2].chain, "34/7");
+check("未知時間國曆時分不可用", unknownProfile.numerology.solar.soulStages.slice(3).map((stage) => stage.status), ["unavailable", "unavailable"]);
+check("未知時間農曆時分不可用", unknownProfile.numerology.lunar.soulStages.slice(3).map((stage) => stage.status), ["unavailable", "unavailable"]);
+check("未知時間仍產生主命與年度報告", unknownReport.sections.length, 4);
+
 check("SNGL 0～9 資料完整", Object.keys(snglData.numbers).sort(), ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
 check("位格 1～9 資料完整", Object.keys(positionData.positions).sort(), ["1", "2", "3", "4", "5", "6", "7", "8", "9"]);
-check("統一模型版本", Profile.SCHEMA_VERSION, "1.0.0");
+check("統一模型版本", Profile.SCHEMA_VERSION, "1.1.0");
 check("SNGL 報告引擎版本", Report.VERSION, "1.1.0");
 
 const failed = checks.filter((item) => !item.pass);

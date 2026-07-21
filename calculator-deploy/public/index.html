@@ -91,13 +91,18 @@
 
         <details class="profile-privacy">
           <summary><strong>本機計算，不會自動上傳個案資料</strong><span>了解更多</span></summary>
-          <p>姓名、生日與出生時間只用於產生本次排盤及你主動儲存的本機個案。共用裝置使用完畢後，請清除表單與不需保留的個案。</p>
+          <p>姓名、生日與你提供的出生時間只用於產生本次排盤及你主動儲存的本機個案。共用裝置使用完畢後，請清除表單與不需保留的個案。</p>
         </details>
 
         <form id="calcForm" class="form-grid" novalidate>
           <label class="field"><span>姓名</span><input id="name" type="text" placeholder="請輸入姓名" autocomplete="name" /></label>
           <label class="field"><span>國曆生日</span><input id="solarBirth" type="date" required /></label>
-          <label class="field"><span>出生時間</span><input id="birthTime" type="time" required /><small>凌晨 12 點請輸入 00:xx，計算結果會顯示並使用 24。</small></label>
+          <div id="birthTimeField" class="field birth-time-field">
+            <span>出生時間</span>
+            <input id="birthTime" type="time" required aria-describedby="birthTimeHelp" />
+            <label class="birth-time-unknown"><input id="birthTimeUnknown" type="checkbox" /><span>不知道出生時間</span></label>
+            <small id="birthTimeHelp">凌晨 12 點請輸入 00:xx，計算結果會顯示並使用 24。</small>
+          </div>
           <label class="field"><span>查詢日期</span><input id="queryDate" type="date" required /></label>
 
           <details id="lunarEditor" class="lunar-box field--wide">
@@ -150,7 +155,7 @@
             <input id="importCasesInput" type="file" accept="application/json,.json" hidden />
           </div>
           <p id="caseNotice" class="case-notice" role="status"></p>
-          <p class="case-privacy">備份檔為明文，包含姓名、生日與出生時間。清除 Safari 網站資料或移除 App 前，請先匯出備份；私密瀏覽模式不保證長期保存。</p>
+          <p class="case-privacy">備份檔為明文，包含姓名、生日與已提供的出生時間。清除 Safari 網站資料或移除 App 前，請先匯出備份；私密瀏覽模式不保證長期保存。</p>
         </div>
       </details>
 
@@ -163,8 +168,10 @@
           <button class="result-tab" type="button" role="tab" aria-selected="false" data-result-tab="kaleidoscope">萬花圖核對</button>
         </nav>
 
+        <p id="birthTimeResultNote" class="birth-time-result-note" hidden>出生時間未知：本次保留年、月、日、主命數、年度能量與靈魂萬花圖；時、分兩階段不計算，也不會以 00:00 代替。</p>
+
         <section class="panel result-core-panel" data-result-calendar="solar">
-          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>國曆靈魂數字詳細結果</h2><p>年、月、日、時、分依序累加；完整保留 10、11、12 等中間鏈條。</p></div></div>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>國曆靈魂數字詳細結果</h2><p>年、月、日、時、分依序累加；出生時間未知時，時與分會明確標示為未提供。</p></div></div>
           <p class="result-empty result-empty--core">完成計算後顯示國曆五階段結果。</p>
           <div class="table-scroll" hidden><table class="data-table" id="solarDetailTable"></table></div>
         </section>
@@ -175,7 +182,7 @@
         </section>
 
         <section class="panel result-core-panel" data-result-calendar="lunar">
-          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>農曆靈魂數字詳細結果</h2><p>農曆生日可由國曆生日自動帶出，也可手動校正。</p></div></div>
+          <div class="section-title section-title--compact"><span class="section-title__mark"></span><div><h2>農曆靈魂數字詳細結果</h2><p>農曆生日可自動帶出；出生時間未知時，仍保留年、月、日三階段結果。</p></div></div>
           <p class="result-empty result-empty--core">完成計算後顯示農曆五階段結果。</p>
           <div class="table-scroll" hidden><table class="data-table" id="lunarDetailTable"></table></div>
         </section>

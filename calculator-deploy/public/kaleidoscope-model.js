@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.0.1";
+  const VERSION = "1.1.0";
 
   function text(value, fallback = "—") {
     return value === null || value === undefined || value === "" ? fallback : String(value);
@@ -45,6 +45,7 @@
       subjectName: text(profile.subject?.name, "未填姓名"),
       queryDate: text(profile.source?.queryDate),
       birthdayStatus: text(profile.calendar?.solar?.birthdayStatus),
+      birthTimeStatus: profile.source?.birthTimeStatus === "unknown" ? "unknown" : "known",
       rows
     };
   }
@@ -56,6 +57,7 @@
       `個案：${model.subjectName}`,
       `查詢日期：${model.queryDate}`,
       `生日狀態：${model.birthdayStatus}`,
+      `出生時間：${model.birthTimeStatus === "unknown" ? "未知（萬花圖僅使用不依賴時間的資料）" : "已提供"}`,
       ""
     ];
     for (const row of model.rows) lines.push(`${row.position}｜${row.label}：${row.value}`);

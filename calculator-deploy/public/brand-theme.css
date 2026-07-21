@@ -501,6 +501,50 @@ textarea:focus {
   font-size: .78rem;
 }
 
+.birth-time-field {
+  align-content: start;
+}
+
+.birth-time-unknown {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  gap: 8px;
+  color: var(--ink-light);
+  font-size: .82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.birth-time-unknown input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.birth-time-field.is-unknown > input[type="time"] {
+  opacity: .58;
+  background: rgba(15,11,35,.7);
+}
+
+.birth-time-field.is-unknown #birthTimeHelp {
+  color: var(--gold-light) !important;
+}
+
+.birth-time-result-note {
+  margin: 0;
+  padding: 13px 16px;
+  border: 1px solid rgba(244,220,154,.42);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(91,57,139,.28), rgba(15,11,35,.84));
+  color: #f8e5aa;
+  font-weight: 750;
+  line-height: 1.6;
+}
+
 .lunar-box {
   padding: 0 !important;
   overflow: hidden;

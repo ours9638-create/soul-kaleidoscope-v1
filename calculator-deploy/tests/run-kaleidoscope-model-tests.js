@@ -25,7 +25,7 @@ const input = {
   queryDate: fixture.input.queryDate,
   query: C.parseDateString(fixture.input.queryDate),
   lunarBirth: { ...fixture.input.lunarBirth },
-  time: { inputHour: hour, calculationHour: C.normalizeHourForCalculation(hour), minute }
+  time: { status: "known", inputHour: hour, calculationHour: C.normalizeHourForCalculation(hour), minute }
 };
 const result = engine.calculateAll(input);
 const profile = Profile.build({ input, result, engineVersion: C.VERSION, generatedAt: "2026-07-13T00:00:00.000Z" });
@@ -42,7 +42,7 @@ function expectError(name, fn) {
   check(name, failed, true);
 }
 
-check("模型版本", Visual.VERSION, "1.0.1");
+check("模型版本", Visual.VERSION, "1.1.0");
 check("固定位置數量", model.rows.length, 11);
 check("中心主命數", byKey.center.value, "7");
 check("上方國曆日月綻放", byKey.top.value, "32/5");
@@ -59,6 +59,17 @@ check("純文字包含位置", Visual.plainText(model).includes("最外圈｜今
 check("純文字包含國曆完整鏈", Visual.plainText(model).includes("上方｜國曆日月綻放：32/5"), true);
 check("純文字包含陰曆完整鏈", Visual.plainText(model).includes("上方副標｜陰曆日月綻放：24/6"), true);
 check("純文字不含 Joanna", Visual.plainText(model).includes("Joanna"), false);
+
+const unknownInput = {
+  ...input,
+  time: { status: "unknown", inputHour: null, calculationHour: null, minute: null }
+};
+const unknownResult = engine.calculateAll(unknownInput);
+const unknownProfile = Profile.build({ input: unknownInput, result: unknownResult, engineVersion: C.VERSION, generatedAt: "2026-07-13T00:00:00.000Z" });
+const unknownModel = Visual.build(unknownProfile);
+check("未知時間仍可建立萬花圖", unknownModel.rows.length, 11);
+check("未知時間萬花圖狀態", unknownModel.birthTimeStatus, "unknown");
+check("未知時間萬花圖包含限制文字", Visual.plainText(unknownModel).includes("未知（萬花圖僅使用不依賴時間的資料）"), true);
 expectError("缺少 Profile 被拒絕", () => Visual.build(null));
 
 const failed = checks.filter((item) => !item.pass);
