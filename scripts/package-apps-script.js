@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { getSourceDateEpoch } from './reproducible-build-utils.js';
 
 const ROOT = process.cwd();
 const OUT_DIR = 'dist/apps-script';
@@ -18,6 +19,8 @@ function resolvePath(relativePath) {
 }
 
 const packageJson = JSON.parse(fs.readFileSync(resolvePath('package.json'), 'utf8'));
+const sourceDateEpoch = getSourceDateEpoch({ cwd: ROOT });
+const sourceDate = new Date(sourceDateEpoch * 1000).toISOString();
 
 function copyFile(source) {
   const target = path.join(OUT_DIR, path.basename(source));
@@ -51,7 +54,7 @@ const checklist = [
   '# Apps Script 部署封包',
   '',
   `版本：${packageJson.version}`,
-  `產生時間：${new Date().toISOString()}`,
+  `來源時間：${sourceDate}（SOURCE_DATE_EPOCH=${sourceDateEpoch}）`,
   '',
   '只使用這個 `dist/apps-script` 資料夾內的檔案部署。不要直接貼 `apps-script/` 原始資料夾，避免貼到未封裝或未核對的版本。',
   '',

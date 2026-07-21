@@ -2,7 +2,7 @@
 
 ## A. 版本基準
 
-- App／PWA：`2.7.0`
+- App／PWA：`2.8.0`
 - 計算引擎：`2.2.1`
 - Soul Profile Schema：`1.0.0`
 - SNGL Report Engine：`1.1.0`
@@ -13,7 +13,7 @@
 - Case Store Module：`1.0.1`
 - Case Store Schema：`1`
 
-App 2.7.0 使用計算引擎 2.2.1。此修訂只補上國曆／陰曆日月綻放完整鏈輸出，原有最後主數與其他公式結果不得改變。
+App 2.8.0 使用計算引擎 2.2.1。此版本整合 UI-B 品牌入口、正式視覺資產、收合式系統狀態與 PWA 資產快取；公式、Soul Profile、正式 Dataset、報告規則與萬花圖位置模型不得改變。
 
 ---
 
@@ -28,10 +28,11 @@ npm run test:core
 → 產生 sngl-data.js（Number Data＋Position Data）
 → 靜態來源與版本檢查
 → 29 項核心自檢
-→ npx wrangler deploy
+→ 建立 release evidence
+→ 取得獨立 deployment 核准後才可執行 npx wrangler deploy
 ```
 
-任何一步失敗都不得發布正式 Worker。
+任何一步失敗都不得發布正式 Worker；Build 成功本身不構成部署授權。
 
 組建紀錄應包含：
 
@@ -45,7 +46,7 @@ Generated public/sngl-data.js with number data 1.0.0 and position data 1.0.0.
 Soul Kaleidoscope visual model 1.0.1.
 Static source validation passed .../....
 Formula regression passed 29/29.
-Prepared Soul Kaleidoscope app v2.7.0 (engine 2.2.1).
+Prepared Soul Kaleidoscope app v2.8.0 (engine 2.2.1).
 ```
 
 ---
@@ -278,8 +279,13 @@ npm run test:cases
 
 ## K. 紫金宇宙品牌介面
 
-- 頁首顯示 `v2.7.0`。
+- 頁首顯示 `v2.8.0`。
 - 深色宇宙背景、紫金與香檳金色系。
+- 首屏顯示「開始探索」與「先了解分析內容」。
+- 四個入口維持靈魂數字、流年與位格、靈魂萬花圖、個案報告。
+- 出生資料輸入前顯示用途與本機保存說明。
+- 技術版本與 Dataset 資訊預設收合；必要資料載入失敗時自動展開。
+- 裝飾性神聖幾何不得標示成正式計算結果。
 - 文字與星光背景保持足夠對比。
 - 按鈕觸控高度至少 44px。
 - 表格只在容器內橫向滑動。
@@ -289,12 +295,13 @@ npm run test:cases
 
 ## L. PWA 與快取
 
-- Manifest 描述包含 `v2.7.0`。
-- Service Worker cache：`soul-kaleidoscope-v2.7.0`。
-- 快取 `results-ui.css`、`results-ui.js`、`kaleidoscope-model.js` 與既有核心、個案、報告資產。
+- Manifest 描述包含 `v2.8.0`。
+- Service Worker cache：`soul-kaleidoscope-v2.8.0`。
+- 快取 `results-ui.css`、`results-ui.js`、`kaleidoscope-model.js`、品牌 WebP、六個 Tabler SVG 圖示與既有核心、個案、報告資產。
 - 不快取第三方來源請求。
 - 新版部署後刪除舊快取。
-- Safari 與主畫面 PWA 均顯示 `v2.7.0`。
+- Safari 與主畫面 PWA 均顯示 `v2.8.0`。
+- 已建立報告後，離線狀態可重新開啟既有報告資產。
 
 ---
 

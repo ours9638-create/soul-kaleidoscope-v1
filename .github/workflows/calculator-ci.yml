@@ -35,12 +35,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24.16.0"
+
+      - name: Pin npm
+        run: npm install --global npm@11.13.0
 
       - name: Show versions
         run: |
           node --version
           npm --version
+
+      - name: Install locked dependencies
+        run: npm ci
 
       - name: Run core regression suite
         run: npm run test:core

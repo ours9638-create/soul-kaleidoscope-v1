@@ -42,7 +42,7 @@ function makeInput(source) {
     queryDate: source.queryDate,
     query: C.parseDateString(source.queryDate),
     lunarBirth: { ...source.lunarBirth },
-    time: { inputHour: hour, calculationHour: C.normalizeHourForCalculation(hour), minute }
+    time: { status: "known", inputHour: hour, calculationHour: C.normalizeHourForCalculation(hour), minute }
   };
 }
 
@@ -61,7 +61,7 @@ const full = ReportModel.build(profile, {
   mode: "full",
   notes: { overview: "整體觀察", focus: "當期重點", recommendations: "補充建議" }
 });
-check("報告模型版本", ReportModel.VERSION, "1.1.1");
+check("報告模型版本", ReportModel.VERSION, "1.2.0");
 check("完整版模式", full.mode, "full");
 check("完整版標籤", full.modeLabel, "完整版");
 check("基本資料六欄", full.basicInfo.length, 6);
@@ -113,7 +113,26 @@ check("完整版文字包含陰曆日月綻放鏈", fullText.includes("陰曆日
 const teacherText = ReportModel.plainText(teacher);
 check("老師版包含技術資料", teacherText.includes("技術資料：SNGL.NUMBER."), true);
 check("老師版包含位格技術資料", teacherText.includes("SNGL.POSITION."), true);
-check("老師版包含版本", teacherText.includes("Report View 1.1.1"), true);
+check("老師版包含版本", teacherText.includes("Report View 1.2.0"), true);
+
+const unknownInput = {
+  ...input,
+  time: { status: "unknown", inputHour: null, calculationHour: null, minute: null }
+};
+const unknownResult = engine.calculateAll(unknownInput);
+const unknownProfile = Profile.build({
+  input: unknownInput,
+  result: unknownResult,
+  engineVersion: C.VERSION,
+  generatedAt: "2026-07-12T00:00:00.000Z"
+});
+unknownProfile.outputs.report = Report.generate(unknownProfile, snglData, positionData);
+const unknownView = ReportModel.build(unknownProfile, { mode: "full" });
+check("未知時間報告仍可建立", unknownView.summaryRows.length, 2);
+check("未知時間基本資料明確顯示", unknownView.basicInfo.find((item) => item.label === "出生時間").value, "未知（時、分不計算）");
+check("未知時間報告時分標示未提供", unknownView.stages.solar.slice(3).map((stage) => stage.source), ["未提供", "未提供"]);
+check("未知時間報告包含限制提醒", unknownView.warnings.some((warning) => warning.includes("未以 00:00")), true);
+check("未知時間純文字不冒充午夜", ReportModel.plainText(unknownView).includes("出生時間：未知（時、分不計算）"), true);
 
 expectError("缺少 Profile 被拒絕", () => ReportModel.build(null));
 expectError("缺少 SNGL 報告被拒絕", () => ReportModel.build({ ...profile, outputs: { report: null } }));

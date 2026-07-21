@@ -1,6 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { runInThisContext } from "node:vm";
 import { LUNAR_CALENDAR_1940_2035 } from "../src/core/lunar-calendar-data.js";
+import { DEFAULT_FEATURE_FLAGS } from "./src/runtime/feature-flags.js";
+import { createRuntimeDatasetProvider } from "./src/runtime/runtime-manifest-loader.js";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const APP_VERSION = packageJson.version;
@@ -13,6 +15,15 @@ const requiredFiles = [
   "public/case-manager.css",
   "public/brand-theme.css",
   "public/results-ui.css",
+  "public/assets/cosmic-background.webp",
+  "public/assets/sacred-geometry.webp",
+  "public/assets/icons/home.svg",
+  "public/assets/icons/calculator.svg",
+  "public/assets/icons/analysis.svg",
+  "public/assets/icons/cases.svg",
+  "public/assets/icons/report.svg",
+  "public/assets/icons/chevron-right.svg",
+  "public/assets/icons/LICENSE-tabler-icons.txt",
   "public/results-ui.js",
   "public/kaleidoscope-model.js",
   "public/report.html",
@@ -30,6 +41,7 @@ const requiredFiles = [
   "public/sw.js",
   "public/manifest.webmanifest",
   "public/icon.svg",
+  "scripts/preview-static.js",
   "data/sngl/numbers.v1.json",
   "data/sngl/positions.v1.json",
   "schemas/soul-profile.schema.json",
@@ -60,8 +72,35 @@ const lunarOutput = [
 ].join("\n");
 writeFileSync("public/lunar-data.js", lunarOutput, "utf8");
 
-const snglData = JSON.parse(readFileSync("data/sngl/numbers.v1.json", "utf8"));
-const positionData = JSON.parse(readFileSync("data/sngl/positions.v1.json", "utf8"));
+function loadLegacyPublishedDatasets() {
+  return {
+    manifestId: "legacy-approved-consumer-baseline",
+    schemaVersion: null,
+    datasets: {
+      "number-topic": {
+        data: JSON.parse(readFileSync("data/sngl/numbers.v1.json", "utf8")),
+        artifactPath: "data/sngl/numbers.v1.json",
+        hashValue: null,
+        approvalBaseline: "approved-consumer-baseline"
+      },
+      position: {
+        data: JSON.parse(readFileSync("data/sngl/positions.v1.json", "utf8")),
+        artifactPath: "data/sngl/positions.v1.json",
+        hashValue: null,
+        approvalBaseline: "approved-consumer-baseline"
+      }
+    }
+  };
+}
+
+const runtimeDatasetProvider = createRuntimeDatasetProvider({
+  rootDir: process.cwd(),
+  manifestPath: "data/runtime/manifest.v1.json",
+  legacyLoader: loadLegacyPublishedDatasets
+});
+const runtimeDatasetResolution = runtimeDatasetProvider.load(DEFAULT_FEATURE_FLAGS);
+const snglData = runtimeDatasetResolution.snapshot.datasets["number-topic"].data;
+const positionData = runtimeDatasetResolution.snapshot.datasets.position.data;
 const expectedNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const expectedPositions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 if (JSON.stringify(Object.keys(snglData.numbers || {}).sort()) !== JSON.stringify(expectedNumbers)) {
@@ -97,12 +136,18 @@ JSON.parse(readFileSync("schemas/soul-profile.schema.json", "utf8"));
 JSON.parse(readFileSync("tests/fixtures/regression-cases.json", "utf8"));
 
 const sourceChecks = [
+  [packageJson.scripts?.dev === "node scripts/preview-static.js", "local preview script is inconsistent"],
   [indexHtml.includes(`v${UI_VERSION}`), `index.html version must include v${UI_VERSION}`],
   [indexHtml.includes(`name="app-version" content="${APP_VERSION}"`), "index.html app-version metadata is inconsistent"],
   [indexHtml.includes(`layout-fix.css?v=${UI_VERSION}`), "index.html layout stylesheet version is inconsistent"],
   [indexHtml.includes(`case-manager.css?v=${UI_VERSION}`), "case manager stylesheet version is inconsistent"],
   [indexHtml.includes(`brand-theme.css?v=${UI_VERSION}`), "brand theme stylesheet version is inconsistent"],
   [indexHtml.includes(`results-ui.css?v=${UI_VERSION}`), "results UI stylesheet version is inconsistent"],
+  [indexHtml.includes('assets/sacred-geometry.webp'), "brand sacred geometry asset is missing from index.html"],
+  [readFileSync("public/brand-theme.css", "utf8").includes('assets/cosmic-background.webp'), "cosmic background asset is missing from brand theme"],
+  [indexHtml.includes('id="systemDetails"'), "collapsible system status is missing"],
+  [indexHtml.includes('<details id="systemDetails"'), "system status must use native details disclosure"],
+  [scriptText.includes("systemDetailsNode.open = true"), "system status must open automatically on load failure"],
   [indexHtml.includes(`kaleidoscope-model.js?v=${UI_VERSION}`), "kaleidoscope model script is missing"],
   [indexHtml.includes(`results-ui.js?v=${UI_VERSION}`), "results UI script is missing"],
   [manifest.description.includes(`v${APP_VERSION}`), "PWA manifest version is inconsistent"],
@@ -133,6 +178,8 @@ const sourceChecks = [
   [indexHtml.includes('id="exportCasesBtn"'), "case export action is missing"],
   [indexHtml.includes('id="importCasesBtn"'), "case import action is missing"],
   [indexHtml.includes('id="openReportBtn"'), "open report action is missing"],
+  [indexHtml.includes('id="birthTimeUnknown"'), "unknown birth time checkbox is missing"],
+  [indexHtml.includes('id="birthTimeResultNote"'), "unknown birth time result notice is missing"],
   [indexHtml.includes('<script src="profile-model.js"></script>'), "profile model script is missing from index.html"],
   [indexHtml.includes('<script src="sngl-data.js"></script>'), "SNGL data script is missing from index.html"],
   [indexHtml.includes('<script src="sngl-report.js"></script>'), "SNGL report script is missing from index.html"],
@@ -170,7 +217,8 @@ const sourceChecks = [
   [reportModelText.includes("陰曆日月綻放"), "report view model does not use canonical lunar day-moon label"],
   [reportPageText.includes('$("annualSections")'), "report page does not render annual interpretations"],
   [caseStoreText.includes('soul-kaleidoscope.case-store'), "case store key is inconsistent"],
-  [caseStoreText.includes("SCHEMA_VERSION = 1"), "case store schema version is inconsistent"],
+  [caseStoreText.includes("SCHEMA_VERSION = 2"), "case store schema version is inconsistent"],
+  [caseStoreText.includes('birthTimeStatus'), "case store does not preserve unknown birth time status"],
   [caseUiText.includes("addFromProfile"), "case UI does not save canonical profiles"],
   [caseUiText.includes('mode: "merge"'), "case UI import must default to merge"],
   [reportPreviewText.includes('soul-kaleidoscope.report-preview.'), "report preview storage prefix is missing"],
@@ -182,6 +230,14 @@ const sourceChecks = [
   [swText.includes(`soul-kaleidoscope-v${UI_VERSION}`), "service worker cache version is inconsistent"],
   [swText.includes('"./brand-theme.css"'), "service worker does not cache brand theme"],
   [swText.includes('"./results-ui.css"'), "service worker does not cache results styles"],
+  [swText.includes('"./assets/cosmic-background.webp"'), "service worker does not cache cosmic background"],
+  [swText.includes('"./assets/sacred-geometry.webp"'), "service worker does not cache sacred geometry"],
+  [swText.includes('"./assets/icons/home.svg"'), "service worker does not cache home icon"],
+  [swText.includes('"./assets/icons/calculator.svg"'), "service worker does not cache calculator icon"],
+  [swText.includes('"./assets/icons/analysis.svg"'), "service worker does not cache analysis icon"],
+  [swText.includes('"./assets/icons/cases.svg"'), "service worker does not cache cases icon"],
+  [swText.includes('"./assets/icons/report.svg"'), "service worker does not cache report icon"],
+  [swText.includes('"./assets/icons/chevron-right.svg"'), "service worker does not cache chevron icon"],
   [swText.includes('"./results-ui.js"'), "service worker does not cache results UI"],
   [swText.includes('"./kaleidoscope-model.js"'), "service worker does not cache kaleidoscope model"],
   [swText.includes('"./case-manager.css"'), "service worker does not cache case manager styles"],

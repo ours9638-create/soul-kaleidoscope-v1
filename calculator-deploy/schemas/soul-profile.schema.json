@@ -9,7 +9,7 @@
       "type": "object",
       "required": ["schemaVersion", "engineVersion", "generatedAt"],
       "properties": {
-        "schemaVersion": { "const": "1.0.0" },
+        "schemaVersion": { "const": "1.1.0" },
         "engineVersion": { "type": "string", "minLength": 1 },
         "generatedAt": { "type": "string", "format": "date-time" },
         "profileId": { "type": ["string", "null"] }
@@ -26,11 +26,22 @@
     },
     "source": {
       "type": "object",
-      "required": ["solarBirthDate", "birthTime", "calculationHour", "queryDate", "lunarBirth"],
+      "required": ["solarBirthDate", "birthTimeStatus", "birthTime", "calculationHour", "queryDate", "lunarBirth"],
       "properties": {
         "solarBirthDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
-        "birthTime": { "type": "string", "pattern": "^[0-9]{2}:[0-9]{2}$" },
-        "calculationHour": { "type": "integer", "minimum": 1, "maximum": 24 },
+        "birthTimeStatus": { "enum": ["known", "unknown"] },
+        "birthTime": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[0-9]{2}:[0-9]{2}$" },
+            { "type": "null" }
+          ]
+        },
+        "calculationHour": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1, "maximum": 24 },
+            { "type": "null" }
+          ]
+        },
         "queryDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
         "lunarBirth": {
           "type": "object",
@@ -45,6 +56,26 @@
           "additionalProperties": false
         }
       },
+      "allOf": [
+        {
+          "if": { "properties": { "birthTimeStatus": { "const": "known" } } },
+          "then": {
+            "properties": {
+              "birthTime": { "type": "string", "pattern": "^[0-9]{2}:[0-9]{2}$" },
+              "calculationHour": { "type": "integer", "minimum": 1, "maximum": 24 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "birthTimeStatus": { "const": "unknown" } } },
+          "then": {
+            "properties": {
+              "birthTime": { "type": "null" },
+              "calculationHour": { "type": "null" }
+            }
+          }
+        }
+      ],
       "additionalProperties": false
     },
     "calendar": {
@@ -84,7 +115,16 @@
           "maxItems": 5,
           "items": {
             "type": "object",
-            "required": ["label", "source", "chain", "final", "level"]
+            "required": ["label", "source", "chain", "final", "level", "status"],
+            "properties": {
+              "label": { "type": "string" },
+              "source": { "type": ["integer", "null"] },
+              "chain": { "type": ["string", "null"] },
+              "final": { "type": ["integer", "null"] },
+              "level": { "type": ["string", "null"] },
+              "status": { "enum": ["available", "unavailable"] },
+              "reason": { "type": "string" }
+            }
           }
         },
         "primaryNumber": { "type": ["integer", "null"], "minimum": 0, "maximum": 9 },

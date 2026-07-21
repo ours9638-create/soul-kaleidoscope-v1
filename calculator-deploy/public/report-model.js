@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.1.1";
+  const VERSION = "1.2.0";
   const MODES = Object.freeze({
     quick: "快速版",
     full: "完整版",
@@ -42,7 +42,8 @@
     if (!profile.subject?.name) errors.push("缺少個案姓名");
     if (!profile.source?.solarBirthDate) errors.push("缺少國曆生日");
     if (!profile.source?.lunarBirth) errors.push("缺少農曆生日");
-    if (!profile.source?.birthTime) errors.push("缺少出生時間");
+    if (!["known", "unknown"].includes(profile.source?.birthTimeStatus)) errors.push("出生時間狀態不完整");
+    if (profile.source?.birthTimeStatus === "known" && !profile.source?.birthTime) errors.push("缺少出生時間");
     if (!profile.source?.queryDate) errors.push("缺少查詢日期");
     if (!Array.isArray(profile.numerology?.solar?.soulStages) || profile.numerology.solar.soulStages.length !== 5) errors.push("國曆五階段資料不完整");
     if (!Array.isArray(profile.numerology?.lunar?.soulStages) || profile.numerology.lunar.soulStages.length !== 5) errors.push("農曆五階段資料不完整");
@@ -54,10 +55,11 @@
   function stageRows(stages) {
     return stages.map((stage) => ({
       label: text(stage.label),
-      source: text(stage.source),
-      chain: text(stage.chain),
-      level: text(stage.level),
-      final: stage.final ?? Number(String(stage.chain || "").split("/").at(-1))
+      source: stage.status === "unavailable" ? "未提供" : text(stage.source),
+      chain: stage.status === "unavailable" ? "—" : text(stage.chain),
+      level: stage.status === "unavailable" ? "—" : text(stage.level),
+      final: stage.status === "unavailable" ? null : stage.final ?? Number(String(stage.chain || "").split("/").at(-1)),
+      status: stage.status || "available"
     }));
   }
 
@@ -86,6 +88,10 @@
     const solar = profile.numerology.solar;
     const lunar = profile.numerology.lunar;
     const report = profile.outputs.report;
+    const birthTimeUnknown = source.birthTimeStatus === "unknown";
+    const warnings = [];
+    if (birthTimeUnknown) warnings.push("出生時間未知：本報告不計算時、分兩階段，且未以 00:00 或其他推定時間代替。");
+    if (report.needsReview || profile.calendar?.lunar?.needsReview) warnings.push("農曆年度資料含需人工確認項目，正式交付前請再次核對。");
 
     return {
       version: VERSION,
@@ -99,7 +105,7 @@
         { label: "姓名", value: profile.subject.name },
         { label: "國曆生日", value: slashDate(source.solarBirthDate) },
         { label: "農曆生日", value: `${lunarBirth.year}/${pad2(lunarBirth.month)}/${pad2(lunarBirth.day)}${lunarBirth.leap ? "（閏月）" : ""}` },
-        { label: "出生時間", value: source.calculationHour === 24 ? `${source.birthTime}（計算時數 24）` : source.birthTime },
+        { label: "出生時間", value: birthTimeUnknown ? "未知（時、分不計算）" : source.calculationHour === 24 ? `${source.birthTime}（計算時數 24）` : source.birthTime },
         { label: "查詢日期", value: slashDate(source.queryDate) },
         { label: "查詢日農曆", value: profile.calendar?.queryLunar ? `${profile.calendar.queryLunar.year}/${pad2(profile.calendar.queryLunar.month)}/${pad2(profile.calendar.queryLunar.day)}` : "—" }
       ],
@@ -132,7 +138,7 @@
         solar: horseRows(solar.horse, "solar"),
         lunar: horseRows(lunar.horse, "lunar")
       },
-      warnings: report.needsReview || profile.calendar?.lunar?.needsReview ? ["農曆年度資料含需人工確認項目，正式交付前請再次核對。"] : [],
+      warnings,
       versions: {
         profile: text(profile.meta?.schemaVersion),
         engine: text(profile.meta?.engineVersion),
@@ -177,7 +183,7 @@
     }
 
     if (visibility.summary) {
-      lines.push("【雙曆靈魂數字摘要】");
+      lines.push("【國曆／農曆｜當期能量總覽】");
       for (const row of view.summaryRows) {
         lines.push(`${row.calendar}：主命數 ${row.primary}｜流年 ${row.flowYear}｜今年位格 ${row.position}｜流月 ${row.flowMonth}｜流日 ${row.flowDay}`);
       }

@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "2.2.1";
+  const VERSION = "2.3.0";
 
   const pad2 = (n) => String(Number(n)).padStart(2, "0");
   const pad4 = (n) => String(Number(n)).padStart(4, "0");
@@ -41,15 +41,40 @@
     return overConcentrated ? 6 : 7;
   }
 
-  function sequentialSoul(year, month, day, hour, minute) {
+  function normalizeTime(time) {
+    if (time?.status === "unknown") {
+      return { status: "unknown", inputHour: null, calculationHour: null, minute: null };
+    }
+
+    const inputHour = Number(time?.inputHour);
+    const calculationHour = Number(time?.calculationHour);
+    const minute = Number(time?.minute);
+    if (!Number.isInteger(inputHour) || inputHour < 0 || inputHour > 23) throw new TypeError("出生小時必須介於 0 至 23");
+    if (!Number.isInteger(calculationHour) || calculationHour < 1 || calculationHour > 24) throw new TypeError("計算時數必須介於 1 至 24");
+    if (!Number.isInteger(minute) || minute < 0 || minute > 59) throw new TypeError("出生分鐘必須介於 0 至 59");
+    return { status: "known", inputHour, calculationHour, minute };
+  }
+
+  function sequentialSoul(year, month, day, hour = null, minute = null) {
     const stages = [["年", year, 4], ["月", month, 2], ["日", day, 2], ["時", hour, 2], ["分", minute, 2]];
     const birthDigits = `${pad4(year)}${pad2(month)}${pad2(day)}`;
     let total = 0;
 
     return stages.map(([label, value, width]) => {
+      if (value === null || value === undefined) {
+        return {
+          label,
+          source: null,
+          chain: null,
+          final: null,
+          level: null,
+          status: "unavailable",
+          reason: "birth-time-unknown"
+        };
+      }
       total += digitSum(String(Number(value)).padStart(width, "0"));
       const chain = chainFromNumber(total);
-      return { label, source: Number(value), chain, final: finalFromChain(chain), level: `${soulLevel(birthDigits, chain)}級` };
+      return { label, source: Number(value), chain, final: finalFromChain(chain), level: `${soulLevel(birthDigits, chain)}級`, status: "available" };
     });
   }
 
@@ -151,13 +176,14 @@
     }
 
     function calculateAll(input) {
+      const time = normalizeTime(input.time);
       const queryLunar = getLunarByGregorian(input.queryDate);
       return {
         queryLunar,
         solarFlow: calculateFlowSolar(input.solarBirth, input.query),
         lunarFlow: calculateFlowLunar(input.lunarBirth, input.query, queryLunar),
-        solarSoul: sequentialSoul(input.solarBirth.year, input.solarBirth.month, input.solarBirth.day, input.time.calculationHour, input.time.minute),
-        lunarSoul: sequentialSoul(input.lunarBirth.year, input.lunarBirth.calculationMonth, input.lunarBirth.day, input.time.calculationHour, input.time.minute),
+        solarSoul: sequentialSoul(input.solarBirth.year, input.solarBirth.month, input.solarBirth.day, time.calculationHour, time.minute),
+        lunarSoul: sequentialSoul(input.lunarBirth.year, input.lunarBirth.calculationMonth, input.lunarBirth.day, time.calculationHour, time.minute),
         solarHorse: calculateHorseSet(input.solarBirth.year, input.solarBirth.month, input.solarBirth.day),
         lunarHorse: calculateHorseSet(input.lunarBirth.year, input.lunarBirth.calculationMonth, input.lunarBirth.day)
       };
@@ -170,7 +196,7 @@
         queryDate: "2026-07-05",
         query: parseDateString("2026-07-05"),
         lunarBirth: { year: 1989, month: 4, day: 24, leap: false, calculationMonth: 4 },
-        time: { inputHour: 15, calculationHour: 15, minute: 17 }
+        time: { status: "known", inputHour: 15, calculationHour: 15, minute: 17 }
       };
       const sampleResult = calculateAll(sample);
 
@@ -180,9 +206,15 @@
         queryDate: "2026-07-06",
         query: parseDateString("2026-07-06"),
         lunarBirth: { year: 1989, month: 12, day: 1, leap: false, calculationMonth: 12 },
-        time: { inputHour: 0, calculationHour: 24, minute: 0 }
+        time: { status: "known", inputHour: 0, calculationHour: 24, minute: 0 }
       };
       const bobResult = calculateAll(bob);
+
+      const unknownTime = {
+        ...sample,
+        time: { status: "unknown", inputHour: null, calculationHour: null, minute: null }
+      };
+      const unknownTimeResult = calculateAll(unknownTime);
 
       const cases = [
         ["農曆換算 2026/07/06", formatLunarDate(getLunarByGregorian("2026-07-06")), "2026/05/22"],
@@ -213,7 +245,10 @@
         ["Bob 國曆尚未過生日", bobResult.solarFlow.status, "尚未過生日"],
         ["Bob 農曆尚未過生日", bobResult.lunarFlow.status, "尚未過生日"],
         ["Bob 國曆流年", bobResult.solarFlow.flowYear, "22/4"],
-        ["Bob 農曆流年", bobResult.lunarFlow.flowYear, "13/4"]
+        ["Bob 農曆流年", bobResult.lunarFlow.flowYear, "13/4"],
+        ["未知時間仍保留國曆主命數", unknownTimeResult.solarSoul[2].chain, sampleResult.solarSoul[2].chain],
+        ["未知時間不計算時階段", unknownTimeResult.solarSoul[3].status, "unavailable"],
+        ["未知時間不計算分階段", unknownTimeResult.solarSoul[4].status, "unavailable"]
       ];
 
       const tests = cases.map(([name, actual, expected]) => ({ name, actual, expected, pass: actual === expected }));
@@ -238,6 +273,7 @@
     formatDateSlash,
     formatLunarDate,
     normalizeHourForCalculation,
+    normalizeTime,
     effectiveLunarMonth,
     chainFromNumber,
     createEngine

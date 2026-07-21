@@ -86,7 +86,7 @@
 
       const modified = document.createElement("small");
       modified.className = "case-item__modified";
-      modified.textContent = `更新：${formatDateTime(record.modifiedAt)}｜建立引擎 ${record.engineVersion}`;
+      modified.textContent = `更新：${formatDateTime(record.modifiedAt)}｜出生時間 ${record.birthTimeStatus === "unknown" ? "未知" : record.birthTime}｜建立引擎 ${record.engineVersion}`;
 
       button.append(name, date, modified);
       listNode.append(button);
@@ -105,7 +105,9 @@
   function fillForm(record) {
     $("name").value = record.name;
     $("solarBirth").value = record.solarBirth;
-    $("birthTime").value = record.birthTime;
+    $("birthTime").value = record.birthTime || "";
+    $("birthTimeUnknown").checked = record.birthTimeStatus === "unknown";
+    $("birthTimeUnknown").dispatchEvent(new Event("change", { bubbles: true }));
     $("queryDate").value = record.queryDate;
     $("lunarYear").value = record.lunarBirth.year;
     $("lunarMonth").value = record.lunarBirth.month;
@@ -163,7 +165,7 @@
   function downloadBackup() {
     const database = store.load();
     if (database.records.length === 0) throw new Error("目前沒有可匯出的個案");
-    const confirmed = window.confirm(`將匯出 ${database.records.length} 筆個案。\n備份檔包含姓名、生日與出生時間，請妥善保存。`);
+    const confirmed = window.confirm(`將匯出 ${database.records.length} 筆個案。\n備份檔包含姓名、生日與已提供的出生時間，請妥善保存。`);
     if (!confirmed) return;
 
     const text = store.exportText();

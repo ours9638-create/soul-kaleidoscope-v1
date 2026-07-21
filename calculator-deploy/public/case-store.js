@@ -1,8 +1,8 @@
 (function (global) {
   "use strict";
 
-  const VERSION = "1.0.1";
-  const SCHEMA_VERSION = 1;
+  const VERSION = "1.1.0";
+  const SCHEMA_VERSION = 2;
   const STORE_KEY = "soul-kaleidoscope.case-store";
   const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
   const TIME_RE = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -28,7 +28,9 @@
     if (!record.id || typeof record.id !== "string") errors.push("id 不可為空");
     if (typeof record.name !== "string") errors.push("name 必須是文字");
     if (!isValidDate(record.solarBirth)) errors.push("solarBirth 日期錯誤");
-    if (!TIME_RE.test(record.birthTime || "")) errors.push("birthTime 格式錯誤");
+    if (!["known", "unknown"].includes(record.birthTimeStatus)) errors.push("birthTimeStatus 必須為 known 或 unknown");
+    if (record.birthTimeStatus === "known" && !TIME_RE.test(record.birthTime || "")) errors.push("birthTime 格式錯誤");
+    if (record.birthTimeStatus === "unknown" && record.birthTime !== null) errors.push("出生時間未知時 birthTime 必須為 null");
     if (!isValidDate(record.queryDate)) errors.push("queryDate 日期錯誤");
     if (isValidDate(record.solarBirth) && isValidDate(record.queryDate) && record.queryDate < record.solarBirth) {
       errors.push("queryDate 不可早於 solarBirth");
@@ -51,11 +53,13 @@
   }
 
   function normalizeRecord(record) {
+    const birthTimeStatus = record.birthTimeStatus === "unknown" ? "unknown" : "known";
     const normalized = {
       id: String(record.id || ""),
       name: String(record.name ?? ""),
       solarBirth: String(record.solarBirth || record.solarBirthDate || ""),
-      birthTime: String(record.birthTime || ""),
+      birthTimeStatus,
+      birthTime: birthTimeStatus === "unknown" ? null : String(record.birthTime || ""),
       queryDate: String(record.queryDate || ""),
       lunarBirth: {
         year: Number(record.lunarBirth?.year),
@@ -76,9 +80,9 @@
     return { schemaVersion: SCHEMA_VERSION, exportedAt, appVersion: String(appVersion), records: [] };
   }
 
-  function normalizeRecordArray(value) {
+  function normalizeRecordArray(value, { legacy = false } = {}) {
     if (!Array.isArray(value)) throw new Error("records 必須是陣列");
-    return value.map(normalizeRecord);
+    return value.map((record) => normalizeRecord(legacy ? { ...record, birthTimeStatus: "known" } : record));
   }
 
   function migrateDatabase(value, { appVersion = "unknown" } = {}) {
@@ -87,18 +91,19 @@
         schemaVersion: SCHEMA_VERSION,
         exportedAt: nowIso(),
         appVersion: String(appVersion),
-        records: value.map(normalizeRecord)
+        records: normalizeRecordArray(value, { legacy: true })
       };
     }
     if (!value || typeof value !== "object") throw new Error("備份資料必須是物件或舊版陣列");
-    if (value.schemaVersion !== SCHEMA_VERSION && value.schemaVersion !== 0) {
+    if (![0, 1, SCHEMA_VERSION].includes(value.schemaVersion)) {
       throw new Error(`不支援的個案資料版本：${value.schemaVersion}`);
     }
+    const legacy = value.schemaVersion === 0 || value.schemaVersion === 1;
     return {
       schemaVersion: SCHEMA_VERSION,
       exportedAt: String(value.exportedAt || nowIso()),
       appVersion: String(value.appVersion || appVersion),
-      records: normalizeRecordArray(value.records)
+      records: normalizeRecordArray(value.records, { legacy })
     };
   }
 
@@ -134,6 +139,7 @@
       id,
       name: profile.subject?.name || "未填姓名",
       solarBirth: profile.source.solarBirthDate,
+      birthTimeStatus: profile.source.birthTimeStatus || "known",
       birthTime: profile.source.birthTime,
       queryDate: profile.source.queryDate,
       lunarBirth: {

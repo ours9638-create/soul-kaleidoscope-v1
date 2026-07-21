@@ -16,15 +16,22 @@ function expectError(name, fn) {
 }
 function profile(name, solarBirth = "1989-05-28") {
   return {
-    meta: { engineVersion: "2.2.1" },
+    meta: { engineVersion: "2.3.0" },
     subject: { name },
     source: {
       solarBirthDate: solarBirth,
+      birthTimeStatus: "known",
       birthTime: "15:17",
       queryDate: "2026-07-05",
       lunarBirth: { year: 1989, month: 4, day: 24, leap: false }
     }
   };
+}
+function unknownTimeProfile(name = "時間未知個案") {
+  const value = profile(name);
+  value.source.birthTimeStatus = "unknown";
+  value.source.birthTime = null;
+  return value;
 }
 function memoryStorage() {
   const map = new Map();
@@ -38,7 +45,7 @@ function memoryStorage() {
 
 const empty = Store.createEmptyDatabase({ appVersion: "2.7.0", exportedAt: "2026-07-12T00:00:00.000Z" });
 check("空資料庫初始化", empty.records.length, 0);
-check("空資料庫 schema", empty.schemaVersion, 1);
+check("空資料庫 schema", empty.schemaVersion, 2);
 
 const recordA = Store.recordFromProfile(profile("測試 A"), {
   id: "case-a",
@@ -87,6 +94,21 @@ expectError("缺少 records 陣列被拒絕", () => Store.importDatabase(db, { s
 expectError("無效日曆日期被拒絕", () => Store.addRecord(empty, { ...recordA, id: "invalid-date", solarBirth: "2026-02-30" }));
 expectError("查詢日早於生日被拒絕", () => Store.addRecord(empty, { ...recordA, id: "invalid-order", solarBirth: "2026-07-06", queryDate: "2026-07-05" }));
 
+const unknownRecord = Store.recordFromProfile(unknownTimeProfile(), {
+  id: "unknown-time",
+  timestamp: "2026-07-12T06:00:00.000Z"
+});
+check("未知時間狀態可儲存", unknownRecord.birthTimeStatus, "unknown");
+check("未知時間不儲存假時間", unknownRecord.birthTime, null);
+const unknownDatabase = Store.addRecord(empty, unknownRecord);
+const unknownRoundTrip = Store.importDatabase(
+  Store.createEmptyDatabase({ appVersion: "2.8.0" }),
+  Store.exportDatabase(unknownDatabase, { appVersion: "2.8.0" }),
+  { mode: "replace", appVersion: "2.8.0" }
+);
+check("未知時間匯出匯入保持狀態", unknownRoundTrip.database.records[0].birthTimeStatus, "unknown");
+check("未知時間匯出匯入保持空值", unknownRoundTrip.database.records[0].birthTime, null);
+
 const storage = memoryStorage();
 const browserStore = Store.createStore({ storage, appVersion: "2.7.0" });
 browserStore.save(db);
@@ -126,8 +148,17 @@ const legacy = {
   }]
 };
 const migrated = Store.migrateDatabase(legacy, { appVersion: "2.7.0" });
-check("舊 schema 遷移", migrated.schemaVersion, 1);
+check("舊 schema 遷移", migrated.schemaVersion, 2);
 check("舊欄位 solarBirthDate 遷移", migrated.records[0].solarBirth, "1989-05-28");
+check("舊個案推定為已知時間", migrated.records[0].birthTimeStatus, "known");
+
+const schemaOne = Store.migrateDatabase({
+  schemaVersion: 1,
+  appVersion: "2.7.0",
+  records: [{ ...recordA, birthTimeStatus: undefined }]
+}, { appVersion: "2.8.0" });
+check("schema 1 升級為 schema 2", schemaOne.schemaVersion, 2);
+check("schema 1 出生時間保持已知", schemaOne.records[0].birthTimeStatus, "known");
 
 const failed = checks.filter((item) => !item.pass);
 if (failed.length) {

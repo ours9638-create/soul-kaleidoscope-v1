@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const SCHEMA_VERSION = "1.0.0";
+  const SCHEMA_VERSION = "1.1.0";
 
   const clone = (value) => JSON.parse(JSON.stringify(value));
   const finalNumber = (chain) => Number(String(chain || "").split("/").at(-1));
@@ -12,6 +12,7 @@
 
     const solarStages = clone(result.solarSoul || []);
     const lunarStages = clone(result.lunarSoul || []);
+    const birthTimeStatus = input.time?.status === "unknown" ? "unknown" : "known";
 
     return {
       meta: {
@@ -25,8 +26,9 @@
       },
       source: {
         solarBirthDate: input.solarBirth.dateString,
-        birthTime: isoTime(input.time.inputHour, input.time.minute),
-        calculationHour: input.time.calculationHour,
+        birthTimeStatus,
+        birthTime: birthTimeStatus === "known" ? isoTime(input.time.inputHour, input.time.minute) : null,
+        calculationHour: birthTimeStatus === "known" ? input.time.calculationHour : null,
         queryDate: input.queryDate,
         lunarBirth: {
           year: input.lunarBirth.year,
@@ -78,10 +80,23 @@
     if (profile.meta?.schemaVersion !== SCHEMA_VERSION) errors.push(`schemaVersion 必須為 ${SCHEMA_VERSION}`);
     if (!profile.subject?.name) errors.push("subject.name 不可為空");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(profile.source?.solarBirthDate || "")) errors.push("source.solarBirthDate 格式錯誤");
-    if (!/^\d{2}:\d{2}$/.test(profile.source?.birthTime || "")) errors.push("source.birthTime 格式錯誤");
+    const birthTimeStatus = profile.source?.birthTimeStatus;
+    if (!["known", "unknown"].includes(birthTimeStatus)) errors.push("source.birthTimeStatus 必須為 known 或 unknown");
+    if (birthTimeStatus === "known") {
+      if (!/^\d{2}:\d{2}$/.test(profile.source?.birthTime || "")) errors.push("source.birthTime 格式錯誤");
+      if (!Number.isInteger(profile.source?.calculationHour) || profile.source.calculationHour < 1 || profile.source.calculationHour > 24) errors.push("source.calculationHour 格式錯誤");
+    }
+    if (birthTimeStatus === "unknown" && (profile.source?.birthTime !== null || profile.source?.calculationHour !== null)) {
+      errors.push("出生時間未知時 birthTime 與 calculationHour 必須為 null");
+    }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(profile.source?.queryDate || "")) errors.push("source.queryDate 格式錯誤");
     if (!Array.isArray(profile.numerology?.solar?.soulStages) || profile.numerology.solar.soulStages.length !== 5) errors.push("國曆 soulStages 必須有 5 階段");
     if (!Array.isArray(profile.numerology?.lunar?.soulStages) || profile.numerology.lunar.soulStages.length !== 5) errors.push("農曆 soulStages 必須有 5 階段");
+    if (birthTimeStatus === "unknown") {
+      for (const [label, stages] of [["國曆", profile.numerology?.solar?.soulStages], ["農曆", profile.numerology?.lunar?.soulStages]]) {
+        if (Array.isArray(stages) && [3, 4].some((index) => stages[index]?.status !== "unavailable")) errors.push(`${label}時、分階段必須標示 unavailable`);
+      }
+    }
     return { ok: errors.length === 0, errors };
   }
 

@@ -1,22 +1,31 @@
 {
   "name": "soul-kaleidoscope-calculator-deploy",
-  "version": "2.7.0",
-  "engineVersion": "2.2.1",
+  "version": "2.8.0",
+  "engineVersion": "2.3.0",
   "private": true,
   "type": "module",
+  "packageManager": "npm@11.13.0",
+  "engines": {
+    "node": "24.16.0",
+    "npm": "11.13.0"
+  },
   "scripts": {
+    "dev": "node scripts/preview-static.js",
     "test:core": "node tests/run-regression-tests.js",
     "test:cases": "node tests/run-case-store-tests.js",
     "test:report": "node tests/run-report-model-tests.js",
     "test:kaleidoscope": "node tests/run-kaleidoscope-model-tests.js",
     "knowledge:diff": "node scripts/compare-number-topics.js",
     "test:knowledge": "node tests/run-knowledge-data-tests.js",
-    "test": "npm run test:core && npm run test:cases && npm run test:report && npm run test:kaleidoscope && npm run test:knowledge",
+    "test:runtime-foundation:existing": "node --test tests/runtime-foundation.test.js",
+    "test:runtime-foundation:correction": "node --test tests/runtime-foundation-correction.test.js",
+    "test:runtime-foundation": "npm run test:runtime-foundation:existing && npm run test:runtime-foundation:correction",
+    "test": "npm run test:core && npm run test:cases && npm run test:report && npm run test:kaleidoscope && npm run test:knowledge && npm run test:runtime-foundation",
     "check": "npm test && node build-calculator.js",
     "build": "npm test && node build-calculator.js",
     "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
-    "wrangler": "latest"
+    "wrangler": "4.111.0"
   }
 }
