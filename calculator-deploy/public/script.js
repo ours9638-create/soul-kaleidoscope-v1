@@ -30,7 +30,7 @@
     "summaryQueryLunar","summaryLunarAdjustment","summaryTimeRule","solarBirthdayCell","lunarBirthdayCell",
     "solarFlowYear","solarPosition","solarFlowMonth","solarFlowDay","lunarFlowYear","lunarPosition",
     "lunarFlowMonth","lunarFlowDay","solarDetailTable","lunarDetailTable","solarHorseTable","lunarHorseTable",
-    "copyQuickBtn","copyFullBtn","systemDetails","systemStatus","systemStatusDetail","toast"
+    "copySummaryBtn","systemDetails","systemStatus","systemStatusDetail","toast"
   ];
   const el = Object.fromEntries(ids.map((id) => [id, $(id)]));
   const coreEmptyNodes = [...document.querySelectorAll(".result-empty--core")];
@@ -184,7 +184,7 @@
     for (const node of coreTableWraps) node.hidden = false;
   }
 
-  function resultText(full = false) {
+  function resultText() {
     if (!lastProfile) return "尚未計算";
     const profile = lastProfile;
     const solar = profile.numerology.solar;
@@ -195,21 +195,14 @@
       `國曆：流年 ${solar.flow.flowYear}｜位格 ${solar.flow.position}｜流月 ${solar.flow.flowMonth}｜流日 ${solar.flow.flowDay}`,
       `農曆：流年 ${lunar.flow.flowYear || "—"}｜位格 ${lunar.flow.position ?? "—"}｜流月 ${lunar.flow.flowMonth || "—"}｜流日 ${lunar.flow.flowDay || "—"}`
     ];
-    if (full) {
-      lines.push(`國曆靈魂數字：${solar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
-      lines.push(`農曆靈魂數字：${lunar.soulStages.map((item) => `${item.label}${item.chain}(${item.level})`).join("、")}`);
-      lines.push(`國曆日月綻放：${solar.horse.dayMoonChain || solar.horse.dayMoon}｜陰曆日月綻放：${lunar.horse.dayMoonChain || lunar.horse.dayMoon}`);
-      lines.push(`時間：${el.summaryTimeRule.textContent}`);
-      lines.push(`資料版本：模型 ${profile.meta.schemaVersion}｜引擎 ${profile.meta.engineVersion}｜SNGL ${profile.outputs.report.version}｜位格資料 ${profile.outputs.report.positionDataVersion}`);
-    }
     return lines.join("\n");
   }
 
-  async function copy(full) {
+  async function copyResultSummary() {
     if (!lastProfile) return toast("請先計算");
     try {
-      await navigator.clipboard.writeText(resultText(full));
-      toast(full ? "已複製完整結果" : "已複製快速結果");
+      await navigator.clipboard.writeText(resultText());
+      toast("結果摘要已複製");
     } catch {
       toast("無法存取剪貼簿，請改用 Safari 開啟後重試");
     }
@@ -219,8 +212,7 @@
   [el.lunarYear, el.lunarMonth, el.lunarDay].forEach((node) => node.addEventListener("input", updateLunarNote));
   el.queryDate.addEventListener("change", updateQueryLunar);
   el.autoLunarBtn.addEventListener("click", fillLunarFromSolar);
-  el.copyQuickBtn.addEventListener("click", () => copy(false));
-  el.copyFullBtn.addEventListener("click", () => copy(true));
+  el.copySummaryBtn.addEventListener("click", copyResultSummary);
 
   el.calcForm.addEventListener("submit", (event) => {
     event.preventDefault();
