@@ -1,3 +1,51 @@
+const MODULES = {
+  annual: {
+    label: '年度解讀',
+    normalize: normalizeAnnual
+  },
+  mainDestiny: {
+    label: '主命數',
+    normalize: data => normalizePhraseModule(data, {
+      numberMin: 1,
+      numberMax: 9,
+      contexts: ['core-mature', 'core-shadow'],
+      title: record => `主命數 ${record.number}｜${record.context === 'core-mature' ? '成熟發揮' : '失衡提醒'}`,
+      sort: (a,b) => Number(a.record.number) - Number(b.record.number) ||
+        (a.record.context === 'core-mature' ? -1 : 1)
+    })
+  },
+  horse: {
+    label: '木馬數',
+    normalize: data => normalizePhraseModule(data, {
+      numberMin: 0,
+      numberMax: 8,
+      contexts: ['pressure/support'],
+      title: record => `木馬 ${record.number}｜壓力模式與平衡方向`,
+      sort: (a,b) => Number(a.record.number) - Number(b.record.number)
+    })
+  },
+  solarSunMoonBloom: {
+    label: '國曆日月綻放',
+    normalize: data => normalizePhraseModule(data, {
+      numberMin: 1,
+      numberMax: 9,
+      contexts: ['solar-side'],
+      title: record => `國曆日月綻放 ${record.number}｜外顯／行動側`,
+      sort: (a,b) => Number(a.record.number) - Number(b.record.number)
+    })
+  },
+  lunarSunMoonBloom: {
+    label: '陰曆日月綻放',
+    normalize: data => normalizePhraseModule(data, {
+      numberMin: 1,
+      numberMax: 9,
+      contexts: ['lunar-side'],
+      title: record => `陰曆日月綻放 ${record.number}｜內在／感受側`,
+      sort: (a,b) => Number(a.record.number) - Number(b.record.number)
+    })
+  }
+};
+
 const elements = {
   file: document.querySelector('#jsonFile'),
   loadStatus: document.querySelector('#loadStatus'),
@@ -66,24 +114,27 @@ function normalizeAnnual(data) {
   });
 }
 
-function normalizeMainDestiny(data) {
+function normalizePhraseModule(data, config) {
   const rows = Object.entries(data.records || {}).map(([key,record]) => ({ key, record }));
-  if (!rows.length) throw new Error('主命數 JSON 沒有 records。');
+  if (!rows.length) throw new Error('JSON 沒有可審閱 records。');
   for (const {record} of rows) {
-    if (record.module && record.module !== 'mainDestiny') throw new Error('JSON 混入不同 module。');
-    if (!Number.isInteger(Number(record.number)) || Number(record.number) < 1 || Number(record.number) > 9) {
-      throw new Error('主命數 number 必須是 1～9。');
+    if (record.module && record.module !== data.module) throw new Error('JSON 混入不同 module。');
+    const number = Number(record.number);
+    if (!Number.isInteger(number) || number < config.numberMin || number > config.numberMax) {
+      throw new Error(`${data.module} number 超出允許範圍。`);
     }
-    if (!['core-mature','core-shadow'].includes(record.context)) throw new Error('目前只支援 core-mature / core-shadow。');
+    if (!config.contexts.includes(record.context)) {
+      throw new Error(`${data.module} context 不受支援：${record.context}`);
+    }
+    if (!(record.candidateText || '').trim()) throw new Error(`${data.module} 有空白 candidateText。`);
   }
-  rows.sort((a,b) => Number(a.record.number) - Number(b.record.number) ||
-    (a.record.context === 'core-mature' ? -1 : 1));
+  rows.sort(config.sort);
   return rows.map(({key,record}) => ({
     id: record.reviewId || key,
-    title: `主命數 ${record.number}｜${record.context === 'core-mature' ? '成熟發揮' : '失衡提醒'}`,
+    title: config.title(record),
     candidateText: record.candidateText || '',
-    originalText: '',
-    guard: record.guard || record.sourceAlignment || '',
+    originalText: record.sourceBasis || record.originalText || '',
+    guard: [record.sourceAlignment, record.guard].filter(Boolean).join('｜'),
     decision: mapIncomingDecision(record.decision),
     revision: record.revision || '',
     note: record.reviewNote || ''
@@ -122,7 +173,7 @@ function render() {
   const decision = saved.decision ?? item.decision ?? null;
   elements.currentIndex.textContent = String(index + 1);
   elements.totalCount.textContent = String(items.length);
-  elements.module.textContent = pkg.module;
+  elements.module.textContent = MODULES[pkg.module]?.label || pkg.module;
   elements.version.textContent = pkg.candidateVersion || '未標示';
   elements.item.textContent = item.id;
   elements.title.textContent = item.title;
@@ -130,18 +181,21 @@ function render() {
   elements.revision.value = saved.revision ?? item.revision ?? '';
   elements.note.value = saved.note ?? item.note ?? '';
   elements.itemStatus.textContent = decision ? ({approve:'通過',revise:'修改',hold:'暫緩'}[decision]) : '待審';
+
   if (item.originalText) {
     elements.original.textContent = item.originalText;
     elements.originalSection.classList.remove('hidden');
   } else {
     elements.originalSection.classList.add('hidden');
   }
+
   if (item.guard) {
     elements.guard.textContent = `Guard：${item.guard}`;
     elements.guard.classList.remove('hidden');
   } else {
     elements.guard.classList.add('hidden');
   }
+
   decisionButtons.forEach(button => button.classList.toggle('active', button.dataset.decision === decision));
   elements.prev.disabled = index === 0;
   elements.next.disabled = index === items.length - 1;
@@ -163,10 +217,12 @@ function saveDecision(decision) {
   const item = current();
   const revision = elements.revision.value.trim();
   const note = elements.note.value.trim();
+
   if (decision === 'revise' && !revision) {
     elements.saveStatus.textContent = '選「修改」時必須填修改文字。';
     return;
   }
+
   const saved = loadSaved();
   saved[item.id] = {
     decision,
@@ -179,6 +235,11 @@ function saveDecision(decision) {
   elements.saveStatus.textContent = '已保存在這個瀏覽器。';
 }
 
+function findExportTarget(copy, itemId) {
+  if (copy.records[itemId]) return copy.records[itemId];
+  return Object.values(copy.records).find(record => (record.reviewId || '') === itemId);
+}
+
 function buildExport() {
   const saved = loadSaved();
   const copy = structuredClone(pkg.raw);
@@ -187,13 +248,15 @@ function buildExport() {
   copy.status = 'local-review';
   copy.canonicalAdopted = false;
   copy.runtimeEligible = false;
+
   let reviewedCount = 0;
   for (const item of items) {
     const result = saved[item.id];
     if (!result) continue;
-    reviewedCount += 1;
-    const target = copy.records[item.id] || Object.values(copy.records).find(r => (r.reviewId || '') === item.id);
+    const target = findExportTarget(copy, item.id);
     if (!target) continue;
+
+    reviewedCount += 1;
     target.decision = result.decision;
     if (pkg.module === 'annual') {
       target.revision = result.decision === 'revise' ? result.revision : (target.revision || '');
@@ -204,6 +267,7 @@ function buildExport() {
     }
     target.updatedAt = result.updatedAt;
   }
+
   copy.reviewedCount = reviewedCount;
   copy.pendingCount = items.length - reviewedCount;
   copy.exportedAt = new Date().toISOString();
@@ -213,18 +277,23 @@ function buildExport() {
 elements.file.addEventListener('change', async event => {
   const file = event.target.files?.[0];
   if (!file) return;
+
   try {
     const data = JSON.parse(await file.text());
     if (data.schemaVersion !== 1) throw new Error('只支援 schemaVersion 1。');
     if (!data.records || typeof data.records !== 'object') throw new Error('JSON 缺少 records。');
+
     const module = inferModule(data);
-    if (!['annual','mainDestiny'].includes(module)) throw new Error('目前只支援 annual 或 mainDestiny。');
-    const normalized = module === 'annual' ? normalizeAnnual(data) : normalizeMainDestiny(data);
+    const adapter = MODULES[module];
+    if (!adapter) throw new Error(`目前不支援 module：${module || '未標示'}。`);
+
+    const normalized = adapter.normalize(data);
     pkg = { raw: data, module, candidateVersion: data.candidateVersion || 'unversioned' };
     items = normalized;
     index = 0;
     storageKey = storageKeyFor(module, pkg.candidateVersion);
-    elements.loadStatus.textContent = `已載入 ${module}｜${items.length} 則；本機保存空間與其他模組分離。`;
+
+    elements.loadStatus.textContent = `已載入 ${adapter.label}｜${items.length} 則；本機保存空間與其他模組分離。`;
     elements.workspace.classList.remove('hidden');
     elements.exportCard.classList.remove('hidden');
     render();
