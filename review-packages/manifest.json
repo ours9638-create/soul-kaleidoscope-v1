@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-22",
+  "reviewPage": "web/semantic-review.html",
+  "packages": [
+    {
+      "module": "annual",
+      "state": "CANONICAL_81_RUNTIME_READY_NOT_DEPLOYED",
+      "note": "年度81組已完成，不需重新Review"
+    },
+    {
+      "module": "mainDestiny",
+      "state": "REVIEW_READY",
+      "count": 18,
+      "path": "review-packages/mainDestiny-20260922.json"
+    },
+    {
+      "module": "horse",
+      "state": "REVIEW_READY",
+      "count": 9,
+      "path": "review-packages/horse-20260922.json"
+    },
+    {
+      "module": "solarSunMoonBloom",
+      "state": "REVIEW_READY",
+      "count": 9,
+      "path": "review-packages/solarSunMoonBloom-20260922.json"
+    },
+    {
+      "module": "lunarSunMoonBloom",
+      "state": "REVIEW_READY",
+      "count": 9,
+      "path": "review-packages/lunarSunMoonBloom-20260922.json"
+    },
+    {
+      "module": "mainDestinyNeutralCore",
+      "state": "BLOCKED_BY_BAD_003",
+      "note": "是否建立獨立neutral core slot尚未人工決策"
+    },
+    {
+      "module": "F002LegacyModel",
+      "state": "ARCHIVE_REFERENCE_ONLY",
+      "note": "Legacy 16/17不可作現行公式或Phrase Authority"
+    }
+  ]
+}
